@@ -76,6 +76,21 @@ def _digest_directory(path):
     return digest.hexdigest()
 
 
+def _digest_directory_legacy(path):
+    digest = hashlib.sha256()
+    for item in sorted(Path(path).rglob("*")):
+        if item.is_symlink():
+            raise ValueError(f"Collegamento simbolico non ammesso: {item}")
+        if item.is_file():
+            digest.update(item.relative_to(path).as_posix().encode("utf-8"))
+            digest.update(b"\\0")
+            with item.open("rb") as stream:
+                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                    digest.update(chunk)
+            digest.update(b"\\0")
+    return digest.hexdigest()
+
+
 def _directory_size(path):
     return sum(item.stat().st_size for item in Path(path).rglob("*") if item.is_file())
 
@@ -232,7 +247,15 @@ def _verify_record_content(root, record):
     path = _record_original_path(root, record)
     if not path.exists():
         raise RuntimeError(f"Originale mancante durante il recupero: {path}")
-    actual = _digest_directory(path) if path.is_dir() else _digest_file(path)
+    algorithm = original.get("digest_algorithm")
+    if path.is_dir():
+        actual = _digest_directory_legacy(path) if algorithm is None else _digest_directory(path)
+        if algorithm not in {None, "sha256-tree-v2"}:
+            raise RuntimeError(f"Algoritmo impronta non supportato: {algorithm}")
+    else:
+        actual = _digest_file(path)
+        if algorithm not in {None, "sha256-file-v1"}:
+            raise RuntimeError(f"Algoritmo impronta non supportato: {algorithm}")
     if actual != original.get("sha256"):
         raise RuntimeError(f"Impronta non corrispondente durante il recupero: {record['id']}")
     return path
@@ -261,6 +284,10 @@ def _recover_transactions_locked(root):
                 catalog, _ = _load_catalog(root)
                 existing = next((item for item in catalog["materials"] if isinstance(item, dict) and item.get("id") == material_id), None)
                 if existing is not None:
+                    old_original = existing.get("acquisition", {}).get("original", {})
+                    new_original = record.get("acquisition", {}).get("original", {})
+                    if old_original.get("sha256") != new_original.get("sha256") or old_original.get("path") != new_original.get("path"):
+                        raise RuntimeError("il catalogo contiene già un identificativo collegato a un contenuto diverso")
                     _verify_record_content(root, existing)
                     if stage and stage.exists():
                         shutil.rmtree(stage)
@@ -301,7 +328,7 @@ def recover_interrupted_acquisitions(root):
         lock_path.unlink(missing_ok=True)
 
 
-def _find_duplicate_ids(root, digest, source_is_directory):
+def _find_duplicate_ids(root, digest, source_is_directory, legacy_digest=None):
     catalog, _ = _load_catalog(root)
     matches = []
     for item in catalog["materials"]:
@@ -309,7 +336,8 @@ def _find_duplicate_ids(root, digest, source_is_directory):
             continue
         acquisition = item.get("acquisition", {})
         original = acquisition.get("original", {}) if isinstance(acquisition, dict) else {}
-        if acquisition.get("status") != "preserved" or original.get("sha256") != digest or not original.get("path"):
+        accepted_digests = {digest, legacy_digest}
+        if acquisition.get("status") != "preserved" or original.get("sha256") not in accepted_digests or not original.get("path"):
             continue
         try:
             existing_path = _record_original_path(root, item)
@@ -383,12 +411,15 @@ def acquire_material(root, source, material_id, *, name=None, description=None,
         source_digest = _digest_directory(source_path) if source_path.is_dir() else _digest_file(source_path)
         if source_digest != digest:
             raise OSError("La copia acquisita non coincide con il materiale sorgente.")
-        duplicates = _find_duplicate_ids(root, digest, source_path.is_dir())
+        legacy_digest = _digest_directory_legacy(source_path) if source_path.is_dir() else None
+        duplicates = _find_duplicate_ids(root, digest, source_path.is_dir(), legacy_digest)
         if duplicates:
             raise DuplicateMaterialError(duplicates)
 
         record = _base_record(material_id, name or source_path.name, description, method, source_label,
-            "preserved", {"kind": material_kind, "path": stored_path, "sha256": digest, "byte_size": byte_size})
+            "preserved", {"kind": material_kind, "path": stored_path, "sha256": digest,
+                "digest_algorithm": "sha256-tree-v2" if source_path.is_dir() else "sha256-file-v1",
+                "byte_size": byte_size})
         _validate_record(root, record)
 
         transactions = intake / ".transactions"
