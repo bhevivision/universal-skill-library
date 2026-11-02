@@ -51,7 +51,8 @@ def check_evidence(root,refs,subject,expected_result,label,errors):
   if isinstance(proof,dict):
    if proof.get("result")!=expected_result:errors.append(f"{ref}: esito prova diverso dall'esito dichiarato {expected_result}")
    if proof.get("subject")!=subject:errors.append(f"{ref}: la prova riguarda {proof.get('subject')!r}, non {subject!r}")
-class DuplicateFrontmatterKeyError(ValueError):pass\nclass UniqueKeyLoader(yaml.SafeLoader):
+class DuplicateFrontmatterKeyError(ValueError):pass
+class UniqueKeyLoader(yaml.SafeLoader):
  def construct_mapping(self,node,deep=False):
   mapping={}
   for key_node,value_node in node.value:
@@ -100,11 +101,9 @@ def validate_repository(root):
     name,description=frontmatter(package)
     if name!=package.parent.name:errors.append(f"skill {sid}: name del frontmatter ({name!r}) non coincide con la cartella ({package.parent.name!r})")
     if not description:errors.append(f"skill {sid}: description mancante nel frontmatter")
+   except DuplicateFrontmatterKeyError as e:errors.append(f"skill {sid}: {e}")
    except yaml.YAMLError as e:errors.append(f"skill {sid}: frontmatter YAML non valido ({e})")
-   except ValueError as e:
-    message=str(e)
-    if "chiave YAML duplicata" in message:errors.append(f"skill {sid}: {message}")
-    else:errors.append(f"skill {sid}: frontmatter non valido ({message})")
+   except ValueError as e:errors.append(f"skill {sid}: frontmatter non valido ({e})")
    except (OSError,UnicodeError) as e:errors.append(f"skill {sid}: impossibile leggere SKILL.md ({e})")
   for cid in skill.get("capability_ids",[]):
    cap=capmap.get(cid)
