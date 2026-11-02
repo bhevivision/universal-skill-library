@@ -304,23 +304,29 @@ class MaterialPreparerTests(unittest.TestCase):
     def test_031_symlink_with_unsupported_extension_blocks(self):
         target = self.source / "target.bin"
         target.write_bytes(b"x")
+        self.register_directory()
+        verified = real_verify_material(self.root, "acq.sample")
         try:
             (self.source / "link.bin").symlink_to(target)
         except (OSError, NotImplementedError):
             self.skipTest("Collegamenti simbolici non disponibili.")
-        self.register_directory()
-        self.assert_error_result(self.prepare(), "blocked")
+        # Il servizio comune rileva già i collegamenti durante il controllo
+        # dell'originale: qui viene isolato anche il controllo del preparatore.
+        with patch("scripts.material_preparer.verify_material", return_value=verified):
+            self.assert_error_result(self.prepare(), "blocked")
 
-    def test_032_symlink_blocks_even_after_a_valid_file_was_read(self):
+    def test_032_symlink_after_valid_candidate_still_blocks_without_contents(self):
         (self.source / "a.txt").write_text("valido", encoding="utf-8")
         target = self.source / "target.bin"
         target.write_bytes(b"x")
+        self.register_directory()
+        verified = real_verify_material(self.root, "acq.sample")
         try:
             (self.source / "z-link.bin").symlink_to(target)
         except (OSError, NotImplementedError):
             self.skipTest("Collegamenti simbolici non disponibili.")
-        self.register_directory()
-        self.assert_error_result(self.prepare(), "blocked")
+        with patch("scripts.material_preparer.verify_material", return_value=verified):
+            self.assert_error_result(self.prepare(), "blocked")
 
     def test_033_original_and_catalog_are_not_modified(self):
         path = self.source / "guide.md"
