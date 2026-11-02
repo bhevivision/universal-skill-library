@@ -30,7 +30,7 @@ Nome e descrizione restano nel file canonico `SKILL.md`, senza duplicarli nel ca
 - `requirements`: requisiti e dipendenze.
 - `tool_requirements`: strumenti necessari.
 - `permissions_required`: autorizzazioni richieste.
-- `agent_compatibility`: agenti e versioni compatibili.
+- `agent_compatibility`: oggetto con `mode` e `agents`. `mode=any` richiede `agents=[]` e dichiara che l'implementazione non impone un agente specifico; `mode=specific` richiede almeno un agente e le versioni ammesse. In entrambi i casi il coordinatore verifica nell'ambiente reale piattaforma, requisiti, strumenti e autorizzazioni.
 - `path`: manifesto dell'implementazione.
 - `status` e `verification`: stato e prove.
 
@@ -56,7 +56,7 @@ Prima dell'esecuzione il coordinatore rileva agente e versione, piattaforma, str
 - Una verifica superata richiede data e almeno un riferimento sotto `tests/evidence/`.
 - La prova deve esistere, essere leggibile, rispettare lo schema e riferirsi allo stesso identificativo della skill o implementazione.
 - `stable` richiede verifica superata della skill; `verified` richiede verifica superata dell'implementazione.
-- Il riferimento non sostituisce il test funzionale: le prove devono essere riproducibili e pertinenti alla versione.
+- Il riferimento non sostituisce il test funzionale: le prove devono essere riproducibili e pertinenti alla versione. Per `not_run` non esistono data né prove: il catalogo registra `evidence_refs: []`.
 - La soglia temporale di validità delle prove sarà definita quando saranno noti tipo e rischio delle skill.
 
 ## Limiti della v1
