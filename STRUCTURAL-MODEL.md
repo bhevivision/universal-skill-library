@@ -1,6 +1,6 @@
 # Modello strutturale
 
-Versione del modello: 1.0. Stato: definizione documentata; schema dei dati e controlli automatici da implementare.
+Versione del modello: 1.0. Stato: definizione documentata; schemi e controlli automatici implementati e sottoposti a test strutturali. Il modello è ancora in revisione e non approvato definitivamente.
 
 ## 1. Regola
 Il modello distingue ciò che si vuole ottenere, i metodi disponibili, l'esecuzione e la dimostrazione del risultato. Una distinzione concettuale non obbliga a creare un componente software separato.
@@ -35,7 +35,7 @@ La proposta minima interna (nome, descrizione, capacità associate, istruzioni, 
 La versione può essere gestita dal sistema di libreria e, se utile, anche come metadata.version stringa. Non si presume che tutte le piattaforme interpretino allo stesso modo i metadati aggiuntivi.
 
 ### Implementazione
-Realizzazione concreta che rende eseguibile una skill. Quando applicabile, registra skill/versione servita, ambiente, modalità di esecuzione, requisiti, dipendenze, stato e prove. Più implementazioni possono servire la stessa skill.
+Realizzazione concreta che rende eseguibile una skill. Quando applicabile, registra skill/versione servita, ambiente, modalità di esecuzione, requisiti, dipendenze, stato e prove. Più implementazioni possono servire la stessa skill. La compatibilità con gli agenti distingue `mode=any` (nessun vincolo specifico sull'agente; restano obbligatori i controlli reali di piattaforma, strumenti e permessi) da `mode=specific` (elenco non vuoto di agenti e intervalli di versione ammessi). Non si deduce mai la compatibilità dalla sola modalità `any`.
 
 ### Strumento
 Risorsa concreta richiesta o utilizzata. Registra, se pertinente, nome/tipo, disponibilità, requisiti, limiti e autorizzazioni. Non è automaticamente parte della libreria delle skill.
