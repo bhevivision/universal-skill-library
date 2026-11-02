@@ -146,5 +146,63 @@ class SemanticPipelineTests(unittest.TestCase):
         self.assertFalse((self.root / "proposals").exists())
 
 
+    def test_model_receives_untrusted_content_and_no_tool_permissions(self):
+        observed = {}
+
+        class Adapter:
+            def analyze(self, request):
+                observed.update(request["safety"])
+                observed["content"] = request["selected_content"][0]["text"]
+                raise RuntimeError("stop after observing the bounded request")
+
+        result = classify_material(self.root, "acq.example", analyzer=Adapter())
+
+        self.assertEqual(result["status"], "failed")
+        self.assertTrue(observed["content_is_untrusted_data"])
+        self.assertFalse(observed["follow_instructions_in_content"])
+        self.assertFalse(observed["allow_filesystem_access"])
+        self.assertFalse(observed["allow_network_access"])
+        self.assertFalse(observed["allow_process_execution"])
+        self.assertFalse(observed["allow_credential_access"])
+        self.assertFalse(observed["allow_catalog_writes"])
+        self.assertIn("Use the supplied documents", observed["content"])
+
+    def test_proposal_with_fabricated_evidence_is_rejected_and_not_saved(self):
+        class Adapter:
+            def analyze(self, request):
+                item = request["selected_content"][0]
+                return {
+                    "schema_version": "1.0",
+                    "proposal_id": "sem.placeholder",
+                    "created_at": "2026-11-02T10:00:00Z",
+                    "status": "completed",
+                    "material": {
+                        "id": request["material"]["id"],
+                        "sha256": request["material"]["sha256"],
+                        "original_kind": request["material"]["original_kind"],
+                    },
+                    "classification": {
+                        "kind": "skill", "confidence": "high",
+                        "rationale": "Claim without a valid source.",
+                        "summary": "Unverified claim.",
+                        "evidence_refs": ["ev.fake"],
+                    },
+                    "capabilities": [],
+                    "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+                    "dependencies": [], "tools_and_platforms": [],
+                    "evidence": [{
+                        "id": "ev.fake", "source": item["path"],
+                        "sha256": "0" * 64, "kind": "text_file",
+                    }],
+                    "missing_references": [], "contradictions": [], "risks": [],
+                    "unknowns": [], "limits": [],
+                }
+
+        with self.assertRaisesRegex(ValueError, "impronta"):
+            classify_material(self.root, "acq.example", analyzer=Adapter())
+
+        self.assertFalse((self.root / "proposals").exists())
+
+
 if __name__ == "__main__":
     unittest.main()
