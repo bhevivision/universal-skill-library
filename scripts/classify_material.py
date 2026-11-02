@@ -112,9 +112,10 @@ def _safe_text_files(path):
 def _read_evidence(path, root):
     evidence, texts, skipped = [], [], []
     candidates = [path] if path.is_file() else sorted(path.rglob("*"))
-    eligible = set(_safe_text_files(path))
+    eligible = _safe_text_files(path)
+    eligible_set = set(eligible)
     for item in candidates:
-        if item.is_file() and item not in eligible:
+        if item.is_file() and item not in eligible_set:
             skipped.append(item.relative_to(root).as_posix())
     for item in eligible:
         try:
