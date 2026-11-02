@@ -1,0 +1,310 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bhevivision.github.io/universal-skill-library/schemas/semantic-classification-proposal.schema.json",
+  "title": "Proposta di classificazione semantica",
+  "description": "Risultato non approvato dell'analisi semantica di un materiale acquisito. Non autorizza esecuzione o uso.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "proposal_id",
+    "created_at",
+    "status",
+    "material",
+    "classification",
+    "capabilities",
+    "interfaces",
+    "dependencies",
+    "tools_and_platforms",
+    "evidence",
+    "missing_references",
+    "contradictions",
+    "risks",
+    "unknowns",
+    "limits",
+    "analyzer"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "proposal_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": ["completed", "partial", "not_available", "failed"]
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sha256", "original_kind"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
+        },
+        "sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "original_kind": {
+          "enum": ["file", "directory", "archive", "package", "remote_reference", "unknown"]
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "confidence", "rationale", "summary"],
+      "properties": {
+        "kind": {
+          "enum": ["skill", "tool", "agent", "workflow", "resource", "composite", "unclassified"]
+        },
+        "confidence": {
+          "enum": ["low", "medium", "high"]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "description", "certainty", "evidence_refs"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "certainty": {
+            "enum": ["declared", "inferred"]
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "interfaces": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inputs", "outputs", "usage_conditions"],
+      "properties": {
+        "inputs": {"$ref": "#/$defs/claims"},
+        "outputs": {"$ref": "#/$defs/claims"},
+        "usage_conditions": {"$ref": "#/$defs/claims"}
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "relationship", "certainty", "evidence_refs"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "relationship": {
+            "enum": ["runtime", "installation", "service", "platform", "other", "unknown"]
+          },
+          "certainty": {
+            "enum": ["declared", "inferred", "unknown"]
+          },
+          "evidence_refs": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"certainty": {"enum": ["declared", "inferred"]}}, "required": ["certainty"]},
+            "then": {"properties": {"evidence_refs": {"minItems": 1}}}
+          }
+        ]
+      }
+    },
+    "tools_and_platforms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "kind", "compatibility", "evidence_refs"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["tool", "platform", "service", "library", "other"]},
+          "compatibility": {
+            "enum": ["mentioned_not_verified", "not_applicable", "unknown"]
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source", "sha256", "kind"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^intake/"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "kind": {
+            "enum": ["text_file", "metadata", "structure"]
+          },
+          "location": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["start_line", "end_line"],
+            "properties": {
+              "start_line": {"type": "integer", "minimum": 1},
+              "end_line": {"type": "integer", "minimum": 1}
+            }
+          }
+        }
+      }
+    },
+    "missing_references": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["description", "evidence_refs"],
+        "properties": {
+          "description": {"type": "string", "minLength": 1},
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["description", "certainty", "evidence_refs"],
+        "properties": {
+          "description": {"type": "string", "minLength": 1},
+          "certainty": {"enum": ["declared", "inferred"]},
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "limits": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "analyzer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "provider", "external_data_authorized", "input_sha256", "output_sha256"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "provider": {"enum": ["local", "remote"]},
+        "model": {"type": ["string", "null"]},
+        "model_version": {"type": ["string", "null"]},
+        "external_data_authorized": {"type": "boolean"},
+        "input_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "output_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"provider": {"const": "remote"}}, "required": ["provider"]},
+          "then": {"properties": {"external_data_authorized": {"const": true}}}
+        },
+        {
+          "if": {"properties": {"provider": {"const": "local"}}, "required": ["provider"]},
+          "then": {"properties": {"external_data_authorized": {"const": false}}}
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["value", "certainty", "evidence_refs"],
+        "properties": {
+          "value": {"type": "string", "minLength": 1},
+          "certainty": {"enum": ["declared", "inferred", "unknown"]},
+          "evidence_refs": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"certainty": {"enum": ["declared", "inferred"]}}, "required": ["certainty"]},
+            "then": {"properties": {"evidence_refs": {"minItems": 1}}}
+          }
+        ]
+      }
+    }
+  }
+}
