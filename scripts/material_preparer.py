@@ -71,8 +71,13 @@ def _copy_problems(integrity: dict) -> list[dict]:
         return [_problem("INTEGRITY_CHECK_FAILED", "Il servizio d'integrità ha restituito un risultato non valido.")]
     copied = []
     for item in problems:
-        if isinstance(item, dict) and isinstance(item.get("code"), str) and isinstance(item.get("message"), str):
-            copied.append(_problem(item["code"], item["message"]))
+        if isinstance(item, dict) and isinstance(item.get("code"), str):
+            # Il servizio comune può includere percorsi locali nei messaggi:
+            # il risultato pubblico conserva il codice, non i dettagli del file system.
+            copied.append(_problem(
+                item["code"],
+                f"Il servizio d'integrità ha segnalato il problema {item['code']}.",
+            ))
     return copied or [_problem("INTEGRITY_CHECK_FAILED", "Il controllo d'integrità non è stato completato.")]
 
 
@@ -141,7 +146,11 @@ def prepare_material(root, material_id: str) -> dict:
     result = _base_result(
         material_id,
         original_kind=original_kind,
-        digest=None if is_remote else integrity.get("actual_digest"),
+        digest=(
+            integrity.get("actual_digest")
+            if not is_remote and integrity.get("status") == "verified"
+            else None
+        ),
     )
 
     if is_remote:
@@ -160,6 +169,7 @@ def prepare_material(root, material_id: str) -> dict:
     try:
         candidates = _inventory(material_path)
         selected: list[Path] = []
+        selected_sizes: dict[Path, int] = {}
         skipped: list[dict] = []
         selected_bytes = 0
 
@@ -177,7 +187,11 @@ def prepare_material(root, material_id: str) -> dict:
                 skipped.append({"source": source, "reason": "unsupported_extension"})
                 continue
 
-            size = item.stat().st_size
+            try:
+                size = item.stat().st_size
+            except OSError:
+                skipped.append({"source": source, "reason": "read_error"})
+                continue
             if size > MAX_FILE_BYTES:
                 skipped.append({"source": source, "reason": "file_too_large"})
             elif len(selected) >= MAX_FILES:
@@ -186,6 +200,7 @@ def prepare_material(root, material_id: str) -> dict:
                 skipped.append({"source": source, "reason": "total_size_limit"})
             else:
                 selected.append(item)
+                selected_sizes[item] = size
                 selected_bytes += size
 
         prepared = []
@@ -194,6 +209,9 @@ def prepare_material(root, material_id: str) -> dict:
             try:
                 raw = item.read_bytes()
             except OSError:
+                skipped.append({"source": source, "reason": "read_error"})
+                continue
+            if len(raw) != selected_sizes[item]:
                 skipped.append({"source": source, "reason": "read_error"})
                 continue
             try:
