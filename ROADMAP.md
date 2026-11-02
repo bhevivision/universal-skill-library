@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: correzioni tecniche della v1 in corso sul ramo dedicato. Schemi, controlli strutturali e test sono implementati; il coordinatore non è ancora implementato.
+Stato: correzioni tecniche della v1 completate sul ramo dedicato; 19 test automatici e GitHub Actions superati sul commit 0dfabf128fee1bc4f436bab598d2170686136d74. Schemi, controlli strutturali e test sono implementati; il coordinatore non è ancora implementato.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -23,7 +23,7 @@ Stato: correzioni tecniche della v1 in corso sul ramo dedicato. Schemi, controll
 - [x] Controllo pacchetti, frontmatter, piattaforme e manifesti.
 - [x] Controllo delle dichiarazioni di verifica e delle prove.
 - [x] Test con casi validi e non validi in locale.
-- [x] GitHub Actions superata sul commit di verifica intermedio (run 25); esecuzione finale dopo gli ultimi due test ancora da confermare.
+- [x] GitHub Actions superata sul commit conclusivo della correzione (run 32; 19 test superati e controllo della libreria superato).
 
 Criterio di uscita: controlli ripetibili in locale e integrazione continua, con casi validi e non validi. La verifica strutturale non certifica il comportamento funzionale delle skill.
 
