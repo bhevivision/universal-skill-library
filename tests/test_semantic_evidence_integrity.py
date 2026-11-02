@@ -118,7 +118,7 @@ class SemanticEvidenceIntegrityTests(unittest.TestCase):
 
     def test_rejects_catalog_evidence_with_wrong_fingerprint(self):
         self.proposal["evidence"][1]["sha256"] = "f" * 64
-        with self.assertRaisesRegex(ValueError, "catalogo.*impronta"):
+        with self.assertRaisesRegex(ValueError, "impronta.*catalogo"):
             validate_semantic_proposal(self.root, self.proposal)
 
     def test_rejects_duplicate_evidence_ids_even_if_entries_differ(self):
