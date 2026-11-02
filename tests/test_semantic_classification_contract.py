@@ -24,7 +24,8 @@ def valid_proposal():
             "kind": "skill",
             "confidence": "medium",
             "rationale": "Il materiale descrive istruzioni operative riutilizzabili.",
-            "summary": "Assiste nella produzione di relazioni."
+            "summary": "Assiste nella produzione di relazioni.",
+            "evidence_refs": ["ev.instructions"]
         },
         "capabilities": [{
             "id": "cap.report",
@@ -95,6 +96,7 @@ class SemanticClassificationContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+        Draft202012Validator.check_schema(schema)
         cls.validator = Draft202012Validator(schema, format_checker=FormatChecker())
 
     def assert_invalid(self, proposal, field):
@@ -178,6 +180,12 @@ class SemanticClassificationContractTests(unittest.TestCase):
         proposal = valid_proposal()
         del proposal["analyzer"]["input_sha256"]
         self.assert_invalid(proposal, "input_sha256")
+
+
+    def test_rejects_classification_without_supporting_evidence(self):
+        proposal = valid_proposal()
+        proposal["classification"]["evidence_refs"] = []
+        self.assert_invalid(proposal, "evidence_refs")
 
 
 if __name__ == "__main__":
