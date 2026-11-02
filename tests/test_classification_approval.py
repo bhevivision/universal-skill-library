@@ -1,0 +1,107 @@
+import hashlib
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+from scripts.classification_approval import approve_proposal, reject_proposal
+
+
+class ClassificationApprovalTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        (self.root / "intake/acq-example/source").mkdir(parents=True)
+        (self.root / "catalog").mkdir()
+        (self.root / "proposals").mkdir()
+        self.original = self.root / "intake/acq-example/source/material.md"
+        self.original.write_text("# Example skill\n\n## Instructions\nDo the work.\n", encoding="utf-8")
+        digest = hashlib.sha256(self.original.read_bytes()).hexdigest()
+        self.digest = digest
+        catalog = {
+            "catalog_version": "1.0",
+            "materials": [{
+                "id": "acq.example",
+                "acquisition": {"status": "preserved", "original": {
+                    "kind": "file",
+                    "path": "intake/acq-example/source/material.md",
+                    "sha256": digest,
+                    "digest_algorithm": "sha256-file-v1"
+                }},
+                "classification": {"status": "not_examined", "kind": "unclassified"}
+            }]
+        }
+        (self.root / "catalog/materials.json").write_text(json.dumps(catalog), encoding="utf-8")
+        (self.root / "catalog/skills.json").write_text(
+            json.dumps({"catalog_version": "1.0", "skills": []}), encoding="utf-8"
+        )
+        self.proposal = {
+            "proposal_schema_version": "1.0",
+            "proposal_id": "class.example",
+            "created_at": "2026-11-02T10:00:00Z",
+            "status": "pending_approval",
+            "material": {"id": "acq.example", "sha256": digest, "original_kind": "file"},
+            "proposal": {"kind": "skill", "confidence": "medium", "rationale": "Metadati e istruzioni rilevati."},
+            "evidence": [{"source": "intake/acq-example/source/material.md", "type": "text_excerpt", "excerpt": "Example skill"}],
+            "dependencies": [],
+            "missing_references": [],
+            "unknowns": [],
+            "limits": ["Analisi statica"],
+            "analysis": {"method": "bounded_static_text_v1", "files_examined": 1}
+        }
+        (self.root / "proposals/class.example.json").write_text(
+            json.dumps(self.proposal), encoding="utf-8"
+        )
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def _material(self):
+        catalog = json.loads((self.root / "catalog/materials.json").read_text(encoding="utf-8"))
+        return catalog["materials"][0]
+
+    def test_approval_updates_only_material_classification_and_records_decision(self):
+        skills_before = (self.root / "catalog/skills.json").read_bytes()
+        original_before = self.original.read_bytes()
+        result = approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Esaminata e approvata.")
+        classification = self._material()["classification"]
+        self.assertEqual(classification["status"], "classified")
+        self.assertEqual(classification["kind"], "skill")
+        self.assertEqual(classification["confidence"], "medium")
+        self.assertEqual(classification["decisions"][0]["decision"], "approved")
+        self.assertEqual(result["decision"], "approved")
+        self.assertEqual((self.root / "catalog/skills.json").read_bytes(), skills_before)
+        self.assertEqual(self.original.read_bytes(), original_before)
+
+    def test_rejection_records_decision_without_adding_a_skill(self):
+        reject_proposal(self.root, "class.example", actor="human:reviewer", rationale="Gli indizi non bastano.")
+        classification = self._material()["classification"]
+        self.assertEqual(classification["status"], "unclassified")
+        self.assertEqual(classification["kind"], "unclassified")
+        self.assertEqual(classification["decisions"][0]["decision"], "rejected")
+        self.assertEqual(json.loads((self.root / "catalog/skills.json").read_text())["skills"], [])
+
+    def test_refuses_decision_when_original_fingerprint_changed(self):
+        self.original.write_text("changed", encoding="utf-8")
+        with self.assertRaises(ValueError):
+            approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+        self.assertEqual(self._material()["classification"]["status"], "not_examined")
+
+    def test_refuses_second_decision_for_same_proposal(self):
+        approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+        with self.assertRaises(ValueError):
+            reject_proposal(self.root, "class.example", actor="human:reviewer", rationale="Cambio idea")
+
+    def test_requires_actor_and_reason(self):
+        with self.assertRaises(ValueError):
+            approve_proposal(self.root, "class.example", actor="", rationale="Ok")
+        with self.assertRaises(ValueError):
+            reject_proposal(self.root, "class.example", actor="human:reviewer", rationale=" ")
+
+    def test_unknown_proposal_is_rejected(self):
+        with self.assertRaises(FileNotFoundError):
+            approve_proposal(self.root, "class.missing", actor="human:reviewer", rationale="Ok")
+
+
+if __name__ == "__main__":
+    unittest.main()
