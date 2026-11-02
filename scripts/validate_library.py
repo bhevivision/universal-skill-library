@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""Controlli strutturali e di coerenza della libreria universale delle skill."""
+from __future__ import annotations
+import argparse, json, re, sys
+from pathlib import Path
+from jsonschema import Draft202012Validator, FormatChecker
+CATALOGS={
+ "catalog/capabilities.json":("capabilities","schemas/capabilities-catalog.schema.json","schemas/capability.schema.json"),
+ "catalog/skills.json":("skills","schemas/skills-catalog.schema.json","schemas/skill-entry.schema.json"),
+ "catalog/implementations.json":("implementations","schemas/implementations-catalog.schema.json","schemas/implementation.schema.json")}
+def read_json(root,rel,errors):
+ p=root/rel
+ if not p.is_file(): errors.append(f"{rel}: file non trovato"); return None
+ try: return json.loads(p.read_text(encoding="utf-8"))
+ except (OSError,UnicodeError,json.JSONDecodeError) as e: errors.append(f"{rel}: JSON non valido ({e})"); return None
+def check_schema(root,value,rel,source,errors):
+ schema=read_json(root,rel,errors)
+ if schema is None:return
+ try:
+  Draft202012Validator.check_schema(schema)
+  for issue in Draft202012Validator(schema,format_checker=FormatChecker()).iter_errors(value):
+   where=".".join(map(str,issue.absolute_path)) or "$"; errors.append(f"{source}:{where}: {issue.message}")
+ except Exception as e: errors.append(f"{rel}: schema non valido ({e})")
+def safe_path(root,rel):
+ if not isinstance(rel,str) or not rel or "\\" in rel:return None
+ p=(root/rel).resolve()
+ try:p.relative_to(root.resolve())
+ except ValueError:return None
+ return p
+def check_evidence(root,refs,subject,label,errors):
+ if not refs:errors.append(f"{label}: verifica dichiarata senza prove");return
+ for ref in refs:
+  if not isinstance(ref,str) or not ref.startswith("tests/evidence/"):errors.append(f"{label}: prova fuori da tests/evidence/: {ref}");continue
+  p=safe_path(root,ref)
+  if p is None or not p.is_file():errors.append(f"{label}: prova non trovata o percorso non sicuro: {ref}");continue
+  try: proof=json.loads(p.read_text(encoding="utf-8"))
+  except (OSError,UnicodeError,json.JSONDecodeError) as e:errors.append(f"{ref}: prova JSON non valida ({e})");continue
+  check_schema(root,proof,"schemas/evidence.schema.json",ref,errors)
+  if isinstance(proof,dict):
+   if proof.get("result")!="passed":errors.append(f"{ref}: la prova non riporta result=passed")
+   if proof.get("subject")!=subject:errors.append(f"{ref}: la prova riguarda {proof.get('subject')!r}, non {subject!r}")
+def frontmatter(p):
+ t=p.read_text(encoding="utf-8")
+ if not t.startswith("---\n"):return None,None
+ end=t.find("\n---",4)
+ if end<0:return None,None
+ block=t[4:end]; values={}
+ for key in ("name","description"):
+  m=re.search(rf"^{key}:\s*(.+?)\s*$",block,re.MULTILINE)
+  if m:values[key]=m.group(1).strip().strip("\"'")
+ return values.get("name"),values.get("description")
+def validate_repository(root):
+ root=Path(root).resolve(); errors=[]; catalogs={}
+ for rel,(collection,catalog_schema,entry_schema) in CATALOGS.items():
+  data=read_json(root,rel,errors)
+  if data is None:continue
+  check_schema(root,data,catalog_schema,rel,errors)
+  if isinstance(data,dict) and isinstance(data.get(collection),list):
+   catalogs[collection]=data[collection]
+   for i,item in enumerate(data[collection]):check_schema(root,item,entry_schema,f"{rel}:{i}",errors)
+ caps,skills,impls=catalogs.get("capabilities",[]),catalogs.get("skills",[]),catalogs.get("implementations",[])
+ def index(items,label):
+  result={}
+  for item in items:
+   if not isinstance(item,dict) or not isinstance(item.get("id"),str):continue
+   key=item["id"]
+   if key in result:errors.append(f"{label}: identificativo duplicato {key}")
+   result[key]=item
+  return result
+ capmap,skillmap=index(caps,"capacità"),index(skills,"skill");index(impls,"implementazioni")
+ for skill in skills:
+  if not isinstance(skill,dict):continue
+  sid,rel=skill.get("id","<senza-id>"),skill.get("path"); package=safe_path(root,rel)
+  if package is None or not package.is_file():errors.append(f"skill {sid}: SKILL.md non trovato o percorso non sicuro ({rel})")
+  else:
+   try:
+    name,description=frontmatter(package)
+    if name!=package.parent.name:errors.append(f"skill {sid}: name del frontmatter ({name!r}) non coincide con la cartella ({package.parent.name!r})")
+    if not description:errors.append(f"skill {sid}: description mancante nel frontmatter")
+   except (OSError,UnicodeError) as e:errors.append(f"skill {sid}: impossibile leggere SKILL.md ({e})")
+  for cid in skill.get("capability_ids",[]):
+   cap=capmap.get(cid)
+   if cap is None:errors.append(f"skill {sid}: capacità inesistente {cid}")
+   elif sid not in cap.get("skill_ids",[]):errors.append(f"skill {sid}: collegamento non reciproco nella capacità {cid}")
+  if skill.get("scope")=="platform" and not skill.get("platforms"):errors.append(f"skill {sid}: scope=platform richiede almeno una piattaforma")
+  sel=skill.get("selection",{}); ver=sel.get("verification",{}) if isinstance(sel,dict) else {}
+  if ver.get("status")=="passed":check_evidence(root,ver.get("evidence_refs",[]),sid,f"skill {sid}",errors)
+  if skill.get("lifecycle")=="stable" and ver.get("status")!="passed":errors.append(f"skill {sid}: lifecycle=stable richiede verifica superata e documentata")
+ for cap in caps:
+  if not isinstance(cap,dict):continue
+  cid=cap.get("id","<senza-id>")
+  for sid in cap.get("skill_ids",[]):
+   skill=skillmap.get(sid)
+   if skill is None:errors.append(f"capacità {cid}: skill inesistente {sid}")
+   elif cid not in skill.get("capability_ids",[]):errors.append(f"capacità {cid}: collegamento non reciproco nella skill {sid}")
+  for related in cap.get("related_capabilities",[]):
+   if related not in capmap:errors.append(f"capacità {cid}: capacità collegata inesistente {related}")
+ for impl in impls:
+  if not isinstance(impl,dict):continue
+  iid,sid=impl.get("id","<senza-id>"),impl.get("skill_id"); skill=skillmap.get(sid)
+  if skill is None:errors.append(f"implementazione {iid}: skill inesistente {sid}")
+  else:
+   if impl.get("skill_version")!=skill.get("version"):errors.append(f"implementazione {iid}: versione skill incompatibile con {sid}")
+   if skill.get("scope")=="platform" and impl.get("platform") not in skill.get("platforms",[]):errors.append(f"implementazione {iid}: piattaforma {impl.get('platform')} incompatibile con la skill {sid}")
+  rel=impl.get("path"); mp=safe_path(root,rel)
+  if mp is None or not mp.is_file():errors.append(f"implementazione {iid}: manifest non trovato o percorso non sicuro ({rel})")
+  else:
+   manifest=read_json(root,rel,errors)
+   if manifest is not None:check_schema(root,manifest,"schemas/implementation-manifest.schema.json",rel,errors)
+   if isinstance(manifest,dict):
+    for field in ("id","skill_id","skill_version","platform"):
+     if manifest.get(field)!=impl.get(field):errors.append(f"implementazione {iid}: manifest non coerente nel campo {field}")
+  ver=impl.get("verification",{})
+  if impl.get("status")=="verified" and ver.get("status")!="passed":errors.append(f"implementazione {iid}: status=verified richiede verification.status=passed")
+  if impl.get("status")=="verified" or ver.get("status")=="passed":check_evidence(root,ver.get("evidence_refs",[]),iid,f"implementazione {iid}",errors)
+ return errors
+def main():
+ parser=argparse.ArgumentParser(description="Controlla cataloghi, skill, implementazioni e prove.")
+ parser.add_argument("--root",type=Path,default=Path(__file__).resolve().parents[1]);args=parser.parse_args()
+ errors=validate_repository(args.root)
+ if errors:
+  print(f"CONTROLLO FALLITO: {len(errors)} problema/i")
+  for e in errors:print(f"- {e}")
+  return 1
+ print("CONTROLLO SUPERATO: cataloghi, collegamenti, pacchetti e prove coerenti.");return 0
+if __name__=="__main__":sys.exit(main())
