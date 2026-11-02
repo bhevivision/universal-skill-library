@@ -26,12 +26,10 @@
       "minLength": 1
     },
     "original_kind": {
-      "type": ["string", "null"],
-      "enum": ["file", "directory", "archive", "package", "remote_reference", "unknown", null]
+      "type": ["string", "null"]
     },
     "acquisition_state": {
-      "type": ["string", "null"],
-      "enum": ["received", "preserved", "incomplete", "error", null]
+      "type": ["string", "null"]
     },
     "path": {
       "type": ["string", "null"]
