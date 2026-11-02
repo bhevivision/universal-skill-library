@@ -37,6 +37,12 @@ class Tests(unittest.TestCase):
  def test_rejects_folder_name_mismatch(self):
   (self.root/"skills/pdf-analyze/SKILL.md").write_text("---\nname: other-name\ndescription: Test.\n---\n")
   self.assertTrue(any("name" in e.lower() for e in validate_repository(self.root)))
+ def test_requires_evidence_for_failed_verification_too(self):
+  def edit(d):
+   d["skills"][0]["lifecycle"]="experimental"
+   d["skills"][0]["selection"]["verification"].update(status="failed",evidence_refs=[])
+  self.change("catalog/skills.json",edit)
+  self.assertTrue(any("evidence" in e.lower() for e in validate_repository(self.root)))
  def test_rejects_duplicate_ids(self):
   self.change("catalog/capabilities.json",lambda d:d["capabilities"].append(dict(d["capabilities"][0])))
   self.assertTrue(any("duplicato" in e.lower() for e in validate_repository(self.root)))

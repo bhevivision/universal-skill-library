@@ -27,7 +27,7 @@ def safe_path(root,rel):
  try:p.relative_to(root.resolve())
  except ValueError:return None
  return p
-def check_evidence(root,refs,subject,label,errors):
+def check_evidence(root,refs,subject,expected_result,label,errors):
  if not refs:errors.append(f"{label}: verifica dichiarata senza prove");return
  for ref in refs:
   if not isinstance(ref,str) or not ref.startswith("tests/evidence/"):errors.append(f"{label}: prova fuori da tests/evidence/: {ref}");continue
@@ -37,7 +37,7 @@ def check_evidence(root,refs,subject,label,errors):
   except (OSError,UnicodeError,json.JSONDecodeError) as e:errors.append(f"{ref}: prova JSON non valida ({e})");continue
   check_schema(root,proof,"schemas/evidence.schema.json",ref,errors)
   if isinstance(proof,dict):
-   if proof.get("result")!="passed":errors.append(f"{ref}: la prova non riporta result=passed")
+   if proof.get("result")!=expected_result:errors.append(f"{ref}: esito prova diverso dall'esito dichiarato {expected_result}")
    if proof.get("subject")!=subject:errors.append(f"{ref}: la prova riguarda {proof.get('subject')!r}, non {subject!r}")
 def frontmatter(p):
  t=p.read_text(encoding="utf-8")
@@ -84,7 +84,7 @@ def validate_repository(root):
    elif sid not in cap.get("skill_ids",[]):errors.append(f"skill {sid}: collegamento non reciproco nella capacità {cid}")
   if skill.get("scope")=="platform" and not skill.get("platforms"):errors.append(f"skill {sid}: scope=platform richiede almeno una piattaforma")
   sel=skill.get("selection",{}); ver=sel.get("verification",{}) if isinstance(sel,dict) else {}
-  if ver.get("status")=="passed":check_evidence(root,ver.get("evidence_refs",[]),sid,f"skill {sid}",errors)
+  if ver.get("status") in {"passed","failed","inconclusive"}:check_evidence(root,ver.get("evidence_refs",[]),sid,ver.get("status"),f"skill {sid}",errors)
   if skill.get("lifecycle")=="stable" and ver.get("status")!="passed":errors.append(f"skill {sid}: lifecycle=stable richiede verifica superata e documentata")
  for cap in caps:
   if not isinstance(cap,dict):continue
@@ -112,7 +112,7 @@ def validate_repository(root):
      if manifest.get(field)!=impl.get(field):errors.append(f"implementazione {iid}: manifest non coerente nel campo {field}")
   ver=impl.get("verification",{})
   if impl.get("status")=="verified" and ver.get("status")!="passed":errors.append(f"implementazione {iid}: status=verified richiede verification.status=passed")
-  if impl.get("status")=="verified" or ver.get("status")=="passed":check_evidence(root,ver.get("evidence_refs",[]),iid,f"implementazione {iid}",errors)
+  if impl.get("status")=="verified" or ver.get("status") in {"passed","failed","inconclusive"}:check_evidence(root,ver.get("evidence_refs",[]),iid,ver.get("status"),f"implementazione {iid}",errors)
  return errors
 def main():
  parser=argparse.ArgumentParser(description="Controlla cataloghi, skill, implementazioni e prove.")
