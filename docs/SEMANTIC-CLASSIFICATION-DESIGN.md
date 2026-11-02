@@ -64,6 +64,10 @@ Il classificatore deve poter funzionare senza un modello configurato: in tal cas
 
 Le affermazioni dedotte devono essere marcate come tali. Nessuna dipendenza, capacità o compatibilità diventa un fatto certo senza prove adeguate.
 
+## Contratto tecnico
+
+Il contratto di ingresso e uscita, i vincoli di riservatezza e i comportamenti in caso di errore sono definiti in [SEMANTIC-CLASSIFICATION-CONTRACT.md](SEMANTIC-CLASSIFICATION-CONTRACT.md). Lo schema versionato della proposta è `schemas/semantic-classification-proposal.schema.json`; i test del contratto sono in `tests/test_semantic_classification_contract.py`. Questi elementi specificano il confine tecnico, ma non implementano ancora il motore semantico.
+
 ## Categorie
 Si mantengono le categorie già introdotte: skill, tool, agent, workflow, resource, composite e unclassified. La categoria skill non viene assegnata soltanto perché un documento si chiama SKILL o contiene metadati simili: occorre evidenza di istruzioni operative riutilizzabili e di una capacità identificabile. Un pacchetto con più elementi autonomi può essere proposto come composite, senza dividerlo o modificarlo.
 
