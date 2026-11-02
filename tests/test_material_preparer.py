@@ -280,12 +280,12 @@ class MaterialPreparerTests(unittest.TestCase):
         (self.source / "a.txt").write_text("non leggibile", encoding="utf-8")
         (self.source / "b.txt").write_text("leggibile", encoding="utf-8")
         self.register_directory()
-        original_read_text = Path.read_text
+        original_read_bytes = Path.read_bytes
         def controlled_read(path, *args, **kwargs):
             if path.name == "a.txt":
                 raise PermissionError("negato")
-            return original_read_text(path, *args, **kwargs)
-        with patch.object(Path, "read_text", controlled_read):
+            return original_read_bytes(path, *args, **kwargs)
+        with patch.object(Path, "read_bytes", controlled_read):
             result = self.prepare()
         self.assertEqual(result["status"], "partial")
         self.assertEqual(result["skipped"][0]["reason"], "read_error")
