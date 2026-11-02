@@ -9,10 +9,65 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
-from scripts.acquire_material import (
-    _digest_directory, _digest_directory_legacy, _digest_file,
-    _record_original_path, _load_catalog,
-)
+
+def _load_catalog(root):
+    path = root / "catalog/materials.json"
+    if path.is_symlink() or not path.is_file():
+        raise ValueError("Catalogo materiali assente o non sicuro.")
+    catalog = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(catalog, dict) or catalog.get("catalog_version") != "1.0" or not isinstance(catalog.get("materials"), list):
+        raise ValueError("Struttura del catalogo materiali non valida.")
+    return catalog, path
+
+
+def _record_original_path(root, record):
+    relative = record.get("acquisition", {}).get("original", {}).get("path")
+    pure = PurePosixPath(relative) if isinstance(relative, str) else None
+    if pure is None or pure.is_absolute() or not pure.parts or pure.parts[0] != "intake" or ".." in pure.parts:
+        raise ValueError("Percorso dell'originale non valido.")
+    candidate = root.joinpath(*pure.parts)
+    current = candidate
+    while current != root:
+        if current.is_symlink():
+            raise ValueError("Collegamento simbolico nel percorso dell'originale.")
+        current = current.parent
+    resolved = candidate.resolve()
+    try:
+        resolved.relative_to((root / "intake").resolve())
+    except ValueError as exc:
+        raise ValueError("Originale fuori dalla cartella intake.") from exc
+    return resolved
+
+
+def _digest_file(path):
+    import hashlib
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _digest_tree(path, legacy=False):
+    import hashlib
+    digest = hashlib.sha256()
+    entries = sorted(Path(path).rglob("*"), key=lambda item: item.relative_to(path).as_posix())
+    for item in entries:
+        if item.is_symlink():
+            raise ValueError(f"Collegamento simbolico non ammesso: {item}")
+        relative = item.relative_to(path).as_posix().encode("utf-8")
+        if item.is_dir() and not legacy:
+            digest.update(b"D\\0" + relative + b"\\0")
+        elif item.is_file():
+            if legacy:
+                digest.update(relative + b"\\0")
+            else:
+                digest.update(b"F\\0" + relative + b"\\0")
+            with item.open("rb") as stream:
+                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                    digest.update(chunk)
+            digest.update(b"\\0")
+    return digest.hexdigest()
 
 TEXT_EXTENSIONS = {".md", ".markdown", ".txt", ".rst", ".json", ".yaml", ".yml", ".toml", ".py", ".js", ".ts", ".sh", ".ps1", ".bat", ".xml", ".html", ".css"}
 MAX_FILE_BYTES = 256 * 1024
@@ -30,7 +85,7 @@ def _fingerprint(path, original):
     if path.is_dir():
         if algorithm not in {None, "sha256-tree-v2"}:
             raise ValueError(f"Algoritmo di impronta non valido per cartella: {algorithm}")
-        return _digest_directory_legacy(path) if algorithm is None else _digest_directory(path)
+        return _digest_tree(path, legacy=algorithm is None)
     if algorithm not in {None, "sha256-file-v1"}:
         raise ValueError(f"Algoritmo di impronta non valido per file: {algorithm}")
     return _digest_file(path)
@@ -115,14 +170,16 @@ def analyze_material(root, material_id):
         raise ValueError(f"Materiale non trovato: {material_id}")
     acquisition = record.get("acquisition", {})
     original = acquisition.get("original", {})
-    if acquisition.get("status") != "preserved":
-        raise ValueError("La classificazione richiede un materiale con acquisizione in stato preserved.")
     kind = original.get("kind")
     if kind == "remote_reference":
+        if acquisition.get("status") not in {"received", "preserved"}:
+            raise ValueError("Il riferimento remoto non ha uno stato di acquisizione valido.")
         path = None
         digest = None
         texts, evidence, skipped = [], [], []
     else:
+        if acquisition.get("status") != "preserved":
+            raise ValueError("La classificazione richiede un materiale locale in stato preserved.")
         path = _record_original_path(root, record)
         if not path.exists() or not (path.is_file() or path.is_dir()):
             raise ValueError("Originale non disponibile o di tipo non supportato.")
