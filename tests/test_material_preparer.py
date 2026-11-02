@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import tempfile
 import unittest
 import zipfile
@@ -280,12 +281,13 @@ class MaterialPreparerTests(unittest.TestCase):
         (self.source / "a.txt").write_text("non leggibile", encoding="utf-8")
         (self.source / "b.txt").write_text("leggibile", encoding="utf-8")
         self.register_directory()
-        original_read_bytes = Path.read_bytes
-        def controlled_read(path, *args, **kwargs):
+        from scripts.material_preparer import _read_bounded_file
+        original_bounded_read = _read_bounded_file
+        def controlled_read(path, expected_size):
             if path.name == "a.txt":
                 raise PermissionError("negato")
-            return original_read_bytes(path, *args, **kwargs)
-        with patch.object(Path, "read_bytes", controlled_read):
+            return original_bounded_read(path, expected_size)
+        with patch("scripts.material_preparer._read_bounded_file", side_effect=controlled_read):
             result = self.prepare()
         self.assertEqual(result["status"], "partial")
         self.assertEqual(result["skipped"][0]["reason"], "read_error")
@@ -518,6 +520,83 @@ class MaterialPreparerTests(unittest.TestCase):
         Draft202012Validator.check_schema(schema)
         errors = list(Draft202012Validator(schema).iter_errors(result))
         self.assertEqual(errors, [])
+
+
+
+    def test_053_growth_after_size_selection_never_returns_oversized_content(self):
+        from scripts import material_preparer
+        path = self.source / "growing.txt"
+        path.write_bytes(b"x" * 10)
+        self.register_directory()
+        original_open = os.open
+        original_read = os.read
+        triggered = {"done": False}
+        bytes_read = {"count": 0}
+        def grow_before_open(target, flags, *args, **kwargs):
+            if Path(target).name == path.name and not triggered["done"]:
+                triggered["done"] = True
+                with path.open("ab") as stream:
+                    stream.write(b"y" * (material_preparer.MAX_FILE_BYTES + 100))
+            return original_open(target, flags, *args, **kwargs)
+        def count_bounded_read(descriptor, requested):
+            chunk = original_read(descriptor, requested)
+            bytes_read["count"] += len(chunk)
+            return chunk
+        with patch("scripts.material_preparer.os.open", side_effect=grow_before_open), patch(
+            "scripts.material_preparer.os.read", side_effect=count_bounded_read
+        ):
+            result = self.prepare()
+        self.assertTrue(triggered["done"], "Il test non ha raggiunto la finestra tra controllo e apertura.")
+        self.assertEqual(bytes_read["count"], material_preparer.MAX_FILE_BYTES + 1)
+        self.assertLessEqual(bytes_read["count"], material_preparer.MAX_FILE_BYTES + 1)
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(result["files"], [])
+
+    def test_054_symlink_swap_between_lstat_and_open_is_rejected(self):
+        path = self.source / "race.txt"
+        outside = self.root / "outside.txt"
+        path.write_text("interno", encoding="utf-8")
+        outside.write_text("ESTERNO", encoding="utf-8")
+        self.register_directory()
+        original_open = os.open
+        swapped = {"done": False}
+        def swap_before_open(target, flags, *args, **kwargs):
+            if Path(target).name == path.name and not swapped["done"]:
+                swapped["done"] = True
+                path.unlink()
+                try:
+                    path.symlink_to(outside)
+                except (OSError, NotImplementedError):
+                    self.skipTest("Collegamenti simbolici non disponibili.")
+            return original_open(target, flags, *args, **kwargs)
+        with patch("scripts.material_preparer.os.open", side_effect=swap_before_open):
+            result = self.prepare()
+        self.assertTrue(swapped["done"], "Il test non ha raggiunto la finestra tra controllo e apertura.")
+        self.assertNotIn("ESTERNO", json.dumps(result))
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(result["files"], [])
+
+    def test_055_schema_rejects_blocked_or_failed_results_with_usable_contents(self):
+        from jsonschema import Draft202012Validator
+        (self.source / "guide.md").write_text("contenuto", encoding="utf-8")
+        self.register_directory()
+        valid = self.prepare()
+        schema_path = Path(__file__).resolve().parents[1] / "schemas/material-preparation-result.schema.json"
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        validator = Draft202012Validator(schema)
+
+        blocked_with_files = json.loads(json.dumps(valid))
+        blocked_with_files["status"] = "blocked"
+        blocked_with_files["problems"] = [{"code": "SYMLINK_NOT_ALLOWED", "message": "bloccato"}]
+        self.assertTrue(list(validator.iter_errors(blocked_with_files)))
+
+        failed_with_bytes = json.loads(json.dumps(valid))
+        failed_with_bytes["status"] = "failed"
+        failed_with_bytes["problems"] = [{"code": "INVENTORY_FAILED", "message": "errore"}]
+        failed_with_bytes["files"] = []
+        failed_with_bytes["summary"]["files_examined"] = 0
+        failed_with_bytes["summary"]["total_bytes"] = 1
+        self.assertTrue(list(validator.iter_errors(failed_with_bytes)))
 
 
 if __name__ == "__main__":

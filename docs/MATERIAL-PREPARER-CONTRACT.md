@@ -2,7 +2,7 @@
 
 Versione: 1.1  
 Componente: `scripts/material_preparer.py`  
-Stato: contratto tecnico definito; implementazione non ancora realizzata.
+Stato: contratto tecnico definito; implementazione presente, verifiche in corso sul ramo di lavoro.
 
 ## 1. Scopo
 
@@ -474,3 +474,20 @@ La precedenza degli stati resta:
 3. `not_available` se nessun file è accettato;
 4. `partial` se almeno un file è accettato e almeno un file è escluso;
 5. `completed` se almeno un file è accettato e nessun file è escluso.
+
+
+### 17.7 Lettura limitata e stabilità del file aperto
+
+La lettura dei file selezionati deve rispettare il limite effettivo, non soltanto la dimensione osservata durante la selezione:
+
+- il preparatore apre il file una sola volta e legge dal descrittore aperto;
+- la lettura avviene a blocchi e non acquisisce mai più di `MAX_FILE_BYTES + 1` byte;
+- il byte aggiuntivo serve esclusivamente a rilevare il superamento del limite; se presente, il file non viene restituito;
+- una differenza tra dimensione selezionata, byte letti e dimensione del descrittore aperto comporta il rifiuto del file;
+- il descrittore e il percorso vengono confrontati mediante identità del file prima e dopo la lettura;
+- quando disponibile, l'apertura usa il divieto di seguire collegamenti simbolici (`O_NOFOLLOW`);
+- se il sistema operativo o il file system non fornisce un'identità stabile e verificabile del file, la lettura deve interrompersi senza restituire contenuto.
+
+Su Windows, dove `O_NOFOLLOW` non è disponibile, il controllo si basa sul confronto dell'identità restituita da `lstat` e `fstat` prima della lettura, e sulla verifica successiva del descrittore e del percorso. Questo controllo deve essere provato su Windows con un test che sostituisce il percorso con un collegamento simbolico tra il controllo iniziale e l'apertura.
+
+Questi controlli riducono il rischio di leggere un file cresciuto oltre il limite o un file diverso da quello controllato. Non costituiscono una garanzia assoluta contro ogni possibile modifica concorrente del contenuto o contro junction, mount point e altri reparse point non coperti dal contratto. Il controllo d'integrità finale resta obbligatorio e indipendente.
