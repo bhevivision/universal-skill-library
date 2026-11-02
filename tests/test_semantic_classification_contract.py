@@ -215,5 +215,61 @@ class SemanticClassificationContractTests(unittest.TestCase):
         self.assertEqual(list(self.validator.iter_errors(proposal)), [])
 
 
+    def test_rejects_not_available_with_semantic_claims(self):
+        proposal = valid_proposal()
+        proposal["status"] = "not_available"
+        self.assert_invalid(proposal, "status")
+
+    def test_rejects_failed_with_semantic_claims(self):
+        proposal = valid_proposal()
+        proposal["status"] = "failed"
+        self.assert_invalid(proposal, "status")
+
+    def test_rejects_partial_without_explicit_limits(self):
+        proposal = valid_proposal()
+        proposal["status"] = "partial"
+        proposal["limits"] = []
+        self.assert_invalid(proposal, "limits")
+
+    def test_accepts_failed_without_semantic_claims(self):
+        proposal = valid_proposal()
+        proposal["status"] = "failed"
+        proposal["classification"] = {
+            "kind": "unclassified", "confidence": "low",
+            "rationale": "L'analisi non è stata completata.",
+            "summary": "Nessun risultato semantico disponibile.",
+            "evidence_refs": ["ev.catalog"]
+        }
+        proposal["capabilities"] = []
+        proposal["interfaces"] = {"inputs": [], "outputs": [], "usage_conditions": []}
+        proposal["dependencies"] = []
+        proposal["tools_and_platforms"] = []
+        proposal["evidence"] = [{
+            "id": "ev.catalog", "source": "catalog/materials.json",
+            "sha256": "f" * 64, "kind": "metadata"
+        }]
+        proposal["missing_references"] = []
+        proposal["contradictions"] = []
+        proposal["risks"] = []
+        proposal["unknowns"] = ["Il contenuto non è stato analizzato."]
+        proposal["limits"] = ["Analisi non disponibile."]
+        self.assertEqual(list(self.validator.iter_errors(proposal)), [])
+
+    def test_rejects_not_available_with_content_evidence(self):
+        proposal = valid_proposal()
+        proposal["status"] = "not_available"
+        proposal["classification"] = {
+            "kind": "unclassified", "confidence": "low",
+            "rationale": "Il contenuto non è stato esaminato.",
+            "summary": "Nessun risultato semantico disponibile.",
+            "evidence_refs": ["ev.instructions"]
+        }
+        proposal["capabilities"] = []
+        proposal["interfaces"] = {"inputs": [], "outputs": [], "usage_conditions": []}
+        proposal["dependencies"] = []
+        proposal["tools_and_platforms"] = []
+        self.assert_invalid(proposal, "status")
+
+
 if __name__ == "__main__":
     unittest.main()
