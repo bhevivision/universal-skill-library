@@ -18,6 +18,10 @@ Agent Skills è un formato supportato, non un requisito per conservare un pacche
 - [Struttura della libreria](docs/LIBRARY-STRUCTURE.md)
 - [Dati per la selezione autonoma delle skill](docs/SKILL-SELECTION.md)
 
+## Acquisizione dei materiali
+
+Il catalogo `catalog/materials.json` registra materiali acquisiti anche quando non sono ancora riconosciuti come skill. Le schede esterne sono validate con `schemas/material-record.schema.json`. Gli originali locali sono conservati sotto `intake/`; file, cartelle, archivi e pacchetti non richiedono `SKILL.md`. Il profilo Agent Skills viene controllato soltanto quando la voce usa il relativo percorso `path`.
+
 ## Controlli attualmente disponibili
 Comandi:
     python -m pip install -r requirements-dev.txt

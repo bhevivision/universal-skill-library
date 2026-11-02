@@ -28,9 +28,9 @@ Criterio di uscita: modello e principi coerenti tra ARCHITECTURE.md, STRUCTURAL-
 - [x] Aggiornare il validatore: SKILL.md è controllato soltanto per il profilo Agent Skills.
 - [x] Aggiungere test per file, cartelle, archivi, pacchetti e acquisizioni incomplete/non classificate.
 - [x] Verificare l'impronta degli originali e rilevare modifiche successive all'acquisizione.
-- [ ] Eseguire test locali e GitHub Actions e conservare le prove.
+- [x] Eseguire i 30 test e il validatore tramite GitHub Actions; conservare il risultato della verifica. L'esecuzione locale resta da ripetere in un ambiente di sviluppo locale.
 
-Criterio di uscita: un materiale non riconosciuto può essere acquisito e conservato; il sistema non lo presenta come skill utilizzabile senza classificazione e verifiche adeguate.
+Criterio di uscita: un materiale non riconosciuto può essere acquisito e conservato; il sistema non lo presenta come skill utilizzabile senza classificazione e verifiche adeguate. La suite GitHub Actions del commit `9d3b75fcbcc68a0bcd60319591c78cc23ac73d0c` è superata (30 test e validatore).
 
 ## Fase 3 — Inventario operativo delle skill esistenti
 Solo dopo che la procedura di acquisizione e conservazione è verificata:
