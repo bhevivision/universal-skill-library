@@ -90,16 +90,18 @@ def digest_file(path):
 
 def digest_directory(path):
     digest = hashlib.sha256()
-    for item in sorted(path.rglob("*")):
+    for item in sorted(path.rglob("*"), key=lambda entry: entry.relative_to(path).as_posix()):
         if item.is_symlink():
             raise ValueError(f"collegamento simbolico non ammesso: {item}")
-        if item.is_file():
-            digest.update(item.relative_to(path).as_posix().encode("utf-8"))
-            digest.update(b"\0")
+        relative = item.relative_to(path).as_posix().encode("utf-8")
+        if item.is_dir():
+            digest.update(b"D\\0" + relative + b"\\0")
+        elif item.is_file():
+            digest.update(b"F\\0" + relative + b"\\0")
             with item.open("rb") as stream:
                 for chunk in iter(lambda: stream.read(1024 * 1024), b""):
                     digest.update(chunk)
-            digest.update(b"\0")
+            digest.update(b"\\0")
     return digest.hexdigest()
 
 
