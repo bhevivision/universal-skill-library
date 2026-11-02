@@ -32,7 +32,7 @@ Questo documento distingue decisioni confermate, proposte e questioni aperte. Le
 | P-004 | Ruoli come responsabilità logiche, non agenti obbligatori. | Raccomandata. |
 | P-005 | Catalogo e relazioni fuori dal frontmatter obbligatorio di SKILL.md. | Confermata da D-012; dettagli tecnici da definire. |
 | P-006 | Versione gestita dalla libreria; metadata.version facoltativo. | Da validare sulle piattaforme. |
-| P-007 | Nuove skill sottoposte a controlli, test isolati, sicurezza e approvazione prima dell'uso. | Principio confermato; procedura tecnica da definire. |
+| P-007 | Nuove skill sottoposte a controlli, test isolati, sicurezza e approvazione prima dell'uso. | Revisione e approvazione/rifiuto della classificazione implementati; test funzionali, matrice dei permessi e ammissione nel catalogo operativo restano da definire. |
 | P-008 | Cataloghi JSON con schemi per singole voci e contenitori completi. | Implementato per i cataloghi v1 correnti; restano aperte migrazioni e compatibilità tra versioni future. |
 | P-009 | Metadati di selezione espliciti: capacità, ingressi, risultati, prerequisiti, vincoli, rischio e prove. | Criteri documentati in `docs/SKILL-SELECTION.md`; formalizzazione completa e popolamento dei cataloghi restano aperti. |
 | P-010 | Una dichiarazione stabile/verificata richiede prove esistenti e riferite allo stesso oggetto. | Controlli di integrità e riferimenti alle prove implementati; soglie temporali di validità ancora da definire. |
