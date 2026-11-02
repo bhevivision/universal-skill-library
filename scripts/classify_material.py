@@ -127,9 +127,12 @@ def _read_evidence(path, root):
             skipped.append(item.relative_to(root).as_posix())
             continue
         texts.append((item.relative_to(root).as_posix(), content))
-        excerpt = re.sub(r"\s+", " ", content).strip()[:180]
-        if excerpt:
-            evidence.append({"source": item.relative_to(root).as_posix(), "type": "text_excerpt", "excerpt": excerpt})
+        evidence.append({
+            "source": item.relative_to(root).as_posix(),
+            "type": "text_file",
+            "sha256": _digest_file(item),
+            "bytes": item.stat().st_size
+        })
     return texts, evidence, skipped
 
 
@@ -142,10 +145,14 @@ def _propose(texts, original_kind):
         return "unclassified", "low", "Non sono stati trovati contenuti testuali leggibili nei limiti dell'analisi."
 
     combined = "\n".join(text for _, text in texts).lower()
-    skill_markers = (
-        re.search(r"(?m)^\s*name\s*:\s*.+", combined) and
-        re.search(r"(?m)^\s*description\s*:\s*.+", combined)
-    ) or ("## instructions" in combined and ("skill" in combined or "when to use" in combined))
+    has_skill_metadata = (
+        re.search(r"(?m)^\\s*name\\s*:\\s*.+", combined) and
+        re.search(r"(?m)^\\s*description\\s*:\\s*.+", combined)
+    )
+    has_operational_section = bool(re.search(r"(?m)^\\s*#{1,6}\\s*instructions\\b", combined)) or "when to use" in combined
+    skill_markers = bool(has_skill_metadata and has_operational_section) or (
+        "## instructions" in combined and ("skill" in combined or "when to use" in combined)
+    )
     workflow_markers = sum(token in combined for token in ("workflow", "sequence", "step 1", "step 2", "passaggio 1", "fase 1", "dipendenze"))
     agent_markers = sum(token in combined for token in ("system prompt", "you are", "ruolo dell'agente", "agent role", "persona"))
     tool_markers = sum(token in combined for token in ("def main(", "if __name__ == \"__main__\"", "function ", "class ", "api endpoint", "command line"))
