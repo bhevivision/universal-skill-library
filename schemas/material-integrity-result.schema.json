@@ -37,8 +37,7 @@
       "type": ["string", "null"]
     },
     "recorded_digest": {
-      "type": ["string", "null"],
-      "pattern": "^[a-f0-9]{64}$"
+      "type": ["string", "null"]
     },
     "actual_digest": {
       "type": ["string", "null"],
