@@ -68,8 +68,8 @@ class ClassificationComponentTests(unittest.TestCase):
         binary = self.material.parent / "payload.bin"
         binary.write_bytes(b"\x00\xff\x00")
         result = analyze_material(self.root, "acq.skill")
-        self.assertIn(result["proposal"]["kind"], {"skill", "unclassified"})
-        self.assertTrue(result["limits"])
+        self.assertEqual(result["proposal"]["kind"], "skill")
+        self.assertTrue(any("payload.bin" in item for item in result["limits"]))
 
     def _digest(self):
         digest = hashlib.sha256()
