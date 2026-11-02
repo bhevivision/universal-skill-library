@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore. Il classificatore statico e l'approvazione/rifiuto espliciti sono implementati e verificati su Linux e Windows: 65 test superati su Linux e Windows e validatore superato nel commit `1beab4c8b033b420afc3734fced1f18341c3cb0d` (run `41520570818`). Sono stati definiti e verificati il contratto tecnico e lo schema JSON della proposta semantica. È stato implementato il controllo applicativo delle prove: verifica riferimenti, identificativi univoci, appartenenza dei percorsi al materiale acquisito, impronte SHA-256, collegamenti simbolici e intervalli di righe, con ricontrollo finale contro modifiche concorrenti. La verifica conclusiva è superata: 95 test e validatore della libreria superati sia su Linux sia su Windows nel commit `b945f948fd940c584b73c128338a23565b886a5d` (run `41525205201`). Restano il motore semantico, l'autenticazione multiutente, la prova sul PC Windows dell'utilizzatore e il coordinatore.
+Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore. Il classificatore statico e l'approvazione/rifiuto espliciti sono implementati e verificati su Linux e Windows: 65 test superati su Linux e Windows e validatore superato nel commit `1beab4c8b033b420afc3734fced1f18341c3cb0d` (run `41520570818`). Sono stati definiti e verificati il contratto tecnico e lo schema JSON della proposta semantica. È stato implementato il controllo applicativo delle prove: verifica riferimenti, identificativi univoci, appartenenza dei percorsi al materiale acquisito, impronte SHA-256, collegamenti simbolici e intervalli di righe, con ricontrollo finale contro modifiche concorrenti. La verifica conclusiva è superata: 95 test e validatore della libreria superati sia su Linux sia su Windows nel commit `b945f948fd940c584b73c128338a23565b886a5d` (run `41525205201`). Il servizio comune di integrità dei materiali è stato aggiunto e integrato nel classificatore statico, nell'approvazione e nel verificatore semantico; la verifica successiva ha superato 109 test e il validatore su Linux e Windows (run `41530833152`). Restano il motore semantico, l'autenticazione multiutente, la prova sul PC Windows dell'utilizzatore e il coordinatore.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -40,6 +40,17 @@ Stato: il modello strutturale v1 è approvato. Il componente indipendente di acq
 - [ ] Verificare l'esecuzione sul computer Windows dell'utilizzatore.
 
 Criterio di uscita: un materiale locale può essere copiato e registrato senza modificare la sorgente; un riferimento remoto viene distinto da una copia locale; nessun materiale viene classificato, eseguito o certificato automaticamente durante l'acquisizione.
+
+## Fase 2.5 — Servizio comune di integrità dei materiali
+- [x] Definire il contratto tecnico di identità, stato, percorso e impronta.
+- [x] Definire lo schema JSON versionato del risultato.
+- [x] Implementare `scripts/material_integrity.py` senza eseguire o modificare gli originali.
+- [x] Preservare gli algoritmi di impronta correnti e le impronte storiche delle cartelle.
+- [x] Separare il servizio comune dal classificatore statico.
+- [x] Collegare classificatore, approvazione e verificatore semantico al servizio comune.
+- [x] Aggiungere test per identità, duplicati, stati, percorsi, collegamenti simbolici, impronte, riferimenti remoti e schema.
+- [x] Verificare su Linux e Windows: 109 test superati su ciascun sistema e validatore superato (run `41530833152`).
+- [ ] Verificare il comportamento sul computer Windows dell'utilizzatore.
 
 ## Fase 3 — Classificazione dei materiali
 - [x] Definire il contratto di richiesta e risposta del futuro classificatore.
