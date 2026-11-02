@@ -11,7 +11,10 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from scripts.classify_material import _fingerprint, _load_catalog, _record_original_path
+if __package__ in {None, ""}:
+    from material_integrity import load_material_record, verify_material
+else:
+    from scripts.material_integrity import load_material_record, verify_material
 
 
 ALLOWED_KINDS = {"skill", "tool", "agent", "workflow", "resource", "composite", "unclassified"}
@@ -81,23 +84,30 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
     if not isinstance(proposed.get("rationale"), str):
         raise ValueError("Motivazione della proposta mancante o non valida.")
 
-    catalog, catalog_path = _load_catalog(root)
-    record = next((item for item in catalog["materials"] if isinstance(item, dict) and item.get("id") == material_id), None)
-    if record is None:
-        raise ValueError("Il materiale collegato alla proposta non è più presente nel catalogo.")
+    record, catalog, catalog_path = load_material_record(root, material_id)
     acquisition = record.get("acquisition", {})
     original = acquisition.get("original", {})
     if original.get("kind") == "remote_reference":
-        if acquisition.get("status") not in {"received", "preserved"}:
-            raise ValueError("Il riferimento remoto non è in uno stato acquisito valido.")
+        integrity = verify_material(root, material_id, allowed_states=("received", "preserved"))
+        if integrity["status"] != "not_applicable":
+            problem = integrity["problems"][0]["message"] if integrity["problems"] else "Il riferimento remoto non è verificabile."
+            raise ValueError(problem)
         if material.get("sha256") is not None:
             raise ValueError("La proposta remota contiene un'impronta locale inattesa.")
     else:
         if acquisition.get("status") != "preserved":
             raise ValueError("Il materiale locale non è in stato preserved.")
-        current_path = _record_original_path(root, record)
-        if not current_path.exists() or _fingerprint(current_path, original) != material.get("sha256"):
-            raise ValueError("Il materiale è cambiato dopo l'analisi; decisione bloccata.")
+        integrity = verify_material(
+            root, material_id, expected_digest=material.get("sha256"), allowed_states=("preserved",)
+        )
+        if integrity["status"] != "verified":
+            codes = {item["code"] for item in integrity["problems"]}
+            if "DIGEST_MISMATCH" in codes:
+                raise ValueError("Il materiale è cambiato dopo l'analisi; decisione bloccata.")
+            if "EXPECTED_DIGEST_MISMATCH" in codes:
+                raise ValueError("La proposta non corrisponde all'impronta registrata nell'acquisizione.")
+            problem = integrity["problems"][0]["message"] if integrity["problems"] else "Integrità del materiale non verificata."
+            raise ValueError(problem)
         if original.get("sha256") != material.get("sha256"):
             raise ValueError("La proposta non corrisponde all'impronta registrata nell'acquisizione.")
 
