@@ -110,6 +110,27 @@ class ClassificationApprovalTests(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             approve_proposal(self.root, "class.missing", actor="human:reviewer", rationale="Ok")
 
+    def test_rejection_does_not_erase_a_previously_approved_classification(self):
+        path = self.root / "catalog/materials.json"
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+        catalog["materials"][0]["classification"] = {
+            "status": "classified", "kind": "resource", "rationale": "Decisione precedente."
+        }
+        path.write_text(json.dumps(catalog), encoding="utf-8")
+        reject_proposal(self.root, "class.example", actor="human:reviewer", rationale="Nuova proposta respinta.")
+        classification = self._material()["classification"]
+        self.assertEqual(classification["status"], "classified")
+        self.assertEqual(classification["kind"], "resource")
+        self.assertEqual(classification["decisions"][0]["decision"], "rejected")
+
+    def test_malformed_proposal_is_rejected_without_catalog_changes(self):
+        path = self.root / "proposals/class.example.json"
+        path.write_text(json.dumps({"proposal_id": "class.example", "status": "pending_approval", "material": []}), encoding="utf-8")
+        before = (self.root / "catalog/materials.json").read_bytes()
+        with self.assertRaises(ValueError):
+            approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+        self.assertEqual((self.root / "catalog/materials.json").read_bytes(), before)
+
 
 if __name__ == "__main__":
     unittest.main()
