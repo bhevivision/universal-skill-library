@@ -87,6 +87,22 @@ class ClassificationApprovalTests(unittest.TestCase):
             approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
         self.assertEqual(self._material()["classification"]["status"], "not_examined")
 
+    def test_preserves_error_when_proposal_fingerprint_is_stale(self):
+        self.proposal["material"]["sha256"] = "0" * 64
+        (self.root / "proposals/class.example.json").write_text(
+            json.dumps(self.proposal), encoding="utf-8"
+        )
+        with self.assertRaisesRegex(ValueError, "Il materiale è cambiato dopo l'analisi"):
+            approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+
+    def test_preserves_error_when_catalog_fingerprint_differs_from_proposal(self):
+        path = self.root / "catalog/materials.json"
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+        catalog["materials"][0]["acquisition"]["original"]["sha256"] = "0" * 64
+        path.write_text(json.dumps(catalog), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "La proposta non corrisponde all'impronta registrata"):
+            approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+
     def test_refuses_decision_when_acquisition_is_no_longer_preserved(self):
         path = self.root / "catalog/materials.json"
         catalog = json.loads(path.read_text(encoding="utf-8"))
