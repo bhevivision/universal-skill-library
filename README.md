@@ -18,4 +18,4 @@ python -m unittest discover -s tests -v
 python scripts/validate_library.py
 ```
 
-La documentazione e i controlli verificano la struttura dei dati. Non dichiarano che skill non ancora inserite, il coordinatore o le implementazioni siano già funzionanti.
+La lettura del frontmatter `SKILL.md` usa YAML sicuro (incluse descrizioni su più righe e valori tra virgolette). La documentazione e i controlli verificano la struttura dei dati, non certificano il funzionamento sostanziale delle skill, l'interoperabilità o il coordinatore.
