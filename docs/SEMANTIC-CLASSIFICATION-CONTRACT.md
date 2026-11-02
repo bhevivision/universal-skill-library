@@ -36,7 +36,7 @@ La risposta deve rispettare lo schema JSON indicato sopra. I campi principali so
 - `missing_references`, `contradictions`, `risks`, `unknowns`, `limits`;
 - `analyzer`: identificativo e versione del motore, fornitore, modello e impronte di ingresso e uscita.
 
-Le affermazioni dichiarate o dedotte devono avere almeno una prova. Le informazioni sconosciute possono non avere prove, ma devono essere esplicitamente marcate come sconosciute. Il campo compatibilità non consente il valore verificato: la verifica di piattaforma è un processo separato.
+La conclusione di classificazione e ogni capacità o affermazione dichiarata o dedotta devono avere almeno una prova. Le prove possono riferirsi a file conservati sotto `intake/` oppure, per attestare soltanto l'identità di un riferimento remoto non visitato, alla scheda `catalog/materials.json`. Le informazioni sconosciute possono non avere prove, ma devono essere esplicitamente marcate come sconosciute. Un riferimento remoto non esaminato può quindi produrre una proposta `not_available` e `unclassified`, senza fingere di conoscerne il contenuto. Il campo compatibilità non consente il valore verificato: la verifica di piattaforma è un processo separato.
 
 ## Regole di sicurezza
 
@@ -65,7 +65,8 @@ Le affermazioni dichiarate o dedotte devono avere almeno una prova. Le informazi
 - rifiuti categorie e stati non previsti;
 - rifiuti capacità o affermazioni dichiarate senza prove;
 - consenta informazioni sconosciute senza prove;
-- rifiuti impronte non valide, prove fuori da `intake/` e campi non previsti;
+- rifiuti impronte non valide, prove fuori dalle sorgenti ammesse e campi non previsti;
+- accetti un riferimento remoto non visitato come non classificato, con sola prova d'identità;
 - impedisca di dichiarare autorizzato un analizzatore locale o di usare un analizzatore remoto senza autorizzazione esplicita.
 
 Questi test verificano il contratto dei dati, non la qualità di un modello né l'effettivo isolamento di un futuro motore. Tali verifiche saranno necessarie durante l'implementazione.
