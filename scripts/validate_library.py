@@ -3,7 +3,7 @@
 from __future__ import annotations
 import argparse, json, re, sys
 from pathlib import Path
-from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema import Draft202012Validator, FormatChecker\nimport yaml
 from referencing import Registry, Resource
 CATALOGS={
  "catalog/capabilities.json":("capabilities","schemas/capabilities-catalog.schema.json","schemas/capability.schema.json"),
@@ -50,16 +50,27 @@ def check_evidence(root,refs,subject,expected_result,label,errors):
   if isinstance(proof,dict):
    if proof.get("result")!=expected_result:errors.append(f"{ref}: esito prova diverso dall'esito dichiarato {expected_result}")
    if proof.get("subject")!=subject:errors.append(f"{ref}: la prova riguarda {proof.get('subject')!r}, non {subject!r}")
+class UniqueKeyLoader(yaml.SafeLoader):
+ def construct_mapping(self,node,deep=False):
+  mapping={}
+  for key_node,value_node in node.value:
+   key=self.construct_object(key_node,deep=deep)
+   if key in mapping:raise yaml.constructor.ConstructorError("mapping",node.start_mark,f"chiave YAML duplicata: {key}",key_node.start_mark)
+   mapping[key]=self.construct_object(value_node,deep=deep)
+  return mapping
 def frontmatter(p):
  t=p.read_text(encoding="utf-8")
- if not t.startswith("---\n"):return None,None
- end=t.find("\n---",4)
- if end<0:return None,None
- block=t[4:end]; values={}
- for key in ("name","description"):
-  m=re.search(rf"^{key}:\s*(.+?)\s*$",block,re.MULTILINE)
-  if m:values[key]=m.group(1).strip().strip("\"'")
- return values.get("name"),values.get("description")
+ if not t.startswith("---\\n"):raise ValueError("frontmatter YAML assente o delimitatore iniziale mancante")
+ end=t.find("\\n---",4)
+ if end<0:raise ValueError("delimitatore finale del frontmatter mancante")
+ values=yaml.load(t[4:end],Loader=UniqueKeyLoader)
+ if not isinstance(values,dict):raise ValueError("frontmatter YAML deve contenere una mappa")
+ name,description=values.get("name"),values.get("description")
+ if not isinstance(name,str) or not name.strip():raise ValueError("campo name mancante o non testuale")
+ if not isinstance(description,str) or not description.strip():raise ValueError("campo description mancante o non testuale")
+ if len(name)>64 or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",name):raise ValueError("campo name non conforme al formato Agent Skills")
+ if len(description)>1024:raise ValueError("campo description supera 1024 caratteri")
+ return name,description
 def validate_repository(root):
  root=Path(root).resolve(); errors=[]; catalogs={}
  for rel,(collection,catalog_schema,entry_schema) in CATALOGS.items():
@@ -88,6 +99,11 @@ def validate_repository(root):
     name,description=frontmatter(package)
     if name!=package.parent.name:errors.append(f"skill {sid}: name del frontmatter ({name!r}) non coincide con la cartella ({package.parent.name!r})")
     if not description:errors.append(f"skill {sid}: description mancante nel frontmatter")
+   except yaml.YAMLError as e:errors.append(f"skill {sid}: frontmatter YAML non valido ({e})")
+   except ValueError as e:
+    message=str(e)
+    if "chiave YAML duplicata" in message:errors.append(f"skill {sid}: {message}")
+    else:errors.append(f"skill {sid}: frontmatter non valido ({message})")
    except (OSError,UnicodeError) as e:errors.append(f"skill {sid}: impossibile leggere SKILL.md ({e})")
   for cid in skill.get("capability_ids",[]):
    cap=capmap.get(cid)
