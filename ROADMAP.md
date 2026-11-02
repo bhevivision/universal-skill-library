@@ -70,7 +70,7 @@ Criterio di uscita: un materiale locale può essere copiato e registrato senza m
 - [x] Verificare la chiusura contrattuale su Linux e Windows: 183 test superati su ciascun sistema e validatore superato (run `41545015198`).
 - [ ] Implementare il motore semantico locale sostituibile, con stato esplicito not_available se non configurato.
 - [ ] Ampliare gli analizzatori per formati diversi e introdurre prove specifiche per ciascun formato.
-- [ ] Implementare il flusso separato di revisione, approvazione e registrazione della proposta nel catalogo.
+- [ ] Collegare la classificazione approvata al processo controllato di ammissione nel catalogo operativo delle skill; la revisione e l'approvazione/rifiuto della classificazione sono già implementate, ma non creano automaticamente una skill operativa.
 - [ ] Verificare il componente con prove automatiche e su Windows.
 
 ## Fase 4 — Inventario operativo delle skill esistenti
