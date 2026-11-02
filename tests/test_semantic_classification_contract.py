@@ -218,12 +218,12 @@ class SemanticClassificationContractTests(unittest.TestCase):
     def test_rejects_not_available_with_semantic_claims(self):
         proposal = valid_proposal()
         proposal["status"] = "not_available"
-        self.assert_invalid(proposal, "status")
+        self.assert_invalid(proposal, "kind")
 
     def test_rejects_failed_with_semantic_claims(self):
         proposal = valid_proposal()
         proposal["status"] = "failed"
-        self.assert_invalid(proposal, "status")
+        self.assert_invalid(proposal, "kind")
 
     def test_rejects_partial_without_explicit_limits(self):
         proposal = valid_proposal()
@@ -268,7 +268,7 @@ class SemanticClassificationContractTests(unittest.TestCase):
         proposal["interfaces"] = {"inputs": [], "outputs": [], "usage_conditions": []}
         proposal["dependencies"] = []
         proposal["tools_and_platforms"] = []
-        self.assert_invalid(proposal, "status")
+        self.assert_invalid(proposal, "source")
 
 
 if __name__ == "__main__":
