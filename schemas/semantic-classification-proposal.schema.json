@@ -60,7 +60,7 @@
     "classification": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "confidence", "rationale", "summary"],
+      "required": ["kind", "confidence", "rationale", "summary", "evidence_refs"],
       "properties": {
         "kind": {
           "enum": ["skill", "tool", "agent", "workflow", "resource", "composite", "unclassified"]
@@ -75,6 +75,12 @@
         "summary": {
           "type": "string",
           "minLength": 1
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
         }
       }
     },
