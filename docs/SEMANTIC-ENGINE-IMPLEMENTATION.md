@@ -2,7 +2,7 @@
 
 ## Stato
 
-Il modulo `scripts/semantic_engine.py` introduce il primo confine eseguibile del motore semantico. Non è ancora un classificatore semantico completo e non include un modello locale.
+Il modulo `scripts/semantic_engine.py` fornisce il confine dell'analizzatore; `scripts/semantic_pipeline.py` collega preparazione, richiesta, analisi, verifica applicativa e salvataggio esclusivo. Non è ancora presente un modello semantico locale reale.
 
 ## Interfaccia
 
@@ -41,13 +41,39 @@ L'impronta di uscita è SHA-256 della proposta canonica escluso il solo campo `a
 - La funzione non scrive file, proposte o cataloghi.
 - La validazione dello schema non sostituisce `validate_semantic_proposal(root, proposal)`: il chiamante dovrà verificare le prove contro i file acquisiti e le impronte correnti prima di salvare.
 
-## Cosa manca
+## Flusso integrato disponibile
 
-1. Costruzione automatica della richiesta a partire da `prepare_material()`.
-2. Controllo dell'impronta del catalogo e del materiale nel flusso integrato.
-3. Adattatore per un modello semantico locale effettivamente disponibile.
-4. Isolamento dell'adattatore, limiti di tempo reali e gestione delle risorse.
-5. Verifica applicativa delle prove e salvataggio atomico in `proposals/`.
-6. Prove di qualità semantica su materiali con risultati attesi.
+Il punto d'ingresso è:
 
-Fino al completamento di questi punti, il motore è un primo nucleo sostituibile, non una funzione di classificazione pronta all'uso.
+```python
+classify_material(root, material_id, analyzer=None, request_id=None)
+```
+
+Il flusso:
+1. chiama `prepare_material()` in sola lettura;
+2. interrompe l'operazione se la preparazione è `blocked` o `failed`;
+3. costruisce automaticamente la richiesta dal materiale preparato, includendo soltanto file testuali ammessi e i limiti già definiti;
+4. marca esplicitamente il contenuto come dato non fidato e nega accesso a file system, rete, processi, credenziali e cataloghi;
+5. non invoca un analizzatore se non è stato preparato alcun contenuto;
+6. esegue l'analizzatore configurato o restituisce `not_available`;
+7. converte in `partial` una classificazione basata su una preparazione parziale;
+8. verifica schema, identità, riferimenti, percorsi e impronte tramite `validate_semantic_proposal()`;
+9. ricontrolla l'impronta del catalogo e salva la proposta senza sovrascrivere file esistenti.
+
+Le proposte vengono salvate in `proposals/`, separate dai cataloghi approvati. Il salvataggio non approva la classificazione e non abilita l'esecuzione del materiale. Se la verifica delle prove fallisce, la proposta non viene salvata.
+
+## Modello locale: decisione ancora aperta
+
+L'interfaccia è indipendente dal fornitore e consente di collegare un adattatore locale. Non è stato scelto né incluso un modello reale. La scelta del formato e del motore di esecuzione dipende dalle risorse dell'ambiente che ospiterà il modello (memoria, processore, eventuale acceleratore grafico e sistema operativo). GitHub Actions esegue i test automatici, ma non è un ambiente persistente di inferenza locale e non dimostra che un modello possa essere eseguito sul computer personale, oggi non disponibile.
+
+Non si scaricano modelli pesanti nel repository e non si aggiungono dipendenze obbligatorie per un modello non ancora scelto. Il prossimo passo è definire un adattatore per un runtime locale con versione fissata, percorso del modello configurato, limiti effettivi, uscita JSON controllata e test d'integrazione separati dai test ordinari.
+
+## Limiti e lavori aperti
+
+1. Integrare un modello semantico locale realmente eseguibile, dopo aver definito l'ambiente di destinazione.
+2. Isolare l'adattatore dal file system, dalla rete e dall'esecuzione di comandi; il contratto attuale esprime i permessi richiesti ma non costituisce sandbox.
+3. Applicare un limite di tempo effettivo al processo d'inferenza e gestire memoria e annullamento.
+4. Aggiungere un insieme di materiali campione con classificazioni attese e misure di precisione, richiamo, coerenza e qualità delle prove.
+5. Ampliare la copertura dei formati oltre i testi già supportati da `material_preparer.py`.
+
+Fino al completamento di questi punti, il flusso integrato è utilizzabile per produrre proposte `not_available` o per verificare adattatori di prova; non è ancora un classificatore autonomo pronto all'uso.
