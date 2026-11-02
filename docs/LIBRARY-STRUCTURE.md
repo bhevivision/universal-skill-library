@@ -4,7 +4,7 @@ Stato: struttura tecnica v1 proposta e sottoposta a controlli automatici sul ram
 
 ## 1. Architettura
 
-La libreria separa tre livelli: pacchetti skill nel formato aperto Agent Skills; cataloghi leggibili dalle macchine; implementazioni tecniche specifiche per piattaforma e agente. Nome e descrizione restano nel `SKILL.md` canonico. I cataloghi conservano identificativi, relazioni, dati di selezione e riferimenti alle prove.
+La libreria separa tre livelli: pacchetti skill nel formato aperto Agent Skills; cataloghi leggibili dalle macchine; implementazioni tecniche per piattaforma, con compatibilità agente dichiarata esplicitamente. Nome e descrizione restano nel `SKILL.md` canonico. I cataloghi conservano identificativi, relazioni, dati di selezione e riferimenti alle prove.
 
 ## 2. Struttura
 
@@ -52,7 +52,7 @@ Una skill `stable` richiede verifica superata e prove consultabili. Un'implement
 
 ## 5. Prove
 
-Le prove permanenti non riservate sono referenziate sotto `tests/evidence/`. Ogni prova descrive soggetto, esito, data, comando/procedura e sintesi. Il controllo verifica esistenza, formato e corrispondenza del soggetto. Non inserire credenziali, token, dati personali o documenti riservati. Le prove di una singola esecuzione utente appartengono al futuro coordinatore, non al catalogo pubblico.
+Le prove permanenti non riservate sono referenziate sotto `tests/evidence/`. Ogni prova descrive soggetto, esito, data, comando/procedura e sintesi. Il controllo verifica esistenza, formato e corrispondenza del soggetto. Il frontmatter viene letto con un analizzatore YAML sicuro; sono gestite descrizioni su più righe e valori tra virgolette, mentre YAML non valido e chiavi duplicate vengono rifiutati. Il nome è controllato rispetto alle regole standard Agent Skills. Non inserire credenziali, token, dati personali o documenti riservati. Le prove di una singola esecuzione utente appartengono al futuro coordinatore, non al catalogo pubblico.
 
 ## 6. Selezione autonoma
 
