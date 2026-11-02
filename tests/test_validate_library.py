@@ -65,19 +65,19 @@ class Tests(unittest.TestCase):
   self.assertEqual(validate_repository(self.root),[])
  def test_accepts_multiline_yaml_description(self):
   p=self.root/"skills/pdf-analyze/SKILL.md"
-  p.write_text("---\\nname: pdf-analyze\\ndescription: >-\\n  Analizza documenti PDF\\n  mantenendo i riferimenti alle pagine.\\n---\\n# Istruzioni\\n",encoding="utf-8")
+  p.write_text("---\nname: pdf-analyze\ndescription: >-\n  Analizza documenti PDF\n  mantenendo i riferimenti alle pagine.\n---\n# Istruzioni\n",encoding="utf-8")
   self.assertEqual(validate_repository(self.root),[])
  def test_accepts_quoted_yaml_frontmatter(self):
   p=self.root/"skills/pdf-analyze/SKILL.md"
-  p.write_text('---\\nname: "pdf-analyze"\\ndescription: \'Analizza PDF: testo e tabelle.\'\\n---\\n# Istruzioni\\n',encoding="utf-8")
+  p.write_text('---\nname: "pdf-analyze"\ndescription: \'Analizza PDF: testo e tabelle.\'\n---\n# Istruzioni\n',encoding="utf-8")
   self.assertEqual(validate_repository(self.root),[])
  def test_rejects_malformed_yaml_frontmatter(self):
   p=self.root/"skills/pdf-analyze/SKILL.md"
-  p.write_text("---\\nname: [pdf-analyze\\ndescription: Test\\n---\\n",encoding="utf-8")
+  p.write_text("---\nname: [pdf-analyze\ndescription: Test\n---\n",encoding="utf-8")
   self.assertTrue(any("frontmatter YAML non valido" in e for e in validate_repository(self.root)))
  def test_rejects_duplicate_frontmatter_keys(self):
   p=self.root/"skills/pdf-analyze/SKILL.md"
-  p.write_text("---\\nname: pdf-analyze\\nname: other\\ndescription: Test\\n---\\n",encoding="utf-8")
+  p.write_text("---\nname: pdf-analyze\nname: other\ndescription: Test\n---\n",encoding="utf-8")
   self.assertTrue(any("chiave YAML duplicata" in e for e in validate_repository(self.root)))
  def test_accepts_agent_independent_implementation(self):
   self.change("catalog/implementations.json",lambda d:d["implementations"][0].update(agent_compatibility={"mode":"any","agents":[]}))
