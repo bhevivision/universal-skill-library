@@ -18,11 +18,11 @@ def digest_directory(path):
     for item in sorted(path.rglob("*"), key=lambda entry: entry.relative_to(path).as_posix()):
         relative = item.relative_to(path).as_posix().encode("utf-8")
         if item.is_dir():
-            digest.update(b"D\\0" + relative + b"\\0")
+            digest.update(b"D\0" + relative + b"\0")
         elif item.is_file():
-            digest.update(b"F\\0" + relative + b"\\0")
+            digest.update(b"F\0" + relative + b"\0")
             digest.update(item.read_bytes())
-            digest.update(b"\\0")
+            digest.update(b"\0")
     return digest.hexdigest()
 
 
