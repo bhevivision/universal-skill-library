@@ -1,6 +1,6 @@
 # Struttura della libreria universale
 
-Stato: modello architetturale v1 approvato. La struttura fisica e i controlli per acquisizione eterogenea sono ancora da implementare; il validatore attuale è stato progettato intorno al profilo Agent Skills e non dimostra la conformità del nuovo modello.
+Stato: modello architetturale v1 approvato. L'acquisizione eterogenea, il catalogo dei materiali e i controlli d'integrità sono implementati sul ramo di lavoro. Il componente registra file, cartelle e riferimenti remoti; gestisce il recupero delle transazioni interrotte e il rilevamento dei duplicati. La verifica automatica è eseguita su Linux e Windows tramite GitHub Actions. La prova sul computer Windows dell'utilizzatore resta distinta.
 
 ## 1. Architettura a livelli
 La libreria separa:
@@ -72,19 +72,24 @@ Ogni verifica è riferita a identificativo del materiale o della skill; versione
 
 Una prova strutturale conferma soltanto la struttura controllata. Non certifica il comportamento funzionale. Una verifica superata non si trasferisce automaticamente a una versione modificata o a un'altra piattaforma.
 
-## 8. Validazione automatica: transizione necessaria
-I controlli già presenti verificano cataloghi JSON e pacchetti nel profilo Agent Skills, inclusi frontmatter e SKILL.md. Non sono ancora sufficienti per il modello eterogeneo approvato.
+## 8. Validazione automatica
 
-Il validatore dovrà distinguere: integrità e tracciabilità dell'acquisizione; validità della scheda esterna; controlli specifici del profilo soltanto quando applicabile; collegamenti tra record, adattamenti, implementazioni e verifiche; condizioni necessarie per rendere una skill utilizzabile.
+Il validatore controlla:
+- schemi dei cataloghi e delle schede descrittive;
+- integrità e tracciabilità dei materiali conservati sotto `intake/`;
+- impronte SHA-256 di file e cartelle, incluse le cartelle vuote;
+- percorsi sicuri e assenza di collegamenti simbolici;
+- profilo Agent Skills soltanto quando una skill è fornita tramite `SKILL.md`;
+- collegamenti tra materiali, capacità, skill, implementazioni e prove.
 
-Il validatore non deve richiedere SKILL.md a ogni materiale. Deve rifiutare dati incoerenti senza rifiutare per questo la conservazione di un originale non interpretabile. I test devono includere file singoli, cartelle, archivi, pacchetti compositi, riferimenti remoti, formati sconosciuti, acquisizioni incomplete e tentativi di modifica dell'originale.
+La presenza di `SKILL.md` non è richiesta per ogni materiale. I file sconosciuti, i pacchetti opachi e i riferimenti remoti possono essere conservati e registrati senza essere dichiarati skill.
 
-Comandi della suite esistente:
+Comandi:
+
     python -m unittest discover -s tests -v
     python scripts/validate_library.py
 
-Il loro superamento attesta soltanto i controlli implementati nella versione corrente, non la copertura del nuovo modello eterogeneo.
-
+La suite viene eseguita su Linux e Windows tramite GitHub Actions. Il superamento dei test attesta soltanto i comportamenti coperti e non certifica la sicurezza o il funzionamento dei materiali acquisiti.
 
 ## 10. Contratto della scheda descrittiva esterna
 
