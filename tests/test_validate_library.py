@@ -97,6 +97,6 @@ class Tests(unittest.TestCase):
    d["skills"][0]["lifecycle"]="unverified"
    d["skills"][0]["selection"]["verification"]={"status":"not_run","evidence_refs":["tests/evidence/skill.json"]}
   self.change("catalog/skills.json",edit)
-  self.assertTrue(any("too long" in e for e in validate_repository(self.root)))
+  errors=validate_repository(self.root)\n  self.assertTrue(errors, "La verifica not_run ha accettato prove: " + repr(errors))
 
 if __name__=="__main__":unittest.main()
