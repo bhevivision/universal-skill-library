@@ -45,6 +45,16 @@ Dettagli: [Componente di classificazione](docs/CLASSIFICATION-COMPONENT.md).
 
 La futura analisi semantica avrà un contratto e uno schema di proposta separati. In questa fase sono stati definiti lo schema JSON e i relativi test di contratto; il motore semantico non è ancora implementato.
 
+## Controllo dell'integrità delle prove semantiche
+
+Il componente `scripts/semantic_evidence_integrity.py` verifica una proposta semantica senza eseguire il materiale acquisito. Controlla la conformità allo schema, l'unicità degli identificativi delle prove, l'esistenza di tutti i riferimenti, la corrispondenza tra materiale e catalogo, i percorsi ammessi, l'appartenenza dei file al materiale originale, le impronte SHA-256, i collegamenti simbolici e gli intervalli di righe dichiarati. Esegue un nuovo controllo delle impronte al termine per rilevare modifiche durante la verifica.
+
+Esempio:
+
+    python scripts/semantic_evidence_integrity.py --proposal proposals/nome-proposta.json
+
+Le prove del catalogo usano l'impronta dell'intero `catalog/materials.json`: se il catalogo cambia, la proposta deve essere verificata nuovamente. Il controllo dimostra la tracciabilità tecnica delle prove, non la correttezza del significato attribuito dal classificatore.
+
 ## Controlli disponibili
 
 Comandi:
