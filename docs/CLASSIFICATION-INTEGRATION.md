@@ -2,7 +2,7 @@
 
 ## Scopo
 
-Il componente di acquisizione termina dopo aver conservato il materiale e creato la scheda. Il futuro sistema di classificazione sarà separato e riceverà una richiesta riferita a un preciso identificativo e a una precisa impronta.
+Il componente di acquisizione termina dopo aver conservato il materiale e creato la scheda. Il classificatore separato riceve un identificativo e verifica la precisa impronta prima dell'analisi.
 
 ## Dati in ingresso al classificatore
 
@@ -17,7 +17,7 @@ La risposta dovrà riferirsi allo stesso identificativo e alla stessa impronta e
 1. La richiesta è rifiutata se il materiale non esiste o la sua impronta è cambiata.
 2. L'analisi non modifica l'originale e non riceve permessi di esecuzione per il solo fatto di classificare.
 3. Il risultato è una proposta separata: il classificatore non aggiorna direttamente il catalogo.
-4. Il responsabile del catalogo valida e registra la proposta con un'operazione distinta.
+4. Il componente di approvazione registra una decisione esplicita, con responsabile dichiarato e motivazione, nella scheda del materiale.
 5. Una classificazione come skill non equivale a verifica funzionale né ad autorizzazione all'esecuzione.
 
 ## Stato
