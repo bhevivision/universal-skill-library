@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import errno
 import hashlib
 import json
@@ -147,6 +148,16 @@ def _base_record(material_id, name, description, method, source_label, status, o
 
 
 def _pid_is_alive(pid):
+    if os.name == "nt":
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel.OpenProcess.argtypes = [ctypes.c_uint32, ctypes.c_int, ctypes.c_uint32]
+        kernel.OpenProcess.restype = ctypes.c_void_p
+        kernel.CloseHandle.argtypes = [ctypes.c_void_p]
+        handle = kernel.OpenProcess(0x00100000, False, pid)  # SYNCHRONIZE
+        if handle:
+            kernel.CloseHandle(handle)
+            return True
+        return ctypes.get_last_error() != 87  # ERROR_INVALID_PARAMETER means no such PID
     try:
         os.kill(pid, 0)
         return True
