@@ -21,7 +21,7 @@ La proposta viene salvata in `proposals/class.nome-proposta.json`. Gli identific
 - Legge soltanto file testuali con estensioni ammesse, codifica UTF-8 e limiti massimi di dimensione e numero di file.
 - Non estrae archivi, non visita riferimenti remoti e non esegue codice o comandi.
 - Applica indicatori dichiarati e ripetibili per proporre una categoria: `skill`, `tool`, `agent`, `workflow`, `resource`, `composite` oppure `unclassified`.
-- Registra fonti, estratti limitati, motivazione, confidenza, elementi non analizzati e limiti.
+- Registra percorsi e impronte dei file esaminati, senza copiare estratti del contenuto nella proposta; registra motivazione, confidenza, elementi non analizzati e limiti.
 
 La classificazione è una proposta preliminare basata su analisi statica e regole. Non è ancora un classificatore semantico universale basato su modelli intelligenti. Se gli indizi non bastano, propone `unclassified` o una categoria a bassa confidenza invece di inventare informazioni.
 
@@ -39,13 +39,9 @@ Ogni proposta contiene:
 
 ## Approvazione e catalogazione
 
-La proposta non è una classificazione approvata. Una persona o un futuro componente autorizzato dovrà:
-1. verificare che identificativo e impronta corrispondano ancora al materiale;
-2. esaminare prove, motivazione, incertezze e limiti;
-3. approvare, respingere o chiedere un'analisi diversa;
-4. solo dopo l'approvazione, registrare separatamente la classificazione nel catalogo.
+La proposta non è una classificazione approvata. Il componente separato `scripts/classification_approval.py` consente di approvare o respingere una proposta. Prima della decisione verifica di nuovo l'impronta e registra esito, responsabile dichiarato, motivazione e identificativo della proposta nella scheda del materiale. I dettagli sono in `docs/CLASSIFICATION-APPROVAL.md`.
 
-La procedura di approvazione automatica e l'inserimento nel catalogo non fanno parte di questo componente.
+L'approvazione aggiorna soltanto la classificazione del materiale. Non crea una voce in `catalog/skills.json` e non abilita l'esecuzione. La proposta originale resta conservata come prova del suggerimento iniziale.
 
 ## Limiti e sicurezza
 
