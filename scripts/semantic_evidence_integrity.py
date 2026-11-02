@@ -8,7 +8,10 @@ from pathlib import Path, PurePosixPath
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-if __package__ in {None, ""}:\n    from classify_material import _fingerprint, _load_catalog, _record_original_path\nelse:\n    from scripts.classify_material import _fingerprint, _load_catalog, _record_original_path
+if __package__ in {None, ""}:
+    from classify_material import _fingerprint, _load_catalog, _record_original_path
+else:
+    from scripts.classify_material import _fingerprint, _load_catalog, _record_original_path
 
 
 SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schemas/semantic-classification-proposal.schema.json"
