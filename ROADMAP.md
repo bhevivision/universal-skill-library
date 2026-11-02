@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite viene verificata su Linux e Windows; il risultato finale della versione corrente è registrato nelle azioni GitHub. Resta la prova sul computer Windows dell'utilizzatore. Il classificatore e il coordinatore non sono ancora implementati.
+Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore. Il classificatore e il coordinatore non sono ancora implementati.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -29,7 +29,8 @@ Stato: il modello strutturale v1 è approvato. Il componente indipendente di acq
 - [x] Eseguire i 30 test e il validatore tramite GitHub Actions sul commit `d57f0b11690a71dafc1144b5fa8b7b560ab0bd0b`.
 - [x] Definire il contratto pubblico del componente indipendente di acquisizione con test prima dell'implementazione.
 - [x] Implementare copia locale, scheda descrittiva, impronta, controlli di collisione e registrazione di riferimenti remoti.
-- [x] Verificare la nuova implementazione con tutti i test tramite GitHub Actions: 40 test superati e validatore superato (run `41513402663`).
+- [x] Verificare la prima implementazione tramite GitHub Actions: 40 test superati e validatore superato (run `41513402663`).
+- [x] Verificare la versione rafforzata su Linux e Windows: 48 test superati su ciascun sistema e validatore superato (run `41516548748`).
 - [x] Aggiungere recupero delle transazioni interrotte sullo stesso computer, con completamento o annullamento prudente.
 - [x] Rilevare duplicati di contenuto per file e cartelle, oltre ai duplicati per identificativo.
 - [x] Versionare l'algoritmo delle impronte e mantenere la lettura delle impronte storiche.
