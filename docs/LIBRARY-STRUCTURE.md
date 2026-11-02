@@ -1,71 +1,89 @@
 # Struttura della libreria universale
 
-Stato: struttura tecnica v1 proposta e sottoposta a controlli automatici sul ramo di lavoro. Non è ancora approvata come definitiva e non certifica skill non ancora inserite.
+Stato: modello architetturale v1 approvato. La struttura fisica e i controlli per acquisizione eterogenea sono ancora da implementare; il validatore attuale è stato progettato intorno al profilo Agent Skills e non dimostra la conformità del nuovo modello.
 
-## 1. Architettura
+## 1. Architettura a livelli
+La libreria separa:
+1. Acquisizione e conservazione: riceve materiali di qualsiasi formato e mantiene intatto l'originale.
+2. Descrizione e classificazione: registra informazioni esterne e classifica soltanto dopo l'analisi.
+3. Catalogo: permette ricerca e collegamento tra materiali, capacità, skill e implementazioni.
+4. Adattamenti e implementazioni: contiene derivati separati dall'originale e specifici per ambiente.
+5. Verifiche e prove: registra controlli riferiti a una precisa versione e a un preciso ambiente.
 
-La libreria separa tre livelli: pacchetti skill nel formato aperto Agent Skills; cataloghi leggibili dalle macchine; implementazioni tecniche per piattaforma, con compatibilità agente dichiarata esplicitamente. Nome e descrizione restano nel `SKILL.md` canonico. I cataloghi conservano identificativi, relazioni, dati di selezione e riferimenti alle prove.
+Agent Skills è uno dei profili di formato supportati. Non è il contenitore obbligatorio di tutti i materiali.
 
-## 2. Struttura
+## 2. Tipi di materiale da accettare
+L'acquisizione deve poter rappresentare almeno: file singolo testuale o binario; cartella o albero di file; archivio compresso; pacchetto con più componenti; documentazione e risorse collegate; riferimento remoto o deposito esterno; pacchetto composito o non ancora interpretabile.
 
-```text
-/
-├── README.md
-├── ARCHITECTURE.md
-├── STRUCTURAL-MODEL.md
-├── GLOSSARY.md
-├── DECISIONS.md
-├── ROADMAP.md
-├── skills/<skill-name>/SKILL.md
-├── implementations/<platform>/<implementation-id>/manifest.json
-├── catalog/{capabilities,skills,implementations}.json
-├── schemas/
-│   ├── capability.schema.json
-│   ├── skill-entry.schema.json
-│   ├── implementation.schema.json
-│   ├── implementation-manifest.schema.json
-│   ├── evidence.schema.json
-│   └── *-catalog.schema.json
-├── scripts/validate_library.py
-├── tests/test_validate_library.py
-├── requirements-dev.txt
-├── .github/workflows/validate-library.yml
-├── examples/capability-mapping.json
-└── docs/{LIBRARY-STRUCTURE,SKILL-SELECTION}.md
-```
+La libreria non deve eseguire il materiale durante ricezione e analisi. Archivi e file potenzialmente pericolosi sono trattati come dati non fidati. L'estrazione, quando necessaria, avviene in ambiente controllato e non altera la copia originale.
 
-Le directory e le skill preesistenti non vengono spostate o riscritte in questa fase.
+## 3. Organizzazione logica proposta
+Il layout fisico definitivo non viene imposto prima dei test sui diversi tipi di pacchetto. La struttura logica deve separare originale, scheda, adattamenti e verifiche. Esempio indicativo:
 
-## 3. Pacchetti skill
+    /
+    ├── README.md
+    ├── ARCHITECTURE.md
+    ├── STRUCTURAL-MODEL.md
+    ├── DECISIONS.md
+    ├── ROADMAP.md
+    ├── intake/
+    │   └── <acquisition-id>/
+    │       ├── source/          # copia integra del materiale ricevuto
+    │       └── acquisition.json
+    ├── records/
+    │   └── <record-id>.json
+    ├── catalog/
+    │   ├── capabilities.json
+    │   ├── materials.json
+    │   ├── skills.json
+    │   └── implementations.json
+    ├── adapters/
+    ├── implementations/
+    ├── verification/
+    ├── schemas/
+    ├── scripts/
+    ├── tests/
+    └── docs/
 
-Ogni skill pubblicabile è una cartella autonoma con `SKILL.md` obbligatorio e risorse facoltative (`scripts/`, `references/`, `assets/`). Il nome della cartella coincide con il campo standard `name`. Il frontmatter obbligatorio resta quello di Agent Skills (`name` e `description`): non si introducono campi proprietari obbligatori. Le dipendenze specifiche di piattaforma vengono dichiarate nelle implementazioni.
+Questo schema è un'organizzazione logica, non una prescrizione di collocare ogni pacchetto sotto una cartella standard. Il contenuto di source/ può essere un file, una cartella o un archivio, mantenuto nella forma originaria. I riferimenti remoti e le acquisizioni incomplete sono registrati come tali, senza fingere che esista una copia locale.
 
-## 4. Cataloghi
+## 4. Scheda esterna e cataloghi
+La scheda esterna è indipendente dal formato del pacchetto. Registra, quando noti: identificativo e provenienza; nome originale e collocazione; tipo di elemento e formato rilevato; classificazione, motivazione e confidenza; versione dichiarata e impronta calcolata; descrizione, scopo e capacità associate; ingressi, risultati, prerequisiti e dipendenze; limitazioni, rischi, permessi e compatibilità; lacune informative e riferimenti mancanti; stati di acquisizione, classificazione, documentazione, verifica e utilizzabilità.
 
-I cataloghi sono JSON versione `1.0`, validati con JSON Schema Draft 2020-12.
+I dati non noti non sono inventati. Il record può essere parziale. Un pacchetto non classificato può essere conservato e ricercato senza essere inserito nel catalogo delle skill eseguibili.
 
-- **Capacità:** identificativo, nome, descrizione, categoria, risultato atteso, criteri di verifica, capacità collegate, skill associate, limitazioni e stato. Una capacità senza skill associate rappresenta una lacuna, non un errore strutturale.
-- **Skill:** identificativo, percorso, capacità coperte, ambito, versione, ciclo di vita e dati di selezione: segnali del compito, ingressi, risultati, prerequisiti, vincoli, rischio e verifica.
-- **Implementazioni:** identificativo, skill/versione servita, piattaforma, percorso del manifesto, requisiti, strumenti, permessi, agenti compatibili, stato e verifica.
+I cataloghi di capacità, materiali, skill e implementazioni sono viste strutturate collegate tramite identificativi. Il formato dei record e i relativi schemi saranno aggiornati prima di dichiarare operativa questa architettura.
 
-Una skill `stable` richiede verifica superata e prove consultabili. Un'implementazione `verified` richiede verifica superata, data e prove. Il manifesto dichiara almeno identificativo, skill, versione e piattaforma e deve coincidere con il catalogo.
+## 5. Profili di formato
+Ogni profilo è facoltativo e specifico di un formato. Può controllare struttura e metadati previsti da quel formato, ma non può diventare un requisito generale per l'acquisizione.
+- Agent Skills: riconosce cartella, SKILL.md, frontmatter standard e risorse facoltative.
+- Altri formati noti: possono avere analizzatori dedicati, senza conversione automatica dell'originale.
+- Formato sconosciuto o opaco: viene conservato; la descrizione indica che il contenuto non è stato interpretato.
 
-## 5. Prove
+L'assenza di un analizzatore non comporta rifiuto o perdita del materiale. Comporta una classificazione e una documentazione limitate.
 
-Le prove permanenti non riservate sono referenziate sotto `tests/evidence/`. Ogni prova descrive soggetto, esito, data, comando/procedura e sintesi. Il controllo verifica esistenza, formato e corrispondenza del soggetto. Il frontmatter viene letto con un analizzatore YAML sicuro; sono gestite descrizioni su più righe e valori tra virgolette, mentre YAML non valido e chiavi duplicate vengono rifiutati. Il nome è controllato rispetto alle regole standard Agent Skills. Non inserire credenziali, token, dati personali o documenti riservati. Le prove di una singola esecuzione utente appartengono al futuro coordinatore, non al catalogo pubblico.
+## 6. Adattamenti e implementazioni
+Gli adattamenti sono collocati fuori dal pacchetto originale. Ogni adattamento indica origine, versione o impronta di partenza, piattaforma di destinazione, modifiche, motivo, responsabile e prove. Le implementazioni descrivono come una skill viene effettivamente eseguita in un ambiente, con requisiti, strumenti, permessi e compatibilità.
 
-## 6. Selezione autonoma
+Un adattamento non è automaticamente approvato né compatibile. La compatibilità deve essere verificata nell'ambiente dichiarato.
 
-Il coordinatore applica prima le esclusioni obbligatorie (stato, copertura, ingressi, risultati, limiti, prerequisiti, piattaforma, agente, strumenti e autorizzazioni); poi confronta le candidate per copertura, compatibilità, prerequisiti, prove, rischio e permessi. La procedura completa è in [Dati per la selezione autonoma delle skill](SKILL-SELECTION.md). La disponibilità reale viene controllata al momento dell'esecuzione.
+## 7. Verifica e prove
+Ogni verifica è riferita a identificativo del materiale o della skill; versione dichiarata e/o impronta del contenuto verificato; adattamento o implementazione, se presente; ambiente e piattaforma; procedura e criteri; data, esito, limiti e riferimenti alle prove.
 
-## 7. Controlli automatici
+Una prova strutturale conferma soltanto la struttura controllata. Non certifica il comportamento funzionale. Una verifica superata non si trasferisce automaticamente a una versione modificata o a un'altra piattaforma.
 
-`python scripts/validate_library.py` controlla JSON e schemi, identificativi univoci, riferimenti e collegamenti reciproci, presenza dei pacchetti, nome nel frontmatter, compatibilità tra ambito e piattaforma, coerenza tra catalogo e manifesto, versione servita e prove. Impedisce di dichiarare stabile o verificata una voce senza prove adeguate.
+## 8. Validazione automatica: transizione necessaria
+I controlli già presenti verificano cataloghi JSON e pacchetti nel profilo Agent Skills, inclusi frontmatter e SKILL.md. Non sono ancora sufficienti per il modello eterogeneo approvato.
 
-I test si eseguono con `python -m unittest discover -s tests -v`. La stessa sequenza è configurata in GitHub Actions per ogni modifica e richiesta di integrazione.
+Il validatore dovrà distinguere: integrità e tracciabilità dell'acquisizione; validità della scheda esterna; controlli specifici del profilo soltanto quando applicabile; collegamenti tra record, adattamenti, implementazioni e verifiche; condizioni necessarie per rendere una skill utilizzabile.
 
-La verifica strutturale non dimostra che una skill svolga correttamente il proprio compito: i test funzionali devono essere specifici, riproducibili e pertinenti alla versione.
+Il validatore non deve richiedere SKILL.md a ogni materiale. Deve rifiutare dati incoerenti senza rifiutare per questo la conservazione di un originale non interpretabile. I test devono includere file singoli, cartelle, archivi, pacchetti compositi, riferimenti remoti, formati sconosciuti, acquisizioni incomplete e tentativi di modifica dell'originale.
 
-## 8. Dati dinamici e limiti
+Comandi della suite esistente:
+    python -m unittest discover -s tests -v
+    python scripts/validate_library.py
 
-Strumenti effettivamente disponibili, agenti attivi, autorizzazioni della sessione, credenziali, stato delle attività e prove temporanee non sono verità permanenti del catalogo. Questa versione non introduce motore semantico, database runtime, API del coordinatore, protocollo completo degli adattatori, installazione automatica o motore di coordinamento.
+Il loro superamento attesta soltanto i controlli implementati nella versione corrente, non la copertura del nuovo modello eterogeneo.
+
+## 9. Dati dinamici e limiti
+Strumenti effettivamente disponibili, agenti attivi, autorizzazioni della sessione, credenziali, stato delle attività e prove temporanee non sono verità permanenti del catalogo. Il modello non introduce ancora un motore semantico, un database runtime, API del coordinatore, installazione automatica o un motore di coordinamento.
