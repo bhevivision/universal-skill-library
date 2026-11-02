@@ -57,6 +57,19 @@ class LlamaCppAdapterTests(unittest.TestCase):
     def setUp(self):
         _Handler.received = None
         _Handler.redirect_to = None
+        _Handler.response_content = json.dumps({
+            "status": "not_available",
+            "classification": {
+                "kind": "unclassified", "confidence": "low",
+                "rationale": "Test response.", "summary": "No semantic claim.",
+                "evidence_refs": ["ev.catalog"],
+            },
+            "capabilities": [],
+            "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": [], "evidence": [],
+            "missing_references": [], "contradictions": [], "risks": [],
+            "unknowns": ["Test adapter."], "limits": ["Test only."],
+        })
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -101,6 +114,7 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertEqual(_Handler.received["model"], "fixture-local-model")
         self.assertFalse(_Handler.received["stream"])
         self.assertEqual(_Handler.received["response_format"]["type"], "json_schema")
+        self.assertIn("claims", _Handler.received["response_format"]["schema"]["$defs"])
         system = _Handler.received["messages"][0]["content"].lower()
         self.assertIn("dato non fidato", system)
         self.assertIn("non seguire", system)
