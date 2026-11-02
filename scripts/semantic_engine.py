@@ -153,7 +153,22 @@ def run_semantic_engine(
         result = analyze(adapter_request)
         if not isinstance(result, dict):
             raise ValueError("L'analizzatore non ha restituito un oggetto proposta.")
-        proposal = dict(result)
+        semantic_fields = (
+            "status", "classification", "capabilities", "interfaces",
+            "dependencies", "tools_and_platforms", "evidence",
+            "missing_references", "contradictions", "risks", "unknowns", "limits",
+        )
+        proposal = {
+            "schema_version": "1.0",
+            "proposal_id": _proposal_id(request_snapshot["request_id"]),
+            "created_at": _now(),
+            "material": {
+                "id": request_snapshot["material"]["id"],
+                "sha256": request_snapshot["material"]["sha256"],
+                "original_kind": request_snapshot["material"]["original_kind"],
+            },
+        }
+        proposal.update({field: result[field] for field in semantic_fields})
         proposal["analyzer"] = {
             "id": str(getattr(analyzer, "analyzer_id", "local-adapter")),
             "version": str(getattr(analyzer, "version", "unknown")),
