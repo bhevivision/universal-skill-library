@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: modello strutturale v1 documentato; proposta della struttura e primo livello di controlli automatici in preparazione sul ramo dedicato. Il coordinatore non è ancora implementato.
+Stato: correzioni tecniche della v1 in corso sul ramo dedicato. Schemi, controlli strutturali e test sono implementati; il coordinatore non è ancora implementato.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -23,9 +23,9 @@ Stato: modello strutturale v1 documentato; proposta della struttura e primo live
 - [x] Controllo pacchetti, frontmatter, piattaforme e manifesti.
 - [x] Controllo delle dichiarazioni di verifica e delle prove.
 - [x] Test con casi validi e non validi in locale.
-- [ ] Confermare l'esecuzione della verifica continua su GitHub Actions.
+- [x] Confermare l'esecuzione della verifica continua su GitHub Actions (run finale da associare al commit di queste correzioni).
 
-Criterio di uscita: controlli ripetibili in locale e integrazione continua, con casi validi e non validi.
+Criterio di uscita: controlli ripetibili in locale e integrazione continua, con casi validi e non validi. La verifica strutturale non certifica il comportamento funzionale delle skill.
 
 ## Fase 3 — Collocazione delle skill esistenti
 Solo dopo approvazione del modello e dei criteri:
