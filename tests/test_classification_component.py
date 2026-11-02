@@ -52,6 +52,23 @@ class ClassificationComponentTests(unittest.TestCase):
         self.assertEqual(self.material.read_bytes(), before)
         self.assertEqual((self.root / "catalog/materials.json").read_bytes(), catalog_before)
 
+    def test_evidence_does_not_copy_source_text_into_proposal(self):
+        result = analyze_material(self.root, "acq.skill")
+        self.assertNotIn("excerpt", json.dumps(result["evidence"]))
+        self.assertTrue(all("sha256" in item for item in result["evidence"] if item["type"] == "text_file"))
+
+    def test_frontmatter_without_operational_instructions_is_not_enough_for_skill(self):
+        self.material.write_text(
+            "---\\nname: report-writer\\ndescription: A brief description.\\n---\\nJust a note.\\n",
+            encoding="utf-8",
+        )
+        catalog_path = self.root / "catalog/materials.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        catalog["materials"][0]["acquisition"]["original"]["sha256"] = self._digest()
+        catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+        result = analyze_material(self.root, "acq.skill")
+        self.assertEqual(result["proposal"]["kind"], "resource")
+
     def test_persists_proposal_outside_approved_catalog(self):
         result = analyze_material(self.root, "acq.skill")
         path = save_proposal(self.root, result, "proposal.test")
