@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. I controlli e i 19 test già presenti riguardano la precedente struttura basata sul profilo Agent Skills; non dimostrano ancora la copertura dell'acquisizione eterogenea. Il coordinatore non è implementato.
+Stato: il modello strutturale v1 è approvato. Il modello di acquisizione eterogenea e il componente indipendente di acquisizione locale sono implementati sul ramo di lavoro; la verifica conclusiva del componente dipende dalla suite GitHub Actions sul commit corrente. Il coordinatore non è implementato.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -11,15 +11,13 @@ Stato: il modello strutturale v1 è approvato. I controlli e i 19 test già pres
 - [x] Aggiornare i documenti architetturali per riflettere le decisioni confermate.
 - [ ] Verificare formalmente coerenza e completezza della documentazione aggiornata.
 
-Criterio di uscita: modello e principi coerenti tra ARCHITECTURE.md, STRUCTURAL-MODEL.md, DECISIONS.md e docs/LIBRARY-STRUCTURE.md.
-
 ## Fase 1 — Inventario e criteri della libreria
 - [x] Analizzare i materiali già presenti senza modificarli.
 - [x] Definire i dati minimi per confrontare e selezionare skill.
 - [x] Definire la distinzione tra materiale acquisito, classificazione e skill utilizzabile.
-- [ ] Definire lo schema della scheda descrittiva esterna.
-- [ ] Definire il trattamento di file singoli, cartelle, archivi, pacchetti compositi e riferimenti remoti.
-- [ ] Stabilire provenienza, impronta, versionamento e gestione dei duplicati.
+- [x] Definire lo schema della scheda descrittiva esterna.
+- [x] Definire il trattamento di file singoli, cartelle, archivi, pacchetti compositi e riferimenti remoti.
+- [ ] Definire provenienza, impronta, versionamento e gestione dei duplicati in modo completo.
 
 ## Fase 2 — Acquisizione e validazione eterogenea
 - [x] Separare controlli generali di acquisizione e integrità dai controlli specifici dei profili.
@@ -28,9 +26,14 @@ Criterio di uscita: modello e principi coerenti tra ARCHITECTURE.md, STRUCTURAL-
 - [x] Aggiornare il validatore: SKILL.md è controllato soltanto per il profilo Agent Skills.
 - [x] Aggiungere test per file, cartelle, archivi, pacchetti e acquisizioni incomplete/non classificate.
 - [x] Verificare l'impronta degli originali e rilevare modifiche successive all'acquisizione.
-- [x] Eseguire i 30 test e il validatore tramite GitHub Actions; conservare il risultato della verifica. L'esecuzione locale resta da ripetere in un ambiente di sviluppo locale.
+- [x] Eseguire i 30 test e il validatore tramite GitHub Actions sul commit `d57f0b11690a71dafc1144b5fa8b7b560ab0bd0b`.
+- [x] Definire il contratto pubblico del componente indipendente di acquisizione con test prima dell'implementazione.
+- [x] Implementare copia locale, scheda descrittiva, impronta, controlli di collisione e registrazione di riferimenti remoti.
+- [ ] Verificare la nuova implementazione con tutti i test tramite GitHub Actions.
+- [ ] Aggiungere recupero automatico da interruzione forzata e gestione dei duplicati per contenuto, non soltanto per identificativo.
+- [ ] Verificare l'esecuzione locale su Windows.
 
-Criterio di uscita: un materiale non riconosciuto può essere acquisito e conservato; il sistema non lo presenta come skill utilizzabile senza classificazione e verifiche adeguate. La suite GitHub Actions del commit `9d3b75fcbcc68a0bcd60319591c78cc23ac73d0c` è superata (30 test e validatore).
+Criterio di uscita: un materiale locale può essere copiato e registrato senza modificare la sorgente; un riferimento remoto viene distinto da una copia locale; nessun materiale viene classificato, eseguito o certificato automaticamente durante l'acquisizione.
 
 ## Fase 3 — Inventario operativo delle skill esistenti
 Solo dopo che la procedura di acquisizione e conservazione è verificata:

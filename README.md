@@ -18,14 +18,23 @@ Agent Skills è un formato supportato, non un requisito per conservare un pacche
 - [Struttura della libreria](docs/LIBRARY-STRUCTURE.md)
 - [Dati per la selezione autonoma delle skill](docs/SKILL-SELECTION.md)
 
-## Acquisizione dei materiali
+## Componente indipendente di acquisizione
 
-Il catalogo `catalog/materials.json` registra materiali acquisiti anche quando non sono ancora riconosciuti come skill. Le schede esterne sono validate con `schemas/material-record.schema.json`. Gli originali locali sono conservati sotto `intake/`; file, cartelle, archivi e pacchetti non richiedono `SKILL.md`. Il profilo Agent Skills viene controllato soltanto quando la voce usa il relativo percorso `path`.
+Il componente `scripts/acquire_material.py` riceve file e cartelle locali, li copia sotto `intake/` senza eseguire il contenuto, calcola SHA-256, crea una scheda esterna e aggiorna `catalog/materials.json`. Riconosce gli archivi ZIP e TAR e li conserva come file opachi, senza estrarli. Può inoltre registrare un riferimento HTTP/HTTPS senza dichiarare che esista una copia locale.
 
-## Controlli attualmente disponibili
+Esempi, dalla cartella principale della libreria:
+
+    python scripts/acquire_material.py --id acq.nuovo-materiale --source "C:/Percorso/materiale.zip"
+    python scripts/acquire_material.py --id acq.cartella --source "C:/Percorso/cartella" --kind package
+    python scripts/acquire_material.py --id acq.riferimento --uri "https://example.org/repository"
+
+Il componente rifiuta identificativi duplicati, destinazioni già esistenti e collegamenti simbolici. La copia viene preparata in una cartella temporanea e pubblicata solo dopo il controllo dell'impronta; gli errori durante la copia non producono una scheda catalogata. Il componente non estrae archivi, non esegue codice, non classifica il materiale e non ne certifica il funzionamento.
+
+## Controlli disponibili
 Comandi:
+
     python -m pip install -r requirements-dev.txt
     python -m unittest discover -s tests -v
     python scripts/validate_library.py
 
-Attenzione: la validazione attuale è stata costruita intorno al profilo Agent Skills e ai cataloghi precedenti. Non attesta ancora l'acquisizione universale descritta nel modello v1. L'estensione del validatore e i relativi test sono una fase di lavoro aperta.
+La suite viene eseguita anche tramite GitHub Actions. Il superamento dei test prova soltanto i comportamenti coperti: non equivale a certificare la sicurezza o la funzionalità dei materiali acquisiti.
