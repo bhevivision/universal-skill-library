@@ -87,6 +87,14 @@ class ClassificationApprovalTests(unittest.TestCase):
             approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
         self.assertEqual(self._material()["classification"]["status"], "not_examined")
 
+    def test_refuses_decision_when_acquisition_is_no_longer_preserved(self):
+        path = self.root / "catalog/materials.json"
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+        catalog["materials"][0]["acquisition"]["status"] = "incomplete"
+        path.write_text(json.dumps(catalog), encoding="utf-8")
+        with self.assertRaises(ValueError):
+            approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+
     def test_refuses_second_decision_for_same_proposal(self):
         approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
         with self.assertRaises(ValueError):
