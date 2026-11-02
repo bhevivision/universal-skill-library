@@ -56,7 +56,12 @@ def _safe_text_files(path):
 
 def _read_evidence(path, root):
     evidence, texts, skipped = [], [], []
-    for item in _safe_text_files(path):
+    candidates = [path] if path.is_file() else sorted(path.rglob("*"))
+    eligible = set(_safe_text_files(path))
+    for item in candidates:
+        if item.is_file() and item not in eligible:
+            skipped.append(item.relative_to(root).as_posix())
+    for item in eligible:
         try:
             content = item.read_text(encoding="utf-8")
         except (UnicodeError, OSError):
