@@ -1,6 +1,8 @@
 import json
 import os
 import socket
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -30,8 +32,10 @@ class AcquisitionRecoveryAndDuplicateTests(unittest.TestCase):
 
     def write_stale_lock(self):
         lock = self.root / ".materials-acquisition.lock"
+        process = subprocess.Popen([sys.executable, "-c", "pass"])
+        process.wait()
         lock.write_text(json.dumps({
-            "pid": 2**30,
+            "pid": process.pid,
             "hostname": socket.gethostname(),
             "created_at": "2020-01-01T00:00:00Z"
         }), encoding="utf-8")
