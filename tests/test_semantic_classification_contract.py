@@ -158,5 +158,27 @@ class SemanticClassificationContractTests(unittest.TestCase):
         self.assert_invalid(proposal, "evidence")
 
 
+    def test_rejects_remote_analyzer_without_explicit_external_authorization(self):
+        proposal = valid_proposal()
+        proposal["analyzer"]["provider"] = "remote"
+        proposal["analyzer"]["external_data_authorized"] = False
+        self.assert_invalid(proposal, "external_data_authorized")
+
+    def test_rejects_local_analyzer_marked_as_external(self):
+        proposal = valid_proposal()
+        proposal["analyzer"]["external_data_authorized"] = True
+        self.assert_invalid(proposal, "external_data_authorized")
+
+    def test_rejects_evidence_outside_preserved_material(self):
+        proposal = valid_proposal()
+        proposal["evidence"][0]["source"] = "downloads/copied.md"
+        self.assert_invalid(proposal, "source")
+
+    def test_rejects_missing_required_contract_field(self):
+        proposal = valid_proposal()
+        del proposal["analyzer"]["input_sha256"]
+        self.assert_invalid(proposal, "input_sha256")
+
+
 if __name__ == "__main__":
     unittest.main()
