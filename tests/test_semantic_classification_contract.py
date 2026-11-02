@@ -84,6 +84,7 @@ def valid_proposal():
             "id": "local-semantic-analyzer",
             "version": "0.1.0",
             "provider": "local",
+            "external_data_authorized": False,
             "model": "example-model",
             "model_version": "2026-10",
             "input_sha256": "d" * 64,
@@ -154,7 +155,7 @@ class SemanticClassificationContractTests(unittest.TestCase):
         proposal["tools_and_platforms"][0]["compatibility"] = "verified"
         self.assert_invalid(proposal, "compatibility")
 
-    def test_rejects_duplicate_evidence_identifiers(self):
+    def test_rejects_duplicate_evidence_entries(self):
         proposal = valid_proposal()
         proposal["evidence"].append(dict(proposal["evidence"][0]))
         self.assert_invalid(proposal, "evidence")
