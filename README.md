@@ -19,7 +19,10 @@ Agent Skills è un formato supportato, non un requisito per conservare un pacche
 - [Dati per la selezione autonoma delle skill](docs/SKILL-SELECTION.md)
 - [Progettazione della classificazione semantica](docs/SEMANTIC-CLASSIFICATION-DESIGN.md)
 - [Contratto tecnico della classificazione semantica](docs/SEMANTIC-CLASSIFICATION-CONTRACT.md)
+- [Schema JSON della richiesta semantica](schemas/semantic-classification-request.schema.json)
 - [Schema JSON della proposta semantica](schemas/semantic-classification-proposal.schema.json)
+- [Inventario preliminare dei materiali esistenti](docs/EXISTING-SKILLS-INVENTORY.md)
+- [Verifica locale della libreria su Windows](docs/WINDOWS-LOCAL-VERIFICATION.md)
 
 ## Componente indipendente di acquisizione
 

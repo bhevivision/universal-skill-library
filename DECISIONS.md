@@ -32,24 +32,22 @@ Questo documento distingue decisioni confermate, proposte e questioni aperte. Le
 | P-004 | Ruoli come responsabilità logiche, non agenti obbligatori. | Raccomandata. |
 | P-005 | Catalogo e relazioni fuori dal frontmatter obbligatorio di SKILL.md. | Confermata da D-012; dettagli tecnici da definire. |
 | P-006 | Versione gestita dalla libreria; metadata.version facoltativo. | Da validare sulle piattaforme. |
-| P-007 | Nuove skill sottoposte a controlli, test isolati, sicurezza e approvazione prima dell'uso. | Principio confermato; procedura tecnica da definire. |
-| P-008 | Cataloghi JSON con schemi per singole voci e contenitori completi. | Implementato per il modello precedente; da adeguare al nuovo modello. |
-| P-009 | Metadati di selezione espliciti: capacità, ingressi, risultati, prerequisiti, vincoli, rischio e prove. | Da formalizzare negli schemi aggiornati. |
-| P-010 | Una dichiarazione stabile/verificata richiede prove esistenti e riferite allo stesso oggetto. | Controlli presenti nel profilo precedente; estensione necessaria. |
-| P-011 | Il frontmatter SKILL.md viene interpretato come YAML sicuro, con controllo delle chiavi duplicate e dei campi standard name/description. | Controllo specifico del profilo Agent Skills; non è requisito universale. |
-| P-012 | La compatibilità agente è esplicita e verificata nell'ambiente reale. | Modello precedente contempla any/specific; regole definitive da collaudare. |
-| P-013 | Layout logico separato per acquisizione, originale, schede, cataloghi, adattamenti e verifiche. | Esempio documentato; layout fisico definitivo subordinato ai test sui diversi pacchetti. |
-| P-014 | Analizzatori specifici per formato, con percorso di conservazione per formati sconosciuti. | Da implementare e testare. |
+| P-007 | Nuove skill sottoposte a controlli, test isolati, sicurezza e approvazione prima dell'uso. | Revisione e approvazione/rifiuto della classificazione implementati; test funzionali, matrice dei permessi e ammissione nel catalogo operativo restano da definire. |
+| P-008 | Cataloghi JSON con schemi per singole voci e contenitori completi. | Implementato per i cataloghi v1 correnti; restano aperte migrazioni e compatibilità tra versioni future. |
+| P-009 | Metadati di selezione espliciti: capacità, ingressi, risultati, prerequisiti, vincoli, rischio e prove. | Criteri documentati in `docs/SKILL-SELECTION.md`; formalizzazione completa e popolamento dei cataloghi restano aperti. |
+| P-010 | Una dichiarazione stabile/verificata richiede prove esistenti e riferite allo stesso oggetto. | Controlli di integrità e riferimenti alle prove implementati; soglie temporali di validità ancora da definire. |
+| P-011 | Il frontmatter SKILL.md viene interpretato come YAML sicuro, con controllo delle chiavi duplicate e dei campi standard name/description. | Implementato nel validatore esclusivamente per il profilo Agent Skills; non è requisito universale. |
+| P-012 | La compatibilità agente è esplicita e verificata nell'ambiente reale. | Il modello dei dati distingue compatibilità generica e specifica; prove reali su piattaforme e versioni restano aperte. |
+| P-013 | Layout logico separato per acquisizione, originale, schede, cataloghi, adattamenti e verifiche. | Layout di acquisizione v1 implementato per i tipi supportati; adattamenti e aree di verifica operative restano da realizzare. |
+| P-014 | Analizzatori specifici per formato, con percorso di conservazione per formati sconosciuti. | Conservazione dei formati sconosciuti e analisi statica limitata implementate; analizzatori aggiuntivi restano da realizzare. |
 
 ## Questioni aperte
 | ID | Questione | Prossima azione |
 |---|---|---|
-| O-001 | Schema e versionamento dei record esterni. | Definire campi, valori sconosciuti, provenienza e retrocompatibilità. |
-| O-002 | Layout fisico per file singoli, cartelle, archivi, pacchetti compositi e riferimenti remoti. | Progettare casi di prova prima di fissare il layout. |
-| O-003 | Integrità, impronte, duplicati e aggiornamento delle versioni. | Definire procedura e prove riproducibili. |
-| O-004 | Profili e analizzatori per formati conosciuti e sconosciuti. | Stabilire interfaccia minima e comportamento quando manca un analizzatore. |
-| O-005 | Analisi di sicurezza e gestione di pacchetti non fidati. | Definire estrazione isolata, scansione e regole di non esecuzione. |
-| O-006 | Validatore: separazione tra controlli generali e controlli specifici di formato. | Aggiornare codice e test; l'attuale requisito SKILL.md non è universale. |
+| O-001 | Migrazioni e retrocompatibilità delle versioni future degli schemi dei record. | Definire strategia di migrazione senza invalidare i record v1 già acquisiti. |
+| O-003 | Gestione delle versioni successive dello stesso materiale e delle modifiche alla fonte. | Definire come collegare versioni distinte senza sovrascrivere l'originale precedente. |
+| O-004 | Analizzatori per formati aggiuntivi e relative prove specifiche. | Definire priorità e contratti per PDF, documenti d'ufficio, archivi e altri formati. |
+| O-005 | Estrazione isolata, scansione e gestione avanzata dei pacchetti non fidati. | Progettare un ambiente controllato prima di introdurre estrazione o analisi attiva. |
 | O-007 | Validità temporale delle prove. | Definire soglie per tipo e rischio della skill. |
 | O-008 | Compatibilità esatta degli agenti e delle loro versioni. | Verificare su Claude Code e Codex. |
 | O-009 | Protocollo comune degli adattatori. | Verificare differenze reali tra piattaforme. |
@@ -59,6 +57,16 @@ Questo documento distingue decisioni confermate, proposte e questioni aperte. Le
 | O-013 | Motore di coordinamento. | Riprendere ORCA e confrontare candidati con test end-to-end. |
 | O-014 | Test funzionali per ogni skill. | Definire requisiti specifici per categoria. |
 | O-015 | Inclusione di skill personali o specifiche di progetto. | Applicare le regole di separazione del progetto prima di ogni acquisizione. |
+| O-016 | Versionamento del ciclo di vita dei materiali e migrazione degli schemi. | Distinguere una nuova versione della fonte da un duplicato e definire migrazioni riproducibili. |
+
+## Questioni chiuse con prove
+
+| ID | Questione risolta | Evidenza |
+|---|---|---|
+| O-002 | Layout di acquisizione v1 per file, cartelle, archivi opachi, pacchetti e riferimenti remoti. | `scripts/acquire_material.py`, `tests/test_acquisition_component.py`, `tests/test_heterogeneous_intake.py`; suite Linux/Windows nel run `41545326945`. |
+| O-006 | Separazione tra controlli generali di acquisizione/integrità e controllo specifico del profilo Agent Skills. | `scripts/validate_library.py`, `tests/test_validate_library.py`; suite Linux/Windows nel run `41545326945`. |
+| O-017 | Impronte SHA-256, algoritmi versionati e rilevamento dei duplicati per i tipi di materiale supportati. | `scripts/acquire_material.py`, `scripts/material_integrity.py` e test dedicati; suite Linux/Windows nel run `41545326945`. |
+| O-018 | Schemi v1 dei cataloghi e dei record per materiali, capacità, skill e implementazioni. | `schemas/*-catalog.schema.json`, schemi dei record e `scripts/validate_library.py`; validatore superato nel run `41545326945`. |
 
 ## Specifica Agent Skills consultata
 Fonte ufficiale: https://agentskills.io/specification

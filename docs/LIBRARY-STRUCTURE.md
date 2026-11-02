@@ -52,7 +52,7 @@ La scheda esterna è indipendente dal formato del pacchetto. Registra, quando no
 
 I dati non noti non sono inventati. Il record può essere parziale. Un pacchetto non classificato può essere conservato e ricercato senza essere inserito nel catalogo delle skill eseguibili.
 
-I cataloghi di capacità, materiali, skill e implementazioni sono viste strutturate collegate tramite identificativi. Il formato dei record e i relativi schemi saranno aggiornati prima di dichiarare operativa questa architettura.
+I cataloghi di capacità, materiali, skill e implementazioni sono contenitori JSON versionati, con schemi per il contenitore e per le singole voci in `schemas/`. Il validatore controlla gli schemi e i collegamenti tra gli oggetti. I cataloghi presenti nel ramo sono attualmente vuoti: la presenza degli schemi non significa che l'inventario operativo sia già stato popolato. La gestione completa delle migrazioni tra versioni successive dei record resta aperta.
 
 ## 5. Profili di formato
 Ogni profilo è facoltativo e specifico di un formato. Può controllare struttura e metadati previsti da quel formato, ma non può diventare un requisito generale per l'acquisizione.
@@ -90,6 +90,10 @@ Comandi:
     python scripts/validate_library.py
 
 La suite viene eseguita su Linux e Windows tramite GitHub Actions. Il superamento dei test attesta soltanto i comportamenti coperti e non certifica la sicurezza o il funzionamento dei materiali acquisiti.
+
+## 9. Stato dei cataloghi e dell'inventario
+
+Gli schemi v1 per materiali, capacità, skill e implementazioni sono presenti e controllati dal validatore. I cataloghi sono ancora vuoti: i materiali sotto `personalizzazione/` sono stati esaminati soltanto in modo preliminare e non sono stati ancora acquisiti tramite il componente ufficiale. Il rapporto è in [EXISTING-SKILLS-INVENTORY.md](EXISTING-SKILLS-INVENTORY.md). La verifica locale su Windows è descritta in [WINDOWS-LOCAL-VERIFICATION.md](WINDOWS-LOCAL-VERIFICATION.md).
 
 ## 10. Contratto della scheda descrittiva esterna
 

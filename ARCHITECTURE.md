@@ -1,6 +1,6 @@
 # Architettura della libreria universale
 
-Stato: modello strutturale v1 approvato. Il modello ammette pacchetti eterogenei e conserva gli originali. La struttura di acquisizione è definita a livello architetturale; cataloghi, analizzatori, adattatori e controlli aggiornati per tutti i formati devono ancora essere implementati e collaudati. Le skill presenti non sono per questo certificate.
+Stato: modello strutturale v1 approvato. Sul ramo di lavoro sono implementati e verificati l'acquisizione di file, cartelle, archivi opachi e riferimenti remoti, il controllo comune d'integrità, il classificatore statico limitato, l'approvazione esplicita e i contratti della classificazione semantica. La suite ha superato 183 test e il validatore su Ubuntu e Windows nel run GitHub Actions 41545326945. La verifica sul computer Windows dell'utilizzatore resta distinta. Il motore semantico, gli analizzatori per ulteriori formati, gli adattatori interoperabili e il coordinatore non sono ancora implementati. Le skill presenti non sono per questo certificate.
 
 ## Scopo
 Trasformare un obiettivo espresso in linguaggio naturale in attività eseguibili e verificabili. La libreria può ricevere e conservare materiale prima di sapere se sia una skill. Il coordinatore utilizza soltanto elementi classificati e idonei allo specifico compito. Libreria e coordinatore sono distinti e indipendenti da un singolo modello o fornitore.
@@ -70,4 +70,4 @@ Un elemento può essere conservato ma non classificato; classificato ma document
 ## Confini e limiti attuali
 Il pacchetto originale è la fonte conservata. La scheda esterna descrive ciò che è noto senza modificare la fonte. Il catalogo consente ricerca e selezione. Un adattatore rende un contenuto utilizzabile in uno specifico ambiente senza trasformare l'originale. Un'implementazione è una realizzazione eseguibile; uno strumento è una risorsa concreta.
 
-I controlli esistenti sono stati costruiti attorno al profilo Agent Skills e dovranno essere estesi con controlli generali di integrità e profili specifici facoltativi. Non si deve dichiarare operativa l'acquisizione universale prima di averla implementata e verificata.
+I controlli generali di acquisizione e integrità sono separati dai controlli specifici dei profili di formato. Il validatore applica il controllo Agent Skills soltanto ai pacchetti registrati tramite SKILL.md. La conservazione di materiali eterogenei è implementata per i tipi documentati; l'interpretazione e la verifica funzionale di ogni formato non lo sono. Non si deve confondere la capacità di conservare un formato con la capacità di comprenderlo o renderlo utilizzabile.

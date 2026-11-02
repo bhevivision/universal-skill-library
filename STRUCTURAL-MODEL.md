@@ -23,7 +23,7 @@ Valutazione separata dall'acquisizione. Categorie possibili: skill; possibile sk
 ### Scheda descrittiva esterna
 Record della libreria indipendente dal formato originale. Contiene, quando noti: identificativo stabile, provenienza, nome originale, posizione del pacchetto, tipo di contenuto, formato rilevato, classificazione, descrizione, versione o impronta, dipendenze, riferimenti, lacune, limitazioni, date e stati. I campi non conosciuti sono assenti o esplicitamente sconosciuti; non vengono dedotti senza prova.
 
-La scheda non sostituisce né riscrive la documentazione originale. La struttura e il formato del record saranno formalizzati negli schemi tecnici.
+La scheda non sostituisce né riscrive la documentazione originale. La struttura v1 dei record e dei cataloghi è formalizzata negli schemi JSON sotto `schemas/` e verificata da `scripts/validate_library.py`. Le migrazioni tra versioni future degli schemi restano da definire.
 
 ### Capacità
 Abilità richiesta al sistema, indipendente dalla piattaforma. Struttura approvata: identificativo; nome; descrizione; categoria; risultato atteso; criteri di verifica; capacità collegate facoltative; skill associate facoltative; limitazioni facoltative; stato. La registrazione non garantisce la disponibilità nell'ambiente corrente.
