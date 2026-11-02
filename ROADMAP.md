@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. Il modello di acquisizione eterogenea e la prima versione del componente indipendente sono implementati sul ramo di lavoro. La suite GitHub Actions ha superato 40 test e il validatore sul commit `7d7e49e8f9f943171962d3eda0445f9860f52548`. Restano verifiche locali su Windows e miglioramenti di robustezza indicati sotto. Il coordinatore non è implementato.
+Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite viene verificata su Linux e Windows; il risultato finale della versione corrente è registrato nelle azioni GitHub. Resta la prova sul computer Windows dell'utilizzatore. Il classificatore e il coordinatore non sono ancora implementati.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -32,6 +32,7 @@ Stato: il modello strutturale v1 è approvato. Il modello di acquisizione eterog
 - [x] Verificare la nuova implementazione con tutti i test tramite GitHub Actions: 40 test superati e validatore superato (run `41513402663`).
 - [x] Aggiungere recupero delle transazioni interrotte sullo stesso computer, con completamento o annullamento prudente.
 - [x] Rilevare duplicati di contenuto per file e cartelle, oltre ai duplicati per identificativo.
+- [x] Versionare l'algoritmo delle impronte e mantenere la lettura delle impronte storiche.
 - [x] Definire il contratto di passaggio dal materiale acquisito al futuro classificatore.
 - [ ] Valutare un indice persistente dei duplicati se il volume del catalogo lo renderà necessario.
 - [x] Aggiungere l'esecuzione automatica della suite su Windows tramite GitHub Actions.
