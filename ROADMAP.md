@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. Acquisizione, integrità, classificazione statica, approvazione esplicita e contratti della classificazione semantica sono implementati e verificati tramite GitHub Actions. La suite precedente ha superato 183 test e il validatore su Ubuntu e Windows nel run `41545326945`. La verifica sul computer Windows personale è **NON APPLICABILE**: il precedente computer è fuori uso, non esiste una copia locale del repository e il lavoro prosegue direttamente su GitHub. Questa limitazione è documentata in `docs/WINDOWS-LOCAL-VERIFICATION.md`; non blocca lo sviluppo. Il primo motore semantico sostituibile è in corso di realizzazione: esiste un'interfaccia per adattatori locali e, se nessun adattatore è configurato, il risultato esplicito è `not_available`. Non è ancora presente un modello locale, né l'integrazione completa di preparazione, salvataggio e verifica delle proposte. L'inventario dei quattro materiali in `personalizzazione/` resta preliminare e non equivale ad acquisizione ufficiale. Restano inoltre gli analizzatori per altri formati, l'inventario operativo, l'interoperabilità reale, il coordinatore e la scelta/consolidamento del motore di orchestrazione.
+Stato: il modello strutturale v1 è approvato. Acquisizione, integrità, classificazione statica, approvazione esplicita e contratti della classificazione semantica sono implementati e verificati tramite GitHub Actions. La suite precedente ha superato 183 test e il validatore su Ubuntu e Windows nel run `41545326945`. La verifica sul computer Windows personale è **NON APPLICABILE**: il precedente computer è fuori uso, non esiste una copia locale del repository e il lavoro prosegue direttamente su GitHub. Questa limitazione è documentata in `docs/WINDOWS-LOCAL-VERIFICATION.md`; non blocca lo sviluppo. Il primo flusso semantico integrato è implementato nel ramo `semantic-engine-v1`: collega preparazione, costruzione automatica della richiesta, adattatore, verifica delle prove e salvataggio esclusivo delle proposte. La suite è arrivata a 194 test superati su Ubuntu e Windows nel run `41548849797`. Non è ancora presente un modello locale reale, né l'isolamento del processo di inferenza o la valutazione della qualità semantica. L'inventario dei quattro materiali in `personalizzazione/` resta preliminare e non equivale ad acquisizione ufficiale. Restano inoltre gli analizzatori per altri formati, l'inventario operativo, l'interoperabilità reale, il coordinatore e la scelta/consolidamento del motore di orchestrazione.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -58,11 +58,13 @@ Criterio di uscita: un materiale può essere copiato e registrato senza modifica
 - [ ] Implementare il motore semantico locale sostituibile.
   - [x] Creare il confine eseguibile e l'interfaccia per adattatori locali.
   - [x] Restituire `not_available` se nessun adattatore è configurato.
-  - [ ] Integrare preparazione del materiale, costruzione della richiesta e controllo delle impronte nel flusso unico.
-  - [ ] Integrare un analizzatore semantico locale effettivamente disponibile.
-  - [ ] Validare le prove con `validate_semantic_proposal` prima del salvataggio.
-  - [ ] Salvare le proposte separatamente, senza aggiornare i cataloghi approvati.
-  - [ ] Aggiungere test di sicurezza, timeout, errori, risposte malformate e qualità semantica.
+  - [x] Integrare preparazione del materiale, costruzione della richiesta e controllo delle impronte nel flusso unico (`scripts/semantic_pipeline.py`).
+  - [ ] Integrare un analizzatore semantico locale reale; l'interfaccia sostituibile è disponibile, ma il modello/runtime non è stato scelto.
+  - [x] Validare le prove con `validate_semantic_proposal` prima del salvataggio.
+  - [x] Salvare le proposte separatamente in `proposals/`, senza aggiornare i cataloghi approvati e senza sovrascrivere proposte esistenti.
+  - [x] Aggiungere test iniziali su materiale alterato, permessi minimi, adattatore malformato e prove falsificate.
+  - [ ] Aggiungere isolamento effettivo, limiti di tempo del processo, gestione risorse e test avversari estesi.
+  - [ ] Costruire un insieme di valutazione con classificazioni attese e misure di qualità semantica.
 - [ ] Ampliare gli analizzatori per formati diversi e introdurre prove specifiche per ciascun formato.
 - [ ] Collegare la classificazione approvata al processo controllato di ammissione nel catalogo operativo delle skill.
 - [ ] Verificare il componente tramite GitHub Actions su Linux e Windows. La prova sul computer personale resta separata e non applicabile al momento.
