@@ -51,12 +51,12 @@ def check_evidence(root,refs,subject,expected_result,label,errors):
   if isinstance(proof,dict):
    if proof.get("result")!=expected_result:errors.append(f"{ref}: esito prova diverso dall'esito dichiarato {expected_result}")
    if proof.get("subject")!=subject:errors.append(f"{ref}: la prova riguarda {proof.get('subject')!r}, non {subject!r}")
-class UniqueKeyLoader(yaml.SafeLoader):
+class DuplicateFrontmatterKeyError(ValueError):pass\nclass UniqueKeyLoader(yaml.SafeLoader):
  def construct_mapping(self,node,deep=False):
   mapping={}
   for key_node,value_node in node.value:
    key=self.construct_object(key_node,deep=deep)
-   if key in mapping:raise yaml.constructor.ConstructorError("mapping",node.start_mark,f"chiave YAML duplicata: {key}",key_node.start_mark)
+   if key in mapping:raise DuplicateFrontmatterKeyError(f"chiave YAML duplicata: {key}")
    mapping[key]=self.construct_object(value_node,deep=deep)
   return mapping
 def frontmatter(p):
