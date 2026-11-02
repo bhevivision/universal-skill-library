@@ -71,6 +71,105 @@ def _collect_evidence_refs(value, found=None):
     return found
 
 
+
+def _validate_safe_intake_path(value: str) -> None:
+    if not isinstance(value, str) or not value.startswith("intake/"):
+        raise ValueError("Il percorso deve essere relativo e rimanere sotto intake/.")
+    if "\\" in value or "\x00" in value:
+        raise ValueError("Il percorso contiene caratteri non ammessi.")
+    relative = PurePosixPath(value)
+    if relative.is_absolute() or relative.as_posix() != value:
+        raise ValueError("Il percorso non è canonico o è assoluto.")
+    if any(part in {"", ".", ".."} or ":" in part for part in relative.parts):
+        raise ValueError("Il percorso contiene attraversamento di cartelle o componenti non ammessi.")
+
+
+def validate_semantic_request(request):
+    """Valida schema e coerenza incrociata della richiesta inviata al motore."""
+    if not isinstance(request, dict):
+        raise ValueError("La richiesta semantica deve essere un oggetto JSON.")
+    schema_path = SCHEMA_PATH.with_name("semantic-classification-request.schema.json")
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        Draft202012Validator.check_schema(schema)
+        validator = Draft202012Validator(schema)
+        errors = sorted(validator.iter_errors(request), key=lambda error: list(error.absolute_path))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Schema della richiesta non disponibile o non valido: {exc}") from exc
+    if errors:
+        error = errors[0]
+        location = ".".join(str(part) for part in error.absolute_path) or "richiesta"
+        raise ValueError(f"Richiesta non conforme allo schema in {location}: {error.message}")
+
+    limits = request["limits"]
+    files_by_path = {}
+    total_file_bytes = 0
+    for item in request["files"]:
+        path = item["path"]
+        _validate_safe_intake_path(path)
+        if path in files_by_path:
+            raise ValueError(f"Percorso file duplicato nella richiesta: {path}")
+        if item["size_bytes"] > limits["max_file_bytes"]:
+            raise ValueError(f"La dimensione dichiarata del file supera il limite: {path}")
+        files_by_path[path] = item
+        total_file_bytes += item["size_bytes"]
+    if len(files_by_path) > limits["max_files"]:
+        raise ValueError("Il numero di file supera il limite dichiarato.")
+    if total_file_bytes > limits["max_total_bytes"]:
+        raise ValueError("La dimensione complessiva dei file supera il limite dichiarato.")
+
+    total_selected_bytes = 0
+    for item in request["selected_content"]:
+        path = item["path"]
+        _validate_safe_intake_path(path)
+        allowed = files_by_path.get(path)
+        if allowed is None:
+            raise ValueError(f"Il contenuto selezionato non è presente nell'elenco dei file ammessi: {path}")
+        if item["sha256"] != allowed["sha256"]:
+            raise ValueError(f"L'impronta del contenuto selezionato non corrisponde al file ammesso: {path}")
+        actual_size = len(item["text"].encode("utf-8"))
+        if actual_size != item["size_bytes"] or actual_size > allowed["size_bytes"]:
+            raise ValueError(f"La dimensione del contenuto selezionato non corrisponde ai dati dichiarati: {path}")
+        if actual_size > limits["max_file_bytes"]:
+            raise ValueError(f"La dimensione del contenuto selezionato supera il limite: {path}")
+        total_selected_bytes += actual_size
+    if total_selected_bytes > limits["max_total_bytes"]:
+        raise ValueError("La dimensione complessiva dei contenuti selezionati supera il limite dichiarato.")
+
+    if request["material"]["original_kind"] == "remote_reference":
+        if request["material"]["sha256"] is not None or request["files"] or request["selected_content"]:
+            raise ValueError("Un riferimento remoto non visitato non può includere file o contenuti selezionati.")
+    elif request["material"]["sha256"] is None:
+        raise ValueError("Un materiale locale deve dichiarare l'impronta SHA-256 dell'originale.")
+    return True
+
+
+def _validate_result_status_constraints(proposal):
+    status = proposal["status"]
+    if status == "partial" and not proposal["limits"]:
+        raise ValueError("Una proposta partial deve dichiarare almeno un limite esplicito.")
+    if status not in {"not_available", "failed"}:
+        return
+    if proposal["classification"]["kind"] != "unclassified" or proposal["classification"]["confidence"] != "low":
+        raise ValueError("Una proposta not_available o failed deve restare unclassified con confidenza low.")
+    if (proposal["capabilities"] or proposal["interfaces"]["inputs"] or
+            proposal["interfaces"]["outputs"] or proposal["interfaces"]["usage_conditions"] or
+            proposal["dependencies"] or proposal["tools_and_platforms"] or
+            proposal["missing_references"] or proposal["contradictions"] or proposal["risks"]):
+        raise ValueError("Una proposta not_available o failed non può contenere affermazioni semantiche.")
+    if not proposal["unknowns"] or not proposal["limits"]:
+        raise ValueError("Una proposta not_available o failed deve dichiarare incognite e limiti.")
+    evidence_by_id = {item["id"]: item for item in proposal["evidence"]}
+    if not proposal["evidence"] or any(
+        item["source"] != "catalog/materials.json" or item["kind"] != "metadata"
+        for item in proposal["evidence"]
+    ):
+        raise ValueError("Una proposta not_available o failed può contenere soltanto prove metadata del catalogo.")
+    for reference in proposal["classification"]["evidence_refs"]:
+        item = evidence_by_id.get(reference)
+        if item is None or item["source"] != "catalog/materials.json" or item["kind"] != "metadata":
+            raise ValueError("La classificazione non disponibile può riferirsi soltanto a metadati del catalogo.")
+
 def validate_semantic_proposal(root, proposal):
     """Valida schema, collegamenti alle prove, identità e impronte dei file.
 
@@ -103,6 +202,7 @@ def validate_semantic_proposal(root, proposal):
         location = ".".join(str(part) for part in error.absolute_path) or "proposta"
         raise ValueError(f"Proposta non conforme allo schema in {location}: {error.message}")
 
+    _validate_result_status_constraints(proposal)
     evidence = proposal["evidence"]
     evidence_by_id = {}
     for item in evidence:

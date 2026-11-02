@@ -37,36 +37,73 @@
       "format": "date-time"
     },
     "status": {
-      "enum": ["completed", "partial", "not_available", "failed"]
+      "enum": [
+        "completed",
+        "partial",
+        "not_available",
+        "failed"
+      ]
     },
     "material": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "sha256", "original_kind"],
+      "required": [
+        "id",
+        "sha256",
+        "original_kind"
+      ],
       "properties": {
         "id": {
           "type": "string",
           "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
         },
         "sha256": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "pattern": "^[a-f0-9]{64}$"
         },
         "original_kind": {
-          "enum": ["file", "directory", "archive", "package", "remote_reference", "unknown"]
+          "enum": [
+            "file",
+            "directory",
+            "archive",
+            "package",
+            "remote_reference",
+            "unknown"
+          ]
         }
       }
     },
     "classification": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "confidence", "rationale", "summary", "evidence_refs"],
+      "required": [
+        "kind",
+        "confidence",
+        "rationale",
+        "summary",
+        "evidence_refs"
+      ],
       "properties": {
         "kind": {
-          "enum": ["skill", "tool", "agent", "workflow", "resource", "composite", "unclassified"]
+          "enum": [
+            "skill",
+            "tool",
+            "agent",
+            "workflow",
+            "resource",
+            "composite",
+            "unclassified"
+          ]
         },
         "confidence": {
-          "enum": ["low", "medium", "high"]
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
         },
         "rationale": {
           "type": "string",
@@ -80,7 +117,10 @@
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"type": "string", "minLength": 1}
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -89,7 +129,13 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "name", "description", "certainty", "evidence_refs"],
+        "required": [
+          "id",
+          "name",
+          "description",
+          "certainty",
+          "evidence_refs"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -104,13 +150,19 @@
             "minLength": 1
           },
           "certainty": {
-            "enum": ["declared", "inferred"]
+            "enum": [
+              "declared",
+              "inferred"
+            ]
           },
           "evidence_refs": {
             "type": "array",
             "minItems": 1,
             "uniqueItems": true,
-            "items": {"type": "string", "minLength": 1}
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       }
@@ -118,11 +170,21 @@
     "interfaces": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["inputs", "outputs", "usage_conditions"],
+      "required": [
+        "inputs",
+        "outputs",
+        "usage_conditions"
+      ],
       "properties": {
-        "inputs": {"$ref": "#/$defs/claims"},
-        "outputs": {"$ref": "#/$defs/claims"},
-        "usage_conditions": {"$ref": "#/$defs/claims"}
+        "inputs": {
+          "$ref": "#/$defs/claims"
+        },
+        "outputs": {
+          "$ref": "#/$defs/claims"
+        },
+        "usage_conditions": {
+          "$ref": "#/$defs/claims"
+        }
       }
     },
     "dependencies": {
@@ -130,25 +192,65 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "relationship", "certainty", "evidence_refs"],
+        "required": [
+          "name",
+          "relationship",
+          "certainty",
+          "evidence_refs"
+        ],
         "properties": {
-          "name": {"type": "string", "minLength": 1},
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
           "relationship": {
-            "enum": ["runtime", "installation", "service", "platform", "other", "unknown"]
+            "enum": [
+              "runtime",
+              "installation",
+              "service",
+              "platform",
+              "other",
+              "unknown"
+            ]
           },
           "certainty": {
-            "enum": ["declared", "inferred", "unknown"]
+            "enum": [
+              "declared",
+              "inferred",
+              "unknown"
+            ]
           },
           "evidence_refs": {
             "type": "array",
             "uniqueItems": true,
-            "items": {"type": "string", "minLength": 1}
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         "allOf": [
           {
-            "if": {"properties": {"certainty": {"enum": ["declared", "inferred"]}}, "required": ["certainty"]},
-            "then": {"properties": {"evidence_refs": {"minItems": 1}}}
+            "if": {
+              "properties": {
+                "certainty": {
+                  "enum": [
+                    "declared",
+                    "inferred"
+                  ]
+                }
+              },
+              "required": [
+                "certainty"
+              ]
+            },
+            "then": {
+              "properties": {
+                "evidence_refs": {
+                  "minItems": 1
+                }
+              }
+            }
           }
         ]
       }
@@ -158,18 +260,41 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "kind", "compatibility", "evidence_refs"],
+        "required": [
+          "name",
+          "kind",
+          "compatibility",
+          "evidence_refs"
+        ],
         "properties": {
-          "name": {"type": "string", "minLength": 1},
-          "kind": {"enum": ["tool", "platform", "service", "library", "other"]},
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "tool",
+              "platform",
+              "service",
+              "library",
+              "other"
+            ]
+          },
           "compatibility": {
-            "enum": ["mentioned_not_verified", "not_applicable", "unknown"]
+            "enum": [
+              "mentioned_not_verified",
+              "not_applicable",
+              "unknown"
+            ]
           },
           "evidence_refs": {
             "type": "array",
             "minItems": 1,
             "uniqueItems": true,
-            "items": {"type": "string", "minLength": 1}
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       }
@@ -180,7 +305,12 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "source", "sha256", "kind"],
+        "required": [
+          "id",
+          "source",
+          "sha256",
+          "kind"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -196,15 +326,28 @@
             "pattern": "^[a-f0-9]{64}$"
           },
           "kind": {
-            "enum": ["text_file", "metadata", "structure"]
+            "enum": [
+              "text_file",
+              "metadata",
+              "structure"
+            ]
           },
           "location": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["start_line", "end_line"],
+            "required": [
+              "start_line",
+              "end_line"
+            ],
             "properties": {
-              "start_line": {"type": "integer", "minimum": 1},
-              "end_line": {"type": "integer", "minimum": 1}
+              "start_line": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "end_line": {
+                "type": "integer",
+                "minimum": 1
+              }
             }
           }
         }
@@ -212,21 +355,33 @@
     },
     "missing_references": {
       "type": "array",
-      "items": {"type": "string", "minLength": 1}
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "contradictions": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["description", "evidence_refs"],
+        "required": [
+          "description",
+          "evidence_refs"
+        ],
         "properties": {
-          "description": {"type": "string", "minLength": 1},
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
           "evidence_refs": {
             "type": "array",
             "minItems": 1,
             "uniqueItems": true,
-            "items": {"type": "string", "minLength": 1}
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       }
@@ -236,38 +391,89 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["description", "certainty", "evidence_refs"],
+        "required": [
+          "description",
+          "certainty",
+          "evidence_refs"
+        ],
         "properties": {
-          "description": {"type": "string", "minLength": 1},
-          "certainty": {"enum": ["declared", "inferred"]},
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "certainty": {
+            "enum": [
+              "declared",
+              "inferred"
+            ]
+          },
           "evidence_refs": {
             "type": "array",
             "minItems": 1,
             "uniqueItems": true,
-            "items": {"type": "string", "minLength": 1}
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       }
     },
     "unknowns": {
       "type": "array",
-      "items": {"type": "string", "minLength": 1}
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "limits": {
       "type": "array",
-      "items": {"type": "string", "minLength": 1}
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "analyzer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "version", "provider", "external_data_authorized", "input_sha256", "output_sha256"],
+      "required": [
+        "id",
+        "version",
+        "provider",
+        "external_data_authorized",
+        "input_sha256",
+        "output_sha256"
+      ],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
-        "version": {"type": "string", "minLength": 1},
-        "provider": {"enum": ["local", "remote"]},
-        "model": {"type": ["string", "null"]},
-        "model_version": {"type": ["string", "null"]},
-        "external_data_authorized": {"type": "boolean"},
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider": {
+          "enum": [
+            "local",
+            "remote"
+          ]
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "external_data_authorized": {
+          "type": "boolean"
+        },
         "input_sha256": {
           "type": "string",
           "pattern": "^[a-f0-9]{64}$"
@@ -279,12 +485,42 @@
       },
       "allOf": [
         {
-          "if": {"properties": {"provider": {"const": "remote"}}, "required": ["provider"]},
-          "then": {"properties": {"external_data_authorized": {"const": true}}}
+          "if": {
+            "properties": {
+              "provider": {
+                "const": "remote"
+              }
+            },
+            "required": [
+              "provider"
+            ]
+          },
+          "then": {
+            "properties": {
+              "external_data_authorized": {
+                "const": true
+              }
+            }
+          }
         },
         {
-          "if": {"properties": {"provider": {"const": "local"}}, "required": ["provider"]},
-          "then": {"properties": {"external_data_authorized": {"const": false}}}
+          "if": {
+            "properties": {
+              "provider": {
+                "const": "local"
+              }
+            },
+            "required": [
+              "provider"
+            ]
+          },
+          "then": {
+            "properties": {
+              "external_data_authorized": {
+                "const": false
+              }
+            }
+          }
         }
       ]
     }
@@ -295,23 +531,157 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["value", "certainty", "evidence_refs"],
+        "required": [
+          "value",
+          "certainty",
+          "evidence_refs"
+        ],
         "properties": {
-          "value": {"type": "string", "minLength": 1},
-          "certainty": {"enum": ["declared", "inferred", "unknown"]},
+          "value": {
+            "type": "string",
+            "minLength": 1
+          },
+          "certainty": {
+            "enum": [
+              "declared",
+              "inferred",
+              "unknown"
+            ]
+          },
           "evidence_refs": {
             "type": "array",
             "uniqueItems": true,
-            "items": {"type": "string", "minLength": 1}
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         "allOf": [
           {
-            "if": {"properties": {"certainty": {"enum": ["declared", "inferred"]}}, "required": ["certainty"]},
-            "then": {"properties": {"evidence_refs": {"minItems": 1}}}
+            "if": {
+              "properties": {
+                "certainty": {
+                  "enum": [
+                    "declared",
+                    "inferred"
+                  ]
+                }
+              },
+              "required": [
+                "certainty"
+              ]
+            },
+            "then": {
+              "properties": {
+                "evidence_refs": {
+                  "minItems": 1
+                }
+              }
+            }
           }
         ]
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "not_available",
+              "failed"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "classification": {
+            "properties": {
+              "kind": {
+                "const": "unclassified"
+              },
+              "confidence": {
+                "const": "low"
+              }
+            }
+          },
+          "capabilities": {
+            "maxItems": 0
+          },
+          "interfaces": {
+            "properties": {
+              "inputs": {
+                "maxItems": 0
+              },
+              "outputs": {
+                "maxItems": 0
+              },
+              "usage_conditions": {
+                "maxItems": 0
+              }
+            }
+          },
+          "dependencies": {
+            "maxItems": 0
+          },
+          "tools_and_platforms": {
+            "maxItems": 0
+          },
+          "evidence": {
+            "minItems": 1,
+            "items": {
+              "properties": {
+                "source": {
+                  "const": "catalog/materials.json"
+                },
+                "kind": {
+                  "const": "metadata"
+                }
+              }
+            }
+          },
+          "missing_references": {
+            "maxItems": 0
+          },
+          "contradictions": {
+            "maxItems": 0
+          },
+          "risks": {
+            "maxItems": 0
+          },
+          "unknowns": {
+            "minItems": 1
+          },
+          "limits": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "partial"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "limits": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
 }

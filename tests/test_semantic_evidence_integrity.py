@@ -176,5 +176,35 @@ class SemanticEvidenceIntegrityTests(unittest.TestCase):
         self.assertIn("CONTROLLO SUPERATO", completed.stdout)
 
 
+    def test_rejects_failed_result_that_contains_semantic_claims(self):
+        self.proposal["status"] = "failed"
+        with self.assertRaisesRegex(ValueError, "non conforme allo schema"):
+            validate_semantic_proposal(self.root, self.proposal)
+
+    def test_accepts_failed_result_with_only_catalog_metadata(self):
+        catalog_hash = hashlib.sha256(self.catalog.read_bytes()).hexdigest()
+        self.proposal["status"] = "failed"
+        self.proposal["classification"] = {
+            "kind": "unclassified", "confidence": "low",
+            "rationale": "L'analisi è fallita prima di produrre risultati.",
+            "summary": "Nessun risultato semantico disponibile.",
+            "evidence_refs": ["ev.catalog"]
+        }
+        self.proposal["capabilities"] = []
+        self.proposal["interfaces"] = {"inputs": [], "outputs": [], "usage_conditions": []}
+        self.proposal["dependencies"] = []
+        self.proposal["tools_and_platforms"] = []
+        self.proposal["evidence"] = [{
+            "id": "ev.catalog", "source": "catalog/materials.json",
+            "sha256": catalog_hash, "kind": "metadata"
+        }]
+        self.proposal["missing_references"] = []
+        self.proposal["contradictions"] = []
+        self.proposal["risks"] = []
+        self.proposal["unknowns"] = ["Il contenuto non è stato analizzato."]
+        self.proposal["limits"] = ["L'analisi si è interrotta per un errore tecnico."]
+        self.assertTrue(validate_semantic_proposal(self.root, self.proposal))
+
+
 if __name__ == "__main__":
     unittest.main()
