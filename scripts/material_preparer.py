@@ -117,6 +117,15 @@ def _relative_source(item: Path, root: Path) -> str:
 
 
 
+def _file_identity(info) -> tuple[int, int]:
+    """Restituisce un'identità stabile oppure interrompe la lettura in sicurezza."""
+    device = getattr(info, "st_dev", None)
+    inode = getattr(info, "st_ino", None)
+    if not isinstance(device, int) or not isinstance(inode, int) or inode <= 0:
+        raise OSError("Il file system non fornisce un'identità stabile del file.")
+    return device, inode
+
+
 def _read_bounded_file(path: Path, expected_size: int) -> bytes:
     """Legge al massimo MAX_FILE_BYTES + 1 byte da un file regolare stabile.
 
@@ -139,7 +148,7 @@ def _read_bounded_file(path: Path, expected_size: int) -> bytes:
         opened = os.fstat(descriptor)
         if not stat.S_ISREG(opened.st_mode):
             raise OSError("Il descrittore non identifica un file regolare.")
-        if (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino):
+        if _file_identity(opened) != _file_identity(before):
             raise OSError("Il file è cambiato durante l'apertura.")
 
         chunks = []
@@ -154,11 +163,11 @@ def _read_bounded_file(path: Path, expected_size: int) -> bytes:
 
         after_fd = os.fstat(descriptor)
         after_path = path.lstat()
-        if stat.S_ISLNK(after_path.st_mode):
-            raise OSError("Il percorso è diventato un collegamento simbolico.")
-        if (after_fd.st_dev, after_fd.st_ino) != (opened.st_dev, opened.st_ino):
+        if not stat.S_ISREG(after_path.st_mode):
+            raise OSError("Il percorso non identifica più un file regolare.")
+        if _file_identity(after_fd) != _file_identity(opened):
             raise OSError("Il file aperto è cambiato durante la lettura.")
-        if (after_path.st_dev, after_path.st_ino) != (opened.st_dev, opened.st_ino):
+        if _file_identity(after_path) != _file_identity(opened):
             raise OSError("Il percorso è stato sostituito durante la lettura.")
         if len(raw) > MAX_FILE_BYTES or len(raw) != expected_size:
             raise OSError("La dimensione del file è cambiata o supera il limite.")

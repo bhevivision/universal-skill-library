@@ -15,41 +15,87 @@
     "problems"
   ],
   "properties": {
-    "schema_version": { "const": "1.0" },
+    "schema_version": {
+      "const": "1.0"
+    },
     "status": {
-      "enum": ["completed", "partial", "not_available", "blocked", "failed"]
+      "enum": [
+        "completed",
+        "partial",
+        "not_available",
+        "blocked",
+        "failed"
+      ]
     },
     "material": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "original_kind", "sha256"],
+      "required": [
+        "id",
+        "original_kind",
+        "sha256"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
         "original_kind": {
-          "enum": ["file", "directory", "archive", "package", "remote_reference", "unknown", null]
+          "enum": [
+            "file",
+            "directory",
+            "archive",
+            "package",
+            "remote_reference",
+            "unknown",
+            null
+          ]
         },
         "sha256": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "pattern": "^[a-f0-9]{64}$"
         }
       }
     },
-    "profile": { "const": "bounded_text_v1" },
+    "profile": {
+      "const": "bounded_text_v1"
+    },
     "files": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["source", "sha256", "bytes", "line_count", "content"],
+        "required": [
+          "source",
+          "sha256",
+          "bytes",
+          "line_count",
+          "content"
+        ],
         "properties": {
           "source": {
             "type": "string",
             "pattern": "^intake/.+"
           },
-          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-          "bytes": { "type": "integer", "minimum": 0, "maximum": 262144 },
-          "line_count": { "type": "integer", "minimum": 0 },
-          "content": { "type": "string" }
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 262144
+          },
+          "line_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "content": {
+            "type": "string"
+          }
         }
       }
     },
@@ -58,9 +104,15 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["source", "reason"],
+        "required": [
+          "source",
+          "reason"
+        ],
         "properties": {
-          "source": { "type": "string", "pattern": "^intake/.+" },
+          "source": {
+            "type": "string",
+            "pattern": "^intake/.+"
+          },
           "reason": {
             "enum": [
               "unsupported_extension",
@@ -78,11 +130,26 @@
     "summary": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["files_examined", "files_skipped", "total_bytes"],
+      "required": [
+        "files_examined",
+        "files_skipped",
+        "total_bytes"
+      ],
       "properties": {
-        "files_examined": { "type": "integer", "minimum": 0, "maximum": 100 },
-        "files_skipped": { "type": "integer", "minimum": 0 },
-        "total_bytes": { "type": "integer", "minimum": 0, "maximum": 1048576 }
+        "files_examined": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "files_skipped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        }
       }
     },
     "problems": {
@@ -90,12 +157,58 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["code", "message"],
+        "required": [
+          "code",
+          "message"
+        ],
         "properties": {
-          "code": { "type": "string", "minLength": 1 },
-          "message": { "type": "string", "minLength": 1 }
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "blocked",
+              "failed"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "files": {
+            "maxItems": 0
+          },
+          "summary": {
+            "properties": {
+              "files_examined": {
+                "const": 0
+              },
+              "total_bytes": {
+                "const": 0
+              }
+            }
+          },
+          "problems": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
 }
