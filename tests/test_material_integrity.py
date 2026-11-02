@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from jsonschema import Draft202012Validator
 from scripts.material_integrity import (
     MaterialIntegrityError,
     load_material_record,
@@ -42,6 +43,22 @@ class MaterialIntegrityTests(unittest.TestCase):
             json.dumps({"catalog_version": "1.0", "materials": materials}),
             encoding="utf-8",
         )
+
+    def test_result_schema_accepts_local_and_remote_results(self):
+        schema_path = Path(__file__).resolve().parents[1] / "schemas/material-integrity-result.schema.json"
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        Draft202012Validator.check_schema(schema)
+        validator = Draft202012Validator(schema)
+        self.assertEqual(list(validator.iter_errors(verify_material(self.root, "acq.example"))), [])
+
+        remote = {
+            "id": "acq.remote",
+            "acquisition": {"status": "received", "original": {
+                "kind": "remote_reference", "uri": "https://example.org/repository"
+            }},
+        }
+        self.write_catalog([remote])
+        self.assertEqual(list(validator.iter_errors(verify_material(self.root, "acq.remote"))), [])
 
     def test_load_returns_record_and_catalog_references(self):
         record, catalog, catalog_path = load_material_record(self.root, "acq.example")
