@@ -62,12 +62,20 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
         raise ValueError("Identità della proposta non valida.")
     if proposal.get("status") != "pending_approval":
         raise ValueError("La proposta non è in attesa di approvazione.")
-    material = proposal.get("material", {})
-    proposed = proposal.get("proposal", {})
+    material = proposal.get("material")
+    proposed = proposal.get("proposal")
+    if not isinstance(material, dict) or not isinstance(proposed, dict):
+        raise ValueError("La proposta non contiene i dati di materiale e classificazione richiesti.")
     material_id = material.get("id")
+    if not isinstance(material_id, str) or not material_id:
+        raise ValueError("Identificativo del materiale mancante nella proposta.")
     proposed_kind = proposed.get("kind")
     if proposed_kind not in ALLOWED_KINDS:
         raise ValueError(f"Categoria proposta non riconosciuta: {proposed_kind}")
+    if proposed.get("confidence", "low") not in {"low", "medium", "high"}:
+        raise ValueError("Livello di confidenza della proposta non valido.")
+    if not isinstance(proposed.get("rationale"), str):
+        raise ValueError("Motivazione della proposta mancante o non valida.")
 
     catalog, catalog_path = _load_catalog(root)
     record = next((item for item in catalog["materials"] if isinstance(item, dict) and item.get("id") == material_id), None)
@@ -90,6 +98,8 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
             raise ValueError("La proposta non corrisponde all'impronta registrata nell'acquisizione.")
 
     classification = record.setdefault("classification", {"status": "not_examined", "kind": "unclassified"})
+    if not isinstance(classification, dict):
+        raise ValueError("Scheda di classificazione del materiale non valida.")
     history = classification.setdefault("decisions", [])
     if not isinstance(history, list):
         raise ValueError("Storico delle decisioni non valido.")
