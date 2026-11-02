@@ -189,5 +189,31 @@ class SemanticClassificationContractTests(unittest.TestCase):
         self.assert_invalid(proposal, "evidence_refs")
 
 
+    def test_accepts_unexamined_remote_reference_without_claiming_content_knowledge(self):
+        proposal = valid_proposal()
+        proposal["status"] = "not_available"
+        proposal["material"]["sha256"] = None
+        proposal["material"]["original_kind"] = "remote_reference"
+        proposal["classification"] = {
+            "kind": "unclassified",
+            "confidence": "low",
+            "rationale": "Il riferimento remoto non è stato visitato.",
+            "summary": "Il contenuto non è stato esaminato.",
+            "evidence_refs": ["ev.catalog"]
+        }
+        proposal["capabilities"] = []
+        proposal["interfaces"] = {"inputs": [], "outputs": [], "usage_conditions": []}
+        proposal["dependencies"] = []
+        proposal["tools_and_platforms"] = []
+        proposal["evidence"] = [{
+            "id": "ev.catalog",
+            "source": "catalog/materials.json",
+            "sha256": "f" * 64,
+            "kind": "metadata"
+        }]
+        proposal["unknowns"] = ["Il contenuto del riferimento remoto è sconosciuto."]
+        self.assertEqual(list(self.validator.iter_errors(proposal)), [])
+
+
 if __name__ == "__main__":
     unittest.main()
