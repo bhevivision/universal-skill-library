@@ -2,6 +2,8 @@ import hashlib
 import json
 import tempfile
 import unittest
+import subprocess
+import sys
 from pathlib import Path
 
 from scripts.semantic_evidence_integrity import validate_semantic_proposal
@@ -156,6 +158,22 @@ class SemanticEvidenceIntegrityTests(unittest.TestCase):
     def test_accepts_line_range_present_in_examined_file(self):
         self.proposal["evidence"][0]["location"] = {"start_line": 1, "end_line": 2}
         self.assertTrue(validate_semantic_proposal(self.root, self.proposal))
+
+
+    def test_command_line_validator_runs_from_repository_root(self):
+        proposals = self.root / "proposals"
+        proposals.mkdir()
+        proposal_path = proposals / "sem.example.json"
+        proposal_path.write_text(json.dumps(self.proposal), encoding="utf-8")
+        script = Path(__file__).resolve().parents[1] / "scripts/semantic_evidence_integrity.py"
+        completed = subprocess.run(
+            [sys.executable, str(script), "--root", str(self.root),
+             "--proposal", "proposals/sem.example.json"],
+            cwd=Path(__file__).resolve().parents[1],
+            capture_output=True, text=True, check=False
+        )
+        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+        self.assertIn("CONTROLLO SUPERATO", completed.stdout)
 
 
 if __name__ == "__main__":
