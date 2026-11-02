@@ -64,15 +64,25 @@ Le proposte vengono salvate in `proposals/`, separate dai cataloghi approvati. I
 
 Il risultato del flusso espone `evidence_verified: true` soltanto dopo i controlli applicativi e `approval_required: true` sempre. La prima proprietà attesta esclusivamente la coerenza delle prove e delle impronte; **non** dimostra che la classificazione sia semanticamente corretta, che la skill funzioni o che sia approvata. Il file viene preparato in un temporaneo nella stessa cartella e pubblicato con creazione esclusiva atomica; una proposta già presente non viene sovrascritta.
 
-## Modello locale: decisione ancora aperta
+## Collegamento a un modello locale
 
-L'interfaccia è indipendente dal fornitore e consente di collegare un adattatore locale. Non è stato scelto né incluso un modello reale. La scelta del formato e del motore di esecuzione dipende dalle risorse dell'ambiente che ospiterà il modello (memoria, processore, eventuale acceleratore grafico e sistema operativo). GitHub Actions esegue i test automatici, ma non è un ambiente persistente di inferenza locale e non dimostra che un modello possa essere eseguito sul computer personale, oggi non disponibile.
+È stato scelto `llama.cpp` come primo obiettivo d'integrazione, non come vincolo per tutta la libreria. Il progetto supporta modelli GGUF, esecuzione locale su CPU e accelerazione su più tipi di GPU, e mette a disposizione `llama-server` con interfaccia HTTP compatibile con le richieste di completamento chat. La documentazione ufficiale descrive anche l'uscita JSON vincolata da schema. Riferimenti: [repository ufficiale llama.cpp](https://github.com/ggml-org/llama.cpp) e [documentazione dell'API strutturata](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md).
 
-Non si scaricano modelli pesanti nel repository e non si aggiungono dipendenze obbligatorie per un modello non ancora scelto. Il prossimo passo è definire un adattatore per un runtime locale con versione fissata, percorso del modello configurato, limiti effettivi, uscita JSON controllata e test d'integrazione separati dai test ordinari.
+Il modulo `scripts/llama_cpp_adapter.py` implementa il collegamento:
+- usa soltanto un indirizzo IP di loopback (127.0.0.1 o ::1);
+- disabilita i proxy di sistema e rifiuta i reindirizzamenti;
+- imposta un limite di attesa e una dimensione massima della risposta;
+- invia contenuti come dati non fidati e non abilita strumenti;
+- richiede un risultato JSON strutturato;
+- restituisce il risultato al motore, che ricostruisce i metadati fidati e applica i controlli di schema e delle prove.
+
+L'adattatore è stato verificato con un server HTTP locale simulato in GitHub Actions. **Non è ancora stata eseguita un'inferenza con un vero file GGUF**: il precedente computer è fuori uso e i correnti esecutori GitHub non sono una prova del funzionamento sul futuro computer di destinazione. Non si inseriscono modelli pesanti nel repository e non si scaricano modelli durante i test automatici.
+
+La scelta del modello GGUF specifico resta aperta fino a quando sarà noto l'hardware disponibile (memoria, processore, scheda grafica e memoria grafica). L'adattatore non dipende dal nome del modello: lo riceve come configurazione.
 
 ## Limiti e lavori aperti
 
-1. Integrare un modello semantico locale realmente eseguibile, dopo aver definito l'ambiente di destinazione.
+1. Eseguire e verificare l'adattatore con un vero modello GGUF sul computer di destinazione; il collegamento software a llama.cpp è implementato, l'inferenza reale resta non verificata.
 2. Isolare l'adattatore dal file system, dalla rete e dall'esecuzione di comandi; il contratto attuale esprime i permessi richiesti ma non costituisce sandbox.
 3. Applicare un limite di tempo effettivo al processo d'inferenza e gestire memoria e annullamento.
 4. Aggiungere un insieme di materiali campione con classificazioni attese e misure di precisione, richiamo, coerenza e qualità delle prove.
