@@ -187,7 +187,7 @@ def validate_semantic_proposal(root, proposal):
                 text_content = evidence_path.read_text(encoding="utf-8")
             except (UnicodeError, OSError) as exc:
                 raise ValueError(f"La prova dichiarata testuale non è leggibile come UTF-8: {source}") from exc
-            if "\\x00" in text_content:
+            if chr(0) in text_content:
                 raise ValueError(f"La prova dichiarata testuale contiene byte nulli: {source}")
         if "location" in item:
             try:
