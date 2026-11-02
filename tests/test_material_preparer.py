@@ -86,7 +86,7 @@ class MaterialPreparerTests(unittest.TestCase):
 
     def test_001_single_file_material_is_prepared(self):
         path = self.source / "guide.md"
-        path.write_text("# Guida\nTesto.\n", encoding="utf-8")
+        path.write_bytes(b"# Guida\nTesto.\n")
         self.register_file(path)
         result = self.prepare()
         self.assertEqual(result["status"], "completed")
@@ -479,17 +479,10 @@ class MaterialPreparerTests(unittest.TestCase):
     def test_049_detected_inventory_error_fails_without_partial_contents(self):
         (self.source / "guide.md").write_text("testo", encoding="utf-8")
         self.register_directory()
-        original_rglob = Path.rglob
-        calls = {"count": 0}
-        def fail_during_inventory(path, pattern):
-            if path == self.source:
-                calls["count"] += 1
-                # Le prime due scansioni appartengono alla verifica d'integrità
-                # iniziale; la successiva è l'inventario del preparatore.
-                if calls["count"] == 3:
-                    raise PermissionError("inventario non accessibile")
-            return original_rglob(path, pattern)
-        with patch.object(Path, "rglob", fail_during_inventory):
+        with patch(
+            "scripts.material_preparer._inventory",
+            side_effect=PermissionError("inventario non accessibile"),
+        ):
             self.assert_error_result(self.prepare(), "failed")
 
     # Parità osservabile con il classificatore
