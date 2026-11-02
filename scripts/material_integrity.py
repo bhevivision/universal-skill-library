@@ -283,6 +283,10 @@ def verify_material(
                 raise MaterialIntegrityError(
                     "INVALID_ACQUISITION_STATE", f"Stato non valido per il riferimento remoto: {state}"
                 )
+            if recorded_digest is not None:
+                raise MaterialIntegrityError(
+                    "INVALID_RECORD", "Un riferimento remoto non può dichiarare un'impronta di contenuto locale."
+                )
             result["status"] = "not_applicable"
             result["checks"].append(_check("remote_reference", "passed", "URI e stato del riferimento controllati; contenuto non visitato."))
             result["problems"].append(_problem(
