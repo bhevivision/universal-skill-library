@@ -102,6 +102,25 @@ class HeterogeneousIntakeTests(unittest.TestCase):
         self.assertEqual(validate_repository(self.root), [])
         self.assertEqual(archive.read_bytes(), before)
 
+    def test_accepts_legacy_directory_fingerprint_without_algorithm_marker(self):
+        source = self.root / "intake/acq-legacy/source"
+        source.mkdir(parents=True)
+        (source / "guide.txt").write_text("Legacy.\\n", encoding="utf-8")
+        self.register_material("directory", "intake/acq-legacy/source")
+        materials = json.loads((self.root / "catalog/materials.json").read_text(encoding="utf-8"))
+        original = materials["materials"][0]["acquisition"]["original"]
+        original.pop("digest_algorithm")
+        legacy = hashlib.sha256()
+        for item in sorted(source.rglob("*")):
+            if item.is_file():
+                legacy.update(item.relative_to(source).as_posix().encode("utf-8"))
+                legacy.update(b"\\0")
+                legacy.update(item.read_bytes())
+                legacy.update(b"\\0")
+        original["sha256"] = legacy.hexdigest()
+        write_json(self.root, "catalog/materials.json", materials)
+        self.assertEqual(validate_repository(self.root), [])
+
     def test_rejects_added_empty_directory_after_preservation(self):
         source = self.root / "intake/acq-empty/source"
         source.mkdir(parents=True)
