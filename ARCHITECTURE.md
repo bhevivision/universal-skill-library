@@ -1,6 +1,6 @@
 # Architettura della libreria universale
 
-Stato: modello strutturale v1 documentato; non ancora implementato né collaudato.
+Stato: modello strutturale v1 documentato; schemi, controlli strutturali e test automatici implementati. Skill reali, interoperabilità e coordinatore non ancora collaudati.
 
 ## Scopo
 Trasformare un obiettivo espresso in linguaggio naturale in attività eseguibili e verificabili. Il sistema individua le capacità necessarie, seleziona skill adeguate, controlla implementazioni, strumenti e autorizzazioni, coordina l'esecuzione e accetta il risultato soltanto quando le prove soddisfano i criteri iniziali.
@@ -47,4 +47,4 @@ Il coordinatore identifica causa e portata dell'errore, determina quali risultat
 ## Confini
 La libreria descrive metodi riutilizzabili. Il coordinatore li combina per un obiettivo concreto. L'agente è un ambiente operativo possibile. Lo strumento è una risorsa utilizzata. La verifica è un controllo fondato su prove, non una dichiarazione dell'esecutore.
 
-Questa architettura è una definizione logica. Non dimostra che catalogo, coordinatore, adattatori o controlli automatici siano già funzionanti. Le fasi di realizzazione sono in ROADMAP.md.
+Questa architettura è una definizione logica. Gli schemi e i controlli automatici verificano la coerenza strutturale dei cataloghi e dei pacchetti; non dimostrano il funzionamento sostanziale delle skill. Cataloghi ancora vuoti, interoperabilità reale, adattatori e coordinatore restano da realizzare o collaudare. Le fasi sono in ROADMAP.md.
