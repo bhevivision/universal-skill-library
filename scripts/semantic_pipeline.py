@@ -146,7 +146,8 @@ def classify_material(root, material_id: str, analyzer=None, request_id: str | N
             "request_id": None,
             "proposal": None,
             "proposal_path": None,
-            "verified": False,
+            "evidence_verified": False,
+            "approval_required": True,
         }
 
     if request_id is None:
@@ -173,6 +174,16 @@ def classify_material(root, material_id: str, analyzer=None, request_id: str | N
         _seal_output_digest(proposal)
         _validate_proposal_schema(proposal)
 
+    # Le impronte registrate devono corrispondere esattamente agli oggetti verificati.
+    expected_input_digest = _sha256(_canonical_bytes(request))
+    if proposal["analyzer"]["input_sha256"] != expected_input_digest:
+        raise ValueError("L'impronta della richiesta nella proposta non corrisponde all'ingresso effettivo.")
+    output_payload = dict(proposal)
+    output_payload["analyzer"] = dict(proposal["analyzer"])
+    recorded_output_digest = output_payload["analyzer"].pop("output_sha256")
+    if recorded_output_digest != _sha256(_canonical_bytes(output_payload)):
+        raise ValueError("L'impronta della proposta non corrisponde al contenuto prodotto.")
+
     # La verifica applicativa collega ogni prova ai file reali e alle impronte correnti.
     validate_semantic_proposal(root, proposal)
     if _catalog_digest(root) != catalog_digest:
@@ -187,7 +198,8 @@ def classify_material(root, material_id: str, analyzer=None, request_id: str | N
         "request_sha256": proposal["analyzer"]["input_sha256"],
         "proposal": proposal,
         "proposal_path": proposal_path,
-        "verified": True,
+        "evidence_verified": True,
+        "approval_required": True,
     }
 
 
