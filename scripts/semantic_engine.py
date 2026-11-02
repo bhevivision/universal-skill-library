@@ -122,16 +122,21 @@ def run_semantic_engine(
     """Esegue un adattatore locale oppure restituisce una proposta not_available.
 
     Un adattatore fidato espone analyze(request) e restituisce i campi semantici
-    della proposta, esclusa la sezione analyzer. Il suo codice non viene isolato
-    da questa funzione: l'isolamento reale richiede un ambiente separato.
+    della proposta, esclusa la sezione analyzer. Riceve una copia della richiesta
+    validata. Il suo codice non viene isolato da questa funzione: l'isolamento
+    reale richiede un ambiente separato.
     """
     validate_semantic_request(request)
     if not isinstance(catalog_sha256, str) or not re.fullmatch(r"[a-f0-9]{64}", catalog_sha256):
         raise ValueError("È richiesta l'impronta SHA-256 corrente di catalog/materials.json.")
 
+    # Congela la richiesta logica prima di cederne una copia all'adattatore.
+    request_snapshot = json.loads(_canonical_bytes(request))
+    input_digest = _sha256(_canonical_bytes(request_snapshot))
+
     if analyzer is None:
         proposal = _base_proposal(
-            request,
+            request_snapshot,
             catalog_sha256,
             "not_available",
             "Nessun analizzatore semantico locale è configurato o disponibile.",
@@ -144,7 +149,8 @@ def run_semantic_engine(
         raise ValueError("L'analizzatore deve esporre il metodo analyze(request).")
 
     try:
-        result = analyze(request)
+        adapter_request = json.loads(_canonical_bytes(request_snapshot))
+        result = analyze(adapter_request)
         if not isinstance(result, dict):
             raise ValueError("L'analizzatore non ha restituito un oggetto proposta.")
         proposal = dict(result)
@@ -155,7 +161,7 @@ def run_semantic_engine(
             "model": getattr(analyzer, "model", None),
             "model_version": getattr(analyzer, "model_version", None),
             "external_data_authorized": False,
-            "input_sha256": _sha256(_canonical_bytes(request)),
+            "input_sha256": input_digest,
             "output_sha256": "0" * 64,
         }
         digest_payload = dict(proposal)
@@ -164,16 +170,16 @@ def run_semantic_engine(
         proposal["analyzer"]["output_sha256"] = _sha256(_canonical_bytes(digest_payload))
         _validate_proposal_schema(proposal)
         if proposal["material"] != {
-            "id": request["material"]["id"],
-            "sha256": request["material"]["sha256"],
-            "original_kind": request["material"]["original_kind"],
+            "id": request_snapshot["material"]["id"],
+            "sha256": request_snapshot["material"]["sha256"],
+            "original_kind": request_snapshot["material"]["original_kind"],
         }:
             raise ValueError("L'analizzatore ha restituito un'identità del materiale diversa dalla richiesta.")
         return proposal
     except Exception as exc:
         # Non conservare un risultato parziale o potenzialmente malformato.
         proposal = _base_proposal(
-            request,
+            request_snapshot,
             catalog_sha256,
             "failed",
             "L'analisi semantica non è stata completata: " + type(exc).__name__ + ".",
