@@ -53,6 +53,16 @@ Ogni acquisizione locale riuscita crea una scheda con:
 
 Un riferimento remoto viene registrato con acquisizione `received`, perché il contenuto non è stato copiato. La classificazione e la verifica non vengono anticipate.
 
+## Recupero da interruzioni
+
+Ogni acquisizione locale scrive un registro di transazione prima di pubblicare la copia conservata. All'avvio di una nuova acquisizione, il componente controlla il blocco precedente: se appartiene allo stesso computer e il processo non esiste più, recupera le transazioni. Una copia già pubblicata con impronta valida viene registrata nel catalogo; una copia non ancora pubblicata viene annullata eliminando soltanto la cartella temporanea. Le cartelle temporanee orfane vengono eliminate dopo aver acquisito il blocco. Registri incoerenti, originali mancanti o impronte diverse bloccano il recupero e richiedono controllo: il componente non indovina e non sovrascrive.
+
+Un blocco creato da un altro computer o illeggibile non viene rimosso automaticamente, perché non è possibile dimostrare che sia inattivo.
+
+## Riconoscimento dei duplicati
+
+Prima della pubblicazione viene confrontata l'impronta SHA-256 con i materiali locali già conservati dello stesso tipo fisico (file con file, cartella con cartella). Se il contenuto coincide, l'acquisizione viene rifiutata e vengono indicati gli identificativi già presenti. Per i riferimenti remoti viene rilevato lo stesso URI. Non viene creato un secondo originale e non viene sovrascritto il primo.
+
 ## Protezioni e limiti noti
 
 - Identificativi duplicati e destinazioni esistenti vengono rifiutati; non si sovrascrivono acquisizioni precedenti.
@@ -61,10 +71,11 @@ Un riferimento remoto viene registrato con acquisizione `received`, perché il c
 - Collegamenti simbolici vengono rifiutati.
 - Gli archivi non vengono estratti né eseguiti.
 - Il componente non scarica riferimenti remoti.
-- Non è ancora prevista la ripresa automatica dopo l'interruzione forzata dell'intero processo o del computer; un'interruzione improvvisa può richiedere il controllo manuale di eventuali cartelle temporanee e del blocco.
+- Il recupero automatico riguarda transazioni locali interrotte sullo stesso computer; blocchi di altri computer o registri corrotti richiedono controllo.
 - SHA-256 dimostra la corrispondenza dei contenuti rispetto all'impronta registrata, non la sicurezza del materiale.
+- L'impronta delle cartelle include anche le cartelle vuote e distingue cartelle e file.
 - Il calcolo delle cartelle considera percorsi relativi e contenuti dei file; le cartelle vuote e i metadati del file system non fanno parte dell'impronta corrente.
 
 ## Verifiche automatiche
 
-I test dedicati controllano copia fedele, immutabilità della sorgente, cartelle annidate, archivi opachi, riferimenti remoti, duplicati, collegamenti simbolici, collisioni di destinazione e pulizia dopo un errore di copia. La suite completa e il validatore vengono eseguiti tramite GitHub Actions.
+I test dedicati controllano copia fedele, immutabilità della sorgente, cartelle annidate, archivi opachi, riferimenti remoti, duplicati, collegamenti simbolici, collisioni di destinazione e pulizia dopo un errore di copia. La suite completa e il validatore vengono eseguiti tramite GitHub Actions su Ubuntu e Windows. La verifica su un esecutore Windows remoto non sostituisce una prova sul computer Windows dell'utilizzatore.
