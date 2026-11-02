@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bhevivision.github.io/universal-skill-library/schemas/material-integrity-result.schema.json",
+  "title": "Esito del controllo di integrità di un materiale acquisito",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "material_id",
+    "original_kind",
+    "acquisition_state",
+    "path",
+    "recorded_digest",
+    "actual_digest",
+    "digest_algorithm",
+    "status",
+    "checks",
+    "problems"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "material_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "original_kind": {
+      "type": ["string", "null"],
+      "enum": ["file", "directory", "archive", "package", "remote_reference", "unknown", null]
+    },
+    "acquisition_state": {
+      "type": ["string", "null"],
+      "enum": ["received", "preserved", "incomplete", "error", null]
+    },
+    "path": {
+      "type": ["string", "null"]
+    },
+    "recorded_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "actual_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "digest_algorithm": {
+      "type": ["string", "null"],
+      "enum": ["sha256-file-v1", "sha256-tree-v2", "sha256-tree-legacy", null]
+    },
+    "status": {
+      "enum": ["verified", "not_applicable", "blocked", "failed"]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "status", "detail"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": ["passed", "failed", "not_checked"]
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
