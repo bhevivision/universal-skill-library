@@ -529,13 +529,16 @@ class MaterialPreparerTests(unittest.TestCase):
         path.write_bytes(b"x" * 10)
         self.register_directory()
         original_open = os.open
+        triggered = {"done": False}
         def grow_before_open(target, flags, *args, **kwargs):
-            if Path(target) == path:
+            if Path(target).name == path.name and not triggered["done"]:
+                triggered["done"] = True
                 with path.open("ab") as stream:
                     stream.write(b"y" * (material_preparer.MAX_FILE_BYTES + 100))
             return original_open(target, flags, *args, **kwargs)
         with patch("scripts.material_preparer.os.open", side_effect=grow_before_open):
             result = self.prepare()
+        self.assertTrue(triggered["done"], "Il test non ha raggiunto la finestra tra controllo e apertura.")
         self.assertEqual(result["status"], "blocked")
         self.assertEqual(result["files"], [])
 
@@ -548,7 +551,7 @@ class MaterialPreparerTests(unittest.TestCase):
         original_open = os.open
         swapped = {"done": False}
         def swap_before_open(target, flags, *args, **kwargs):
-            if Path(target) == path and not swapped["done"]:
+            if Path(target).name == path.name and not swapped["done"]:
                 swapped["done"] = True
                 path.unlink()
                 try:
@@ -558,6 +561,7 @@ class MaterialPreparerTests(unittest.TestCase):
             return original_open(target, flags, *args, **kwargs)
         with patch("scripts.material_preparer.os.open", side_effect=swap_before_open):
             result = self.prepare()
+        self.assertTrue(swapped["done"], "Il test non ha raggiunto la finestra tra controllo e apertura.")
         self.assertNotIn("ESTERNO", json.dumps(result))
         self.assertEqual(result["status"], "blocked")
         self.assertEqual(result["files"], [])
