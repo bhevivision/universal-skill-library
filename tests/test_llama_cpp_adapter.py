@@ -8,6 +8,7 @@ from scripts.llama_cpp_adapter import LlamaCppServerAdapter
 
 class _Handler(BaseHTTPRequestHandler):
     received = None
+    redirect_to = None
     response_content = json.dumps({
         "status": "not_available",
         "classification": {
@@ -32,6 +33,11 @@ class _Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get("Content-Length", "0"))
         type(self).received = json.loads(self.rfile.read(length).decode("utf-8"))
+        if type(self).redirect_to:
+            self.send_response(302)
+            self.send_header("Location", type(self).redirect_to)
+            self.end_headers()
+            return
         body = json.dumps({
             "choices": [{
                 "message": {"content": type(self).response_content}
@@ -50,13 +56,17 @@ class _Handler(BaseHTTPRequestHandler):
 class LlamaCppAdapterTests(unittest.TestCase):
     def setUp(self):
         _Handler.received = None
+        _Handler.redirect_to = None
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
-        self.addCleanup(self.server.server_close)
-        self.addCleanup(self.server.shutdown)
-        self.addCleanup(self.thread.join)
+        self.addCleanup(self._stop_server)
         self.base_url = f"http://127.0.0.1:{self.server.server_port}"
+
+    def _stop_server(self):
+        self.server.shutdown()
+        self.thread.join(timeout=5)
+        self.server.server_close()
 
     def test_calls_only_loopback_server_and_parses_structured_json(self):
         adapter = LlamaCppServerAdapter(
@@ -102,6 +112,18 @@ class LlamaCppAdapterTests(unittest.TestCase):
     def test_rejects_https_endpoint_to_keep_runtime_local_and_explicit(self):
         with self.assertRaises(ValueError):
             LlamaCppServerAdapter(base_url="https://127.0.0.1:8080", model="model")
+
+    def test_does_not_follow_redirects_to_external_hosts(self):
+        _Handler.redirect_to = "http://example.com/steal"
+        adapter = LlamaCppServerAdapter(base_url=self.base_url, model="fixture-local-model")
+
+        with self.assertRaises(ValueError):
+            adapter.analyze({
+                "request_id": "req.test",
+                "material": {"id": "acq.test", "sha256": "a" * 64, "original_kind": "file"},
+                "files": [], "selected_content": [],
+                "limits": {"max_duration_seconds": 5}, "safety": {},
+            })
 
     def test_rejects_non_json_model_content(self):
         _Handler.response_content = "This is not JSON"
