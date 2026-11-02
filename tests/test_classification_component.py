@@ -19,14 +19,14 @@ class ClassificationComponentTests(unittest.TestCase):
             "# Report Writer\n\n## Instructions\n1. Read the source.\n2. Produce a report.\n",
             encoding="utf-8",
         )
-        digest = hashlib.sha256(self.material.read_bytes()).hexdigest()
+        digest = self._digest()
         record = {
             "catalog_version": "1.0",
             "materials": [{
                 "id": "acq.skill",
                 "acquisition": {"status": "preserved", "original": {
-                    "kind": "file", "path": "intake/acq-skill/source/SKILL.md",
-                    "sha256": digest, "digest_algorithm": "sha256-file-v1"
+                    "kind": "directory", "path": "intake/acq-skill/source",
+                    "sha256": digest, "digest_algorithm": "sha256-tree-v2"
                 }},
                 "classification": {"status": "not_examined", "kind": "unclassified"},
                 "documentation": {"status": "unknown"},
@@ -72,7 +72,16 @@ class ClassificationComponentTests(unittest.TestCase):
         self.assertTrue(result["limits"])
 
     def _digest(self):
-        return hashlib.sha256(self.material.read_bytes()).hexdigest()
+        digest = hashlib.sha256()
+        for item in sorted(self.material.parent.rglob("*"), key=lambda entry: entry.relative_to(self.material.parent).as_posix()):
+            relative = item.relative_to(self.material.parent).as_posix().encode("utf-8")
+            if item.is_dir():
+                digest.update(b"D\\0" + relative + b"\\0")
+            elif item.is_file():
+                digest.update(b"F\\0" + relative + b"\\0")
+                digest.update(item.read_bytes())
+                digest.update(b"\\0")
+        return digest.hexdigest()
 
 
 if __name__ == "__main__":
