@@ -62,6 +62,8 @@ Il flusso:
 
 Le proposte vengono salvate in `proposals/`, separate dai cataloghi approvati. Il salvataggio non approva la classificazione e non abilita l'esecuzione del materiale. Se la verifica delle prove fallisce, la proposta non viene salvata.
 
+Il risultato del flusso espone `evidence_verified: true` soltanto dopo i controlli applicativi e `approval_required: true` sempre. La prima proprietà attesta esclusivamente la coerenza delle prove e delle impronte; **non** dimostra che la classificazione sia semanticamente corretta, che la skill funzioni o che sia approvata. Il file viene preparato in un temporaneo nella stessa cartella e pubblicato con creazione esclusiva atomica; una proposta già presente non viene sovrascritta.
+
 ## Modello locale: decisione ancora aperta
 
 L'interfaccia è indipendente dal fornitore e consente di collegare un adattatore locale. Non è stato scelto né incluso un modello reale. La scelta del formato e del motore di esecuzione dipende dalle risorse dell'ambiente che ospiterà il modello (memoria, processore, eventuale acceleratore grafico e sistema operativo). GitHub Actions esegue i test automatici, ma non è un ambiente persistente di inferenza locale e non dimostra che un modello possa essere eseguito sul computer personale, oggi non disponibile.
