@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import re
+import tempfile
 import uuid
 from pathlib import Path
 
@@ -111,19 +112,21 @@ def _save_proposal_exclusive(root: Path, proposal: dict) -> str:
     if destination.is_symlink():
         raise ValueError("Il percorso della proposta non può essere un collegamento simbolico.")
 
-    data = _canonical_bytes(proposal) + b"\n"
-    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-    if hasattr(os, "O_BINARY"):
-        flags |= os.O_BINARY
-    descriptor = os.open(destination, flags, 0o600)
+    data = _canonical_bytes(proposal) + b"\\n"
+    temporary = None
     try:
-        with os.fdopen(descriptor, "wb") as stream:
+        with tempfile.NamedTemporaryFile(
+            mode="wb", dir=directory, prefix=".proposal-", suffix=".tmp", delete=False
+        ) as stream:
+            temporary = Path(stream.name)
             stream.write(data)
             stream.flush()
             os.fsync(stream.fileno())
-    except Exception:
-        destination.unlink(missing_ok=True)
-        raise
+        # Pubblicazione atomica senza possibilità di sovrascrivere una proposta.
+        os.link(temporary, destination)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
     return destination.relative_to(root).as_posix()
 
 
