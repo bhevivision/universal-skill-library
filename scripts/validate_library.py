@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse, json, re, sys
 from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
+from referencing import Registry, Resource
 CATALOGS={
  "catalog/capabilities.json":("capabilities","schemas/capabilities-catalog.schema.json","schemas/capability.schema.json"),
  "catalog/skills.json":("skills","schemas/skills-catalog.schema.json","schemas/skill-entry.schema.json"),
@@ -13,12 +14,22 @@ def read_json(root,rel,errors):
  if not p.is_file(): errors.append(f"{rel}: file non trovato"); return None
  try: return json.loads(p.read_text(encoding="utf-8"))
  except (OSError,UnicodeError,json.JSONDecodeError) as e: errors.append(f"{rel}: JSON non valido ({e})"); return None
+def schema_registry(root):
+ registry=Registry()
+ for path in sorted((root/"schemas").glob("*.schema.json")):
+  try:
+   schema=json.loads(path.read_text(encoding="utf-8"))
+   if isinstance(schema,dict) and isinstance(schema.get("$id"),str):
+    registry=registry.with_resource(schema["$id"],Resource.from_contents(schema))
+  except (OSError,UnicodeError,json.JSONDecodeError):
+   continue
+ return registry
 def check_schema(root,value,rel,source,errors):
  schema=read_json(root,rel,errors)
  if schema is None:return
  try:
   Draft202012Validator.check_schema(schema)
-  for issue in Draft202012Validator(schema,format_checker=FormatChecker()).iter_errors(value):
+  for issue in Draft202012Validator(schema,registry=schema_registry(root),format_checker=FormatChecker()).iter_errors(value):
    where=".".join(map(str,issue.absolute_path)) or "$"; errors.append(f"{source}:{where}: {issue.message}")
  except Exception as e: errors.append(f"{rel}: schema non valido ({e})")
 def safe_path(root,rel):
