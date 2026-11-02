@@ -508,6 +508,18 @@ class MaterialPreparerTests(unittest.TestCase):
         texts = [("intake/a/SKILL.md", "---\nname: x\ndescription: y\n---\n# Instructions\n")]
         self.assertEqual(_propose(texts, "directory")[0], "skill")
 
+    def test_052_result_conforms_to_public_json_schema(self):
+        from jsonschema import Draft202012Validator
+
+        (self.source / "guide.md").write_text("# Guida\n", encoding="utf-8")
+        self.register_directory()
+        result = self.prepare()
+        schema_path = Path(__file__).resolve().parents[1] / "schemas/material-preparation-result.schema.json"
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        Draft202012Validator.check_schema(schema)
+        errors = list(Draft202012Validator(schema).iter_errors(result))
+        self.assertEqual(errors, [])
+
 
 if __name__ == "__main__":
     unittest.main()
