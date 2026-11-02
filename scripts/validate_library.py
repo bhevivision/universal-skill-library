@@ -105,6 +105,21 @@ def digest_directory(path):
     return digest.hexdigest()
 
 
+def digest_directory_legacy(path):
+    digest = hashlib.sha256()
+    for item in sorted(path.rglob("*")):
+        if item.is_symlink():
+            raise ValueError(f"collegamento simbolico non ammesso: {item}")
+        if item.is_file():
+            digest.update(item.relative_to(path).as_posix().encode("utf-8"))
+            digest.update(b"\0")
+            with item.open("rb") as stream:
+                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                    digest.update(chunk)
+            digest.update(b"\0")
+    return digest.hexdigest()
+
+
 def check_materials(root, materials, errors):
     material_map = {}
     for material in materials:
@@ -146,7 +161,17 @@ def check_materials(root, materials, errors):
             errors.append(f"materiale {mid}: il tipo directory richiede una cartella originale ({rel})")
             continue
         try:
-            actual = digest_directory(path) if path.is_dir() else digest_file(path)
+            algorithm = original.get("digest_algorithm")
+            if path.is_dir():
+                if algorithm not in {None, "sha256-tree-v2"}:
+                    errors.append(f"materiale {mid}: algoritmo impronta non supportato ({algorithm})")
+                    continue
+                actual = digest_directory_legacy(path) if algorithm is None else digest_directory(path)
+            else:
+                if algorithm not in {None, "sha256-file-v1"}:
+                    errors.append(f"materiale {mid}: algoritmo impronta non supportato ({algorithm})")
+                    continue
+                actual = digest_file(path)
             expected = original.get("sha256")
             if expected and actual != expected:
                 errors.append(f"materiale {mid}: impronta SHA-256 dell'originale non corrispondente")
