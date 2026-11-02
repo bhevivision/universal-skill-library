@@ -25,7 +25,7 @@ class ClassificationComponentTests(unittest.TestCase):
             "materials": [{
                 "id": "acq.skill",
                 "acquisition": {"status": "preserved", "original": {
-                    "kind": "directory", "path": "intake/acq-skill/source",
+                    "kind": "file", "path": "intake/acq-skill/source/SKILL.md",
                     "sha256": digest, "digest_algorithm": "sha256-file-v1"
                 }},
                 "classification": {"status": "not_examined", "kind": "unclassified"},
