@@ -107,13 +107,7 @@ def _read_catalog(root: Path) -> tuple[dict, Path, str]:
     return catalog, catalog_path, hashlib.sha256(raw).hexdigest()
 
 
-def load_material_record(root, material_id: str):
-    """Carica il record univoco e restituisce (record, catalogo, percorso_catalogo).
-
-    Questa funzione controlla la struttura e l'identità nel catalogo, ma non
-    calcola l'impronta del materiale originale.
-    """
-    root = Path(root).resolve()
+def _load_material_record(root: Path, material_id: str):
     if not isinstance(material_id, str) or not material_id:
         raise MaterialIntegrityError("INVALID_RECORD", "Identificativo del materiale mancante o non valido.")
     catalog, catalog_path, catalog_digest = _read_catalog(root)
@@ -135,7 +129,17 @@ def load_material_record(root, material_id: str):
         raise MaterialIntegrityError(
             "CATALOG_CHANGED_DURING_CHECK", "Il catalogo è cambiato durante la lettura del record."
         )
-    return matches[0], catalog, catalog_path
+    return matches[0], catalog, catalog_path, catalog_digest
+
+
+def load_material_record(root, material_id: str):
+    """Carica il record univoco e restituisce (record, catalogo, percorso_catalogo).
+
+    Questa funzione controlla la struttura e l'identità nel catalogo, ma non
+    calcola l'impronta del materiale originale.
+    """
+    record, catalog, catalog_path, _ = _load_material_record(Path(root).resolve(), material_id)
+    return record, catalog, catalog_path
 
 
 def _safe_original_path(root: Path, original: dict) -> Path:
@@ -239,13 +243,19 @@ def verify_material(
     """
     root = Path(root).resolve()
     result = _result_base(material_id)
+    if isinstance(allowed_states, str) or not isinstance(allowed_states, (list, tuple, set, frozenset)) or not all(
+        isinstance(state, str) for state in allowed_states
+    ):
+        result["problems"].append(_problem("INVALID_RECORD", "Elenco degli stati di acquisizione ammessi non valido."))
+        result["status"] = "failed"
+        return result
     catalog_path = None
     initial_catalog_digest = None
     original = None
     material_path = None
 
     try:
-        record, catalog, catalog_path = load_material_record(root, material_id)
+        record, catalog, catalog_path, initial_catalog_digest = _load_material_record(root, material_id)
         acquisition = record.get("acquisition")
         if not isinstance(acquisition, dict):
             raise MaterialIntegrityError("INVALID_RECORD", "Sezione acquisition assente o non valida.")
@@ -255,18 +265,19 @@ def verify_material(
         kind = original.get("kind")
         state = acquisition.get("status")
         recorded_digest = original.get("sha256")
+        if kind not in {"file", "directory", "archive", "package", "remote_reference", "unknown"}:
+            raise MaterialIntegrityError("INVALID_RECORD", f"Tipo originale assente o non riconosciuto: {kind}")
         result.update({
             "original_kind": kind,
             "acquisition_state": state,
             "recorded_digest": recorded_digest,
         })
-        _, _, initial_catalog_digest = _read_catalog(root)
         result["checks"].append(_check("catalog_identity", "passed", "Record univoco trovato nel catalogo."))
 
         if kind == "remote_reference":
             uri = original.get("uri")
             parsed = urlparse(uri) if isinstance(uri, str) else None
-            if not parsed or parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            if not parsed or parsed.scheme not in {"http", "https"} or not parsed.netloc or not parsed.hostname:
                 raise MaterialIntegrityError("INVALID_RECORD", "URI del riferimento remoto assente o non valida.")
             if state not in {"received", "preserved"}:
                 raise MaterialIntegrityError(
@@ -289,7 +300,7 @@ def verify_material(
                 "INVALID_ACQUISITION_STATE",
                 f"Stato di acquisizione non consentito: {state}. Stati ammessi: {', '.join(allowed_states)}.",
             )
-        if not isinstance(recorded_digest, str) or len(recorded_digest) != 64:
+        if not isinstance(recorded_digest, str) or len(recorded_digest) != 64 or any(char not in "0123456789abcdef" for char in recorded_digest):
             raise MaterialIntegrityError("INVALID_RECORD", "Impronta SHA-256 registrata assente o non valida.")
         material_path = _safe_original_path(root, original)
         result["path"] = material_path.relative_to(root).as_posix()
