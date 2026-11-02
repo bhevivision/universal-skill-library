@@ -529,16 +529,26 @@ class MaterialPreparerTests(unittest.TestCase):
         path.write_bytes(b"x" * 10)
         self.register_directory()
         original_open = os.open
+        original_read = os.read
         triggered = {"done": False}
+        bytes_read = {"count": 0}
         def grow_before_open(target, flags, *args, **kwargs):
             if Path(target).name == path.name and not triggered["done"]:
                 triggered["done"] = True
                 with path.open("ab") as stream:
                     stream.write(b"y" * (material_preparer.MAX_FILE_BYTES + 100))
             return original_open(target, flags, *args, **kwargs)
-        with patch("scripts.material_preparer.os.open", side_effect=grow_before_open):
+        def count_bounded_read(descriptor, requested):
+            chunk = original_read(descriptor, requested)
+            bytes_read["count"] += len(chunk)
+            return chunk
+        with patch("scripts.material_preparer.os.open", side_effect=grow_before_open), patch(
+            "scripts.material_preparer.os.read", side_effect=count_bounded_read
+        ):
             result = self.prepare()
         self.assertTrue(triggered["done"], "Il test non ha raggiunto la finestra tra controllo e apertura.")
+        self.assertEqual(bytes_read["count"], material_preparer.MAX_FILE_BYTES + 1)
+        self.assertLessEqual(bytes_read["count"], material_preparer.MAX_FILE_BYTES + 1)
         self.assertEqual(result["status"], "blocked")
         self.assertEqual(result["files"], [])
 
