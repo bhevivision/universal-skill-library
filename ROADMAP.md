@@ -23,7 +23,7 @@ Stato: correzioni tecniche della v1 in corso sul ramo dedicato. Schemi, controll
 - [x] Controllo pacchetti, frontmatter, piattaforme e manifesti.
 - [x] Controllo delle dichiarazioni di verifica e delle prove.
 - [x] Test con casi validi e non validi in locale.
-- [x] Confermare l'esecuzione della verifica continua su GitHub Actions (run finale da associare al commit di queste correzioni).
+- [ ] Confermare l'esecuzione della verifica continua su GitHub Actions sul commit conclusivo delle correzioni.
 
 Criterio di uscita: controlli ripetibili in locale e integrazione continua, con casi validi e non validi. La verifica strutturale non certifica il comportamento funzionale delle skill.
 
