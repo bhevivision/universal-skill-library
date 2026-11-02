@@ -33,7 +33,7 @@ def _safe_relative_path(root: Path, value: str) -> Path:
     for part in relative.parts:
         current = current / part
         if current.is_symlink():
-            raise ValueError(f"Collegamento simbolico non ammesso nel percorso della prova: {value}")
+            raise ValueError(f"collegamento simbolico non ammesso nel percorso della prova: {value}")
     try:
         resolved = candidate.resolve(strict=True)
     except (OSError, RuntimeError) as exc:
@@ -78,6 +78,16 @@ def validate_semantic_proposal(root, proposal):
     if not isinstance(proposal, dict):
         raise ValueError("La proposta semantica deve essere un oggetto JSON.")
 
+    raw_evidence = proposal.get("evidence")
+    if isinstance(raw_evidence, list):
+        seen_ids = set()
+        for item in raw_evidence:
+            if isinstance(item, dict) and isinstance(item.get("id"), str):
+                evidence_id = item["id"]
+                if evidence_id in seen_ids:
+                    raise ValueError(f"identificativo della prova duplicato: {evidence_id}")
+                seen_ids.add(evidence_id)
+
     try:
         schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
@@ -95,7 +105,7 @@ def validate_semantic_proposal(root, proposal):
     for item in evidence:
         evidence_id = item["id"]
         if evidence_id in evidence_by_id:
-            raise ValueError(f"Identificativo della prova duplicato: {evidence_id}")
+            raise ValueError(f"identificativo della prova duplicato: {evidence_id}")
         evidence_by_id[evidence_id] = item
 
     for reference in _collect_evidence_refs(proposal):
@@ -144,7 +154,7 @@ def validate_semantic_proposal(root, proposal):
             if item["kind"] != "metadata":
                 raise ValueError("Le prove del catalogo devono essere di tipo metadata.")
             if item["sha256"] != catalog_hash:
-                raise ValueError("L'impronta della prova catalogo non corrisponde al catalogo corrente.")
+                raise ValueError("impronta della prova catalogo non corrisponde al catalogo corrente.")
             continue
 
         if not source.startswith("intake/"):
