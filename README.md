@@ -30,6 +30,16 @@ Esempi, dalla cartella principale della libreria:
 
 Il componente rifiuta identificativi duplicati, destinazioni già esistenti e collegamenti simbolici. La copia viene preparata in una cartella temporanea e pubblicata solo dopo il controllo dell'impronta; gli errori durante la copia non producono una scheda catalogata. Il componente non estrae archivi, non esegue codice, non classifica il materiale e non ne certifica il funzionamento.
 
+## Componente indipendente di classificazione
+
+Il componente `scripts/classify_material.py` legge un materiale già acquisito, verifica che la sua impronta sia invariata e produce una proposta separata in `proposals/`. L'analisi iniziale è statica e limitata a file testuali ammessi: non esegue codice, non estrae archivi, non visita riferimenti remoti e non modifica i cataloghi approvati. La proposta richiede approvazione separata. Non equivale a verifica funzionale o autorizzazione all'uso.
+
+Esempio:
+
+    python scripts/classify_material.py --material-id acq.nome-materiale --proposal-id class.nome-proposta
+
+Dettagli: [Componente di classificazione](docs/CLASSIFICATION-COMPONENT.md).
+
 ## Controlli disponibili
 Comandi:
 
