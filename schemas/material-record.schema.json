@@ -20,7 +20,7 @@
      "properties":{
       "kind":{"enum":["file","directory","archive","package","remote_reference","unknown"]},
       "path":{"type":"string","minLength":1},"uri":{"type":"string","format":"uri"},
-      "sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},"byte_size":{"type":"integer","minimum":0}
+      "sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},"digest_algorithm":{"enum":["sha256-file-v1","sha256-tree-v2"]},"byte_size":{"type":"integer","minimum":0}
      }
     }
    }
