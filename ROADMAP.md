@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore. Il classificatore statico e l'approvazione/rifiuto espliciti sono implementati e verificati su Linux e Windows: 65 test superati su Linux e Windows e validatore superato nel commit `1beab4c8b033b420afc3734fced1f18341c3cb0d` (run `41520570818`). Sono stati definiti il contratto tecnico e lo schema JSON della proposta semantica, con test dedicati; l'esito della loro esecuzione automatica è ancora da verificare. Restano il motore semantico, l'autenticazione multiutente, la prova sul PC Windows dell'utilizzatore e il coordinatore.
+Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore. Il classificatore statico e l'approvazione/rifiuto espliciti sono implementati e verificati su Linux e Windows: 65 test superati su Linux e Windows e validatore superato nel commit `1beab4c8b033b420afc3734fced1f18341c3cb0d` (run `41520570818`). Sono stati definiti e verificati il contratto tecnico e lo schema JSON della proposta semantica. È stato implementato il controllo applicativo delle prove: verifica riferimenti, identificativi univoci, appartenenza dei percorsi al materiale acquisito, impronte SHA-256, collegamenti simbolici e intervalli di righe, con ricontrollo finale contro modifiche concorrenti. I test dedicati sono stati scritti; la verifica conclusiva su Linux e Windows del commit corrente è in corso. Restano il motore semantico, l'autenticazione multiutente, la prova sul PC Windows dell'utilizzatore e il coordinatore.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -48,6 +48,8 @@ Criterio di uscita: un materiale locale può essere copiato e registrato senza m
 - [x] Definire il contratto tecnico della richiesta e della risposta semantica, indipendente dal fornitore.
 - [x] Definire lo schema JSON versionato della proposta semantica.
 - [x] Scrivere test automatici per campi obbligatori, categorie, stati, prove, impronte e autorizzazione all'analisi remota.
+- [x] Implementare il controllo applicativo dei riferimenti alle prove, dell'identità e delle impronte dei file esaminati, senza eseguire i materiali.
+- [x] Aggiungere test per riferimenti mancanti, identificativi duplicati, impronte errate, percorsi esterni, attraversamento di cartelle, collegamenti simbolici e intervalli di righe.
 - [ ] Eseguire e verificare i nuovi test su Linux e Windows tramite GitHub Actions.
 - [ ] Implementare il motore semantico locale sostituibile, con stato esplicito not_available se non configurato.
 - [ ] Ampliare gli analizzatori per formati diversi e introdurre prove specifiche per ciascun formato.
