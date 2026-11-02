@@ -83,6 +83,7 @@ def _semantic_output_schema() -> dict:
         "title": "Campi semantici della proposta",
         "type": "object",
         "additionalProperties": False,
+        "$defs": full_schema.get("$defs", {}),
         "required": list(SEMANTIC_FIELDS),
         "properties": {field: properties[field] for field in SEMANTIC_FIELDS},
     }
