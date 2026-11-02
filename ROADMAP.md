@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. Il modello di acquisizione eterogenea e il componente indipendente di acquisizione locale sono implementati sul ramo di lavoro; la verifica conclusiva del componente dipende dalla suite GitHub Actions sul commit corrente. Il coordinatore non è implementato.
+Stato: il modello strutturale v1 è approvato. Il modello di acquisizione eterogenea e la prima versione del componente indipendente sono implementati sul ramo di lavoro. La suite GitHub Actions ha superato 40 test e il validatore sul commit `7d7e49e8f9f943171962d3eda0445f9860f52548`. Restano verifiche locali su Windows e miglioramenti di robustezza indicati sotto. Il coordinatore non è implementato.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -29,7 +29,7 @@ Stato: il modello strutturale v1 è approvato. Il modello di acquisizione eterog
 - [x] Eseguire i 30 test e il validatore tramite GitHub Actions sul commit `d57f0b11690a71dafc1144b5fa8b7b560ab0bd0b`.
 - [x] Definire il contratto pubblico del componente indipendente di acquisizione con test prima dell'implementazione.
 - [x] Implementare copia locale, scheda descrittiva, impronta, controlli di collisione e registrazione di riferimenti remoti.
-- [ ] Verificare la nuova implementazione con tutti i test tramite GitHub Actions.
+- [x] Verificare la nuova implementazione con tutti i test tramite GitHub Actions: 40 test superati e validatore superato (run `41513402663`).
 - [ ] Aggiungere recupero automatico da interruzione forzata e gestione dei duplicati per contenuto, non soltanto per identificativo.
 - [ ] Verificare l'esecuzione locale su Windows.
 
