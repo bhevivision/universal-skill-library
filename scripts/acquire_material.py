@@ -186,6 +186,8 @@ def _pid_is_alive(pid):
 
 def _acquisition_lock(root):
     lock_path = Path(root) / LOCK_NAME
+    if lock_path.is_symlink():
+        raise RuntimeError("Il blocco di acquisizione non può essere un collegamento simbolico.")
     for _ in range(3):
         try:
             descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
@@ -212,6 +214,18 @@ def _acquisition_lock(root):
                 os.close(descriptor)
             return lock_path
     raise RuntimeError("Impossibile acquisire il blocco esclusivo; riprovare.")
+
+
+def _ensure_intake(root):
+    intake = Path(root) / "intake"
+    if intake.is_symlink():
+        raise ValueError("La cartella intake non può essere un collegamento simbolico.")
+    intake.mkdir(parents=True, exist_ok=True)
+    try:
+        intake.resolve().relative_to(Path(root).resolve())
+    except ValueError as exc:
+        raise ValueError("La cartella intake deve rimanere all'interno della libreria.") from exc
+    return intake
 
 
 def _safe_intake_child(root, name):
@@ -262,8 +276,7 @@ def _verify_record_content(root, record):
 
 
 def _recover_transactions_locked(root):
-    intake = root / "intake"
-    intake.mkdir(parents=True, exist_ok=True)
+    intake = _ensure_intake(root)
     transactions = intake / ".transactions"
     completed, discarded, registered = [], [], []
     if transactions.exists():
@@ -380,8 +393,7 @@ def acquire_material(root, source, material_id, *, name=None, description=None,
     if source_path.is_file() and inferred == "archive" and kind is None:
         material_kind = "archive"
 
-    intake = root / "intake"
-    intake.mkdir(parents=True, exist_ok=True)
+    intake = _ensure_intake(root)
     folder_name = material_id.replace(".", "-")
     destination = intake / folder_name
     lock_path = _acquisition_lock(root)
@@ -462,6 +474,7 @@ def acquire_remote_material(root, material_id, uri, *, name=None, description=No
     if parsed is None or parsed.scheme not in {"http", "https"} or not parsed.netloc:
         raise ValueError("Il riferimento remoto deve essere un URI HTTP o HTTPS valido.")
     root = Path(root).resolve()
+    _ensure_intake(root)
     record = _base_record(material_id, name, description, method, source_label, "received",
         {"kind": "remote_reference", "uri": uri})
     lock_path = _acquisition_lock(root)
