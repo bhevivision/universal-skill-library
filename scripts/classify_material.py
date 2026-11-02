@@ -10,6 +10,11 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
+if __package__ in {None, ""}:
+    from material_integrity import load_material_record, verify_material
+else:
+    from scripts.material_integrity import load_material_record, verify_material
+
 
 def _load_catalog(root):
     path = root / "catalog/materials.json"
@@ -173,28 +178,30 @@ def _propose(texts, original_kind):
 def analyze_material(root, material_id):
     """Restituisce una proposta legata all'identificativo e all'impronta esatta del materiale."""
     root = Path(root).resolve()
-    catalog, _ = _load_catalog(root)
-    record = next((item for item in catalog["materials"] if isinstance(item, dict) and item.get("id") == material_id), None)
-    if record is None:
-        raise ValueError(f"Materiale non trovato: {material_id}")
+    record, catalog, _ = load_material_record(root, material_id)
     acquisition = record.get("acquisition", {})
     original = acquisition.get("original", {})
     kind = original.get("kind")
     if kind == "remote_reference":
-        if acquisition.get("status") not in {"received", "preserved"}:
-            raise ValueError("Il riferimento remoto non ha uno stato di acquisizione valido.")
+        integrity = verify_material(root, material_id, allowed_states=("received", "preserved"))
+        if integrity["status"] != "not_applicable":
+            problem = integrity["problems"][0]["message"] if integrity["problems"] else "Il riferimento remoto non è verificabile."
+            raise ValueError(problem)
         path = None
         digest = None
         texts, evidence, skipped = [], [], []
     else:
-        if acquisition.get("status") != "preserved":
-            raise ValueError("La classificazione richiede un materiale locale in stato preserved.")
-        path = _record_original_path(root, record)
-        if not path.exists() or not (path.is_file() or path.is_dir()):
-            raise ValueError("Originale non disponibile o di tipo non supportato.")
-        digest = _fingerprint(path, original)
-        if digest != original.get("sha256"):
-            raise ValueError("Impronta del materiale cambiata dopo l'acquisizione; classificazione bloccata.")
+        integrity = verify_material(root, material_id, allowed_states=("preserved",))
+        if integrity["status"] != "verified":
+            codes = {item["code"] for item in integrity["problems"]}
+            if "INVALID_ACQUISITION_STATE" in codes:
+                raise ValueError("La classificazione richiede un materiale locale in stato preserved.")
+            if "DIGEST_MISMATCH" in codes:
+                raise ValueError("Impronta del materiale cambiata dopo l'acquisizione; classificazione bloccata.")
+            problem = integrity["problems"][0]["message"] if integrity["problems"] else "Integrità del materiale non verificata."
+            raise ValueError(problem)
+        path = root / integrity["path"]
+        digest = integrity["actual_digest"]
         texts, evidence, skipped = _read_evidence(path, root)
 
     proposed_kind, confidence, rationale = _propose(texts, kind)
@@ -231,15 +238,15 @@ def save_proposal(root, result, proposal_id):
     if not isinstance(proposal_id, str) or not re.fullmatch(r"[a-z0-9]+(?:[.-][a-z0-9]+)*", proposal_id):
         raise ValueError("Identificativo proposta non valido.")
     root = Path(root).resolve()
-    catalog, _ = _load_catalog(root)
     material_id = result.get("material", {}).get("id")
-    record = next((item for item in catalog["materials"] if isinstance(item, dict) and item.get("id") == material_id), None)
-    if record is None:
-        raise ValueError("Il materiale della proposta non è più presente nel catalogo.")
+    record, catalog, _ = load_material_record(root, material_id)
     original = record.get("acquisition", {}).get("original", {})
     if original.get("kind") != "remote_reference":
-        current_path = _record_original_path(root, record)
-        if not current_path.exists() or _fingerprint(current_path, original) != result.get("material", {}).get("sha256"):
+        integrity = verify_material(
+            root, material_id, expected_digest=result.get("material", {}).get("sha256"),
+            allowed_states=("preserved",)
+        )
+        if integrity["status"] != "verified":
             raise ValueError("Il materiale è cambiato dopo l'analisi; proposta non salvata.")
     result = dict(result)
     result["proposal_id"] = proposal_id
