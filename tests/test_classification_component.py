@@ -73,11 +73,14 @@ class ClassificationComponentTests(unittest.TestCase):
 
     def test_unknown_binary_material_is_not_guessed_or_executed(self):
         binary = self.material.parent / "payload.bin"
-        binary.write_bytes(b"\x00\xff\x00")
+        binary.write_bytes(bytes([0, 255, 0]))
+        catalog_path = self.root / "catalog/materials.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        catalog["materials"][0]["acquisition"]["original"]["sha256"] = self._digest()
+        catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
         result = analyze_material(self.root, "acq.skill")
         self.assertEqual(result["proposal"]["kind"], "skill")
         self.assertTrue(any("payload.bin" in item for item in result["limits"]))
-
     def _digest(self):
         digest = hashlib.sha256()
         for item in sorted(self.material.parent.rglob("*"), key=lambda entry: entry.relative_to(self.material.parent).as_posix()):
