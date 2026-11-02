@@ -51,7 +51,10 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
     if decision not in {"approved", "rejected"}:
         raise ValueError("Decisione non supportata.")
 
-    proposal_path = root / "proposals" / f"{proposal_id}.json"
+    proposals_dir = root / "proposals"
+    if proposals_dir.is_symlink() or not proposals_dir.is_dir():
+        raise FileNotFoundError("Cartella delle proposte assente o non sicura.")
+    proposal_path = proposals_dir / f"{proposal_id}.json"
     if proposal_path.is_symlink() or not proposal_path.is_file():
         raise FileNotFoundError(f"Proposta non trovata o non sicura: {proposal_id}")
     proposal = json.loads(proposal_path.read_text(encoding="utf-8"))
@@ -70,11 +73,16 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
     record = next((item for item in catalog["materials"] if isinstance(item, dict) and item.get("id") == material_id), None)
     if record is None:
         raise ValueError("Il materiale collegato alla proposta non è più presente nel catalogo.")
-    original = record.get("acquisition", {}).get("original", {})
+    acquisition = record.get("acquisition", {})
+    original = acquisition.get("original", {})
     if original.get("kind") == "remote_reference":
+        if acquisition.get("status") not in {"received", "preserved"}:
+            raise ValueError("Il riferimento remoto non è in uno stato acquisito valido.")
         if material.get("sha256") is not None:
             raise ValueError("La proposta remota contiene un'impronta locale inattesa.")
     else:
+        if acquisition.get("status") != "preserved":
+            raise ValueError("Il materiale locale non è in stato preserved.")
         current_path = _record_original_path(root, record)
         if not current_path.exists() or _fingerprint(current_path, original) != material.get("sha256"):
             raise ValueError("Il materiale è cambiato dopo l'analisi; decisione bloccata.")
