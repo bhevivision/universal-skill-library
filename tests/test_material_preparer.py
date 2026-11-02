@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import tempfile
 import unittest
 import zipfile
@@ -519,6 +520,46 @@ class MaterialPreparerTests(unittest.TestCase):
         errors = list(Draft202012Validator(schema).iter_errors(result))
         self.assertEqual(errors, [])
 
+
+
+    def test_053_growth_after_size_selection_never_returns_oversized_content(self):
+        from scripts import material_preparer
+        path = self.source / "growing.txt"
+        path.write_bytes(b"x" * 10)
+        self.register_directory()
+        original_open = os.open
+        def grow_before_open(target, flags, *args, **kwargs):
+            if Path(target) == path:
+                with path.open("ab") as stream:
+                    stream.write(b"y" * (material_preparer.MAX_FILE_BYTES + 100))
+            return original_open(target, flags, *args, **kwargs)
+        with patch("scripts.material_preparer.os.open", side_effect=grow_before_open):
+            result = self.prepare()
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(result["files"], [])
+
+    def test_054_symlink_swap_between_lstat_and_open_is_rejected(self):
+        path = self.source / "race.txt"
+        outside = self.root / "outside.txt"
+        path.write_text("interno", encoding="utf-8")
+        outside.write_text("ESTERNO", encoding="utf-8")
+        self.register_directory()
+        original_open = os.open
+        swapped = {"done": False}
+        def swap_before_open(target, flags, *args, **kwargs):
+            if Path(target) == path and not swapped["done"]:
+                swapped["done"] = True
+                path.unlink()
+                try:
+                    path.symlink_to(outside)
+                except (OSError, NotImplementedError):
+                    self.skipTest("Collegamenti simbolici non disponibili.")
+            return original_open(target, flags, *args, **kwargs)
+        with patch("scripts.material_preparer.os.open", side_effect=swap_before_open):
+            result = self.prepare()
+        self.assertNotIn("ESTERNO", json.dumps(result))
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(result["files"], [])
 
 if __name__ == "__main__":
     unittest.main()

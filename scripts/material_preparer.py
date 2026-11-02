@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import hashlib
+import os
+import stat
 from pathlib import Path
 
 if __package__ in {None, ""}:
@@ -114,6 +116,58 @@ def _relative_source(item: Path, root: Path) -> str:
     return relative
 
 
+
+def _read_bounded_file(path: Path, expected_size: int) -> bytes:
+    """Legge al massimo MAX_FILE_BYTES + 1 byte da un file regolare stabile.
+
+    Il descrittore resta aperto durante la lettura. Il confronto tra identità
+    osservata con lstat e fstat impedisce di leggere un collegamento simbolico
+    sostituito tra il controllo del percorso e l'apertura.
+    """
+    before = path.lstat()
+    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+        raise OSError("Il percorso non identifica un file regolare stabile.")
+
+    flags = os.O_RDONLY
+    if hasattr(os, "O_BINARY"):
+        flags |= os.O_BINARY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+
+    descriptor = os.open(path, flags)
+    try:
+        opened = os.fstat(descriptor)
+        if not stat.S_ISREG(opened.st_mode):
+            raise OSError("Il descrittore non identifica un file regolare.")
+        if (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino):
+            raise OSError("Il file è cambiato durante l'apertura.")
+
+        chunks = []
+        remaining = MAX_FILE_BYTES + 1
+        while remaining:
+            chunk = os.read(descriptor, min(65536, remaining))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        raw = b"".join(chunks)
+
+        after_fd = os.fstat(descriptor)
+        after_path = path.lstat()
+        if stat.S_ISLNK(after_path.st_mode):
+            raise OSError("Il percorso è diventato un collegamento simbolico.")
+        if (after_fd.st_dev, after_fd.st_ino) != (opened.st_dev, opened.st_ino):
+            raise OSError("Il file aperto è cambiato durante la lettura.")
+        if (after_path.st_dev, after_path.st_ino) != (opened.st_dev, opened.st_ino):
+            raise OSError("Il percorso è stato sostituito durante la lettura.")
+        if len(raw) > MAX_FILE_BYTES or len(raw) != expected_size:
+            raise OSError("La dimensione del file è cambiata o supera il limite.")
+        if after_fd.st_size != expected_size:
+            raise OSError("La dimensione del file è cambiata durante la lettura.")
+        return raw
+    finally:
+        os.close(descriptor)
+
 def prepare_material(root, material_id: str) -> dict:
     """Prepara in memoria i file testuali di un materiale acquisito e verificato."""
     root = Path(root).resolve()
@@ -207,11 +261,8 @@ def prepare_material(root, material_id: str) -> dict:
         for item in selected:
             source = _relative_source(item, root)
             try:
-                raw = item.read_bytes()
+                raw = _read_bounded_file(item, selected_sizes[item])
             except OSError:
-                skipped.append({"source": source, "reason": "read_error"})
-                continue
-            if len(raw) != selected_sizes[item]:
                 skipped.append({"source": source, "reason": "read_error"})
                 continue
             try:
