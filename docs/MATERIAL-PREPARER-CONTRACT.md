@@ -1,6 +1,6 @@
 # Contratto tecnico — preparazione dei materiali
 
-Versione: 1.0  
+Versione: 1.1  
 Componente: `scripts/material_preparer.py`  
 Stato: contratto tecnico definito; implementazione non ancora realizzata.
 
@@ -389,3 +389,88 @@ Non fanno parte della versione 1 e richiedono una decisione separata:
 - parallelizzazione della lettura dei file.
 
 Nessuna di queste funzionalità può essere introdotta come semplice dettaglio implementativo.
+
+
+## 17. Precisazioni normative — versione 1.1
+
+Questa sezione completa e, nei casi espressamente indicati, prevale sulle sezioni precedenti. Non modifica il profilo di selezione `bounded_text_v1`, i limiti, l'ordinamento o le euristiche del classificatore.
+
+### 17.1 Struttura degli errori nel risultato
+
+Ogni risultato del preparatore deve contenere il campo `problems`, sempre presente e rappresentato da un elenco.
+
+Ogni elemento di `problems` contiene:
+- `code`: codice stabile, in formato testuale;
+- `message`: descrizione leggibile, priva di percorsi assoluti, credenziali e contenuti dei materiali.
+
+Per i risultati senza errori strutturali o tecnici, `problems` è vuoto. Le normali esclusioni dei singoli file continuano a essere descritte in `skipped` e non devono essere duplicate in `problems`.
+
+I risultati `blocked` e `failed` mantengono la struttura pubblica del § 9, compreso `problems`, ma:
+- `files` deve essere vuoto;
+- `summary.total_bytes` deve essere zero;
+- nessun contenuto letto prima del blocco o del fallimento può essere restituito;
+- `skipped` può contenere soltanto percorsi e motivazioni già determinati, senza contenuti o estratti.
+
+Il campo `material` mantiene l'identificativo e il tipo originale quando tali dati sono stati accertati. L'impronta è quella verificata all'inizio, oppure `null` se non è stata accertata. Non si deve inventare o ricostruire un'impronta in caso di errore.
+
+I codici dei problemi del servizio d'integrità devono essere conservati quando il relativo esito determina `blocked` o `failed`. Il preparatore può aggiungere codici propri per errori interni, senza esporre dettagli sensibili del sistema operativo.
+
+### 17.2 Errori recuperabili e non recuperabili
+
+Un errore circoscritto alla lettura di un singolo file regolare è recuperabile:
+- errore di apertura, lettura o accesso al file → `skipped.reason = "read_error"`;
+- decodifica UTF-8 non valida → `skipped.reason = "invalid_utf8"`;
+- presenza del carattere NUL → `skipped.reason = "nul_byte"`.
+
+Il preparatore continua a valutare gli altri candidati. Se almeno un file viene accettato, il risultato è `partial`; se nessun file viene accettato, è `not_available`, salvo un successivo blocco o errore non recuperabile.
+
+Sono errori non recuperabili, e producono `failed`, gli errori tecnici o strutturali che impediscono di stabilire un inventario utilizzabile o di completare i controlli richiesti, inclusi:
+- impossibilità di iniziare o completare l'inventario per un errore esplicitamente rilevato dal sistema di file;
+- errore non classificabile come esclusione di un singolo file;
+- errore inatteso del servizio o del componente che impedisce di completare la preparazione.
+
+Non si deve convertire un errore d'inventario rilevato in un risultato `completed`, `partial` o `not_available`.
+
+### 17.3 Inventario incompleto e limiti di rilevamento
+
+Per le cartelle, l'inventario resta basato sulla ricerca ricorsiva equivalente a `Path.rglob("*")`, ordinata come descritto al § 6.2.
+
+Se l'operazione d'inventario segnala esplicitamente un errore e non è possibile stabilire che l'elenco dei candidati sia completo, la preparazione termina con `failed`, `files = []` e un problema strutturato. Non è consentito presentare come completo un risultato basato su un inventario che il componente sa essere incompleto.
+
+La versione 1.1 non introduce una scansione alternativa, un limite al numero totale di voci o una garanzia di rilevamento di ogni directory non accessibile. In particolare, se la versione di Python o il sistema operativo sopprime un errore durante `Path.rglob("*")` senza renderlo osservabile al chiamante, il preparatore non può dichiarare di aver rilevato tale errore. Questa limitazione deve essere documentata e coperta da prove compatibili con il comportamento effettivo delle piattaforme supportate.
+
+Un errore di lettura relativo a un singolo file già inventariato resta invece recuperabile e usa `read_error`.
+
+### 17.4 Verifica finale e modifica concorrente
+
+Dopo la lettura, il preparatore ripete `verify_material(root, material_id, expected_digest=<impronta iniziale>)`.
+
+Se la verifica finale restituisce:
+- `blocked`: risultato `blocked`;
+- `failed`: risultato `failed`;
+- qualunque stato diverso da `verified` per un materiale locale: risultato non utilizzabile, senza file restituiti.
+
+Il controllo finale deve avvenire anche quando tutti i file candidati sono stati esclusi per motivi recuperabili. Il preparatore non restituisce contenuti se il materiale è cambiato tra il controllo iniziale e quello finale.
+
+Questa garanzia è limitata al controllo finale effettuato: non costituisce una garanzia assoluta contro modifiche successive alla conclusione della verifica.
+
+### 17.5 Collegamenti simbolici e piattaforme
+
+Un collegamento simbolico rilevato durante l'inventario determina `blocked`, anche se ha estensione non ammessa e anche se sono già stati letti altri file.
+
+I test dei collegamenti simbolici devono essere eseguiti quando il sistema operativo e i privilegi del processo consentono di crearli. Se la creazione non è consentita, il test può essere saltato indicando esplicitamente la limitazione ambientale. Un test saltato non equivale a una prova superata.
+
+La versione 1.1 non estende automaticamente il requisito a junction, mount point o ad altri reparse point specifici di Windows. Tali casi richiedono una decisione e un contratto separati.
+
+### 17.6 Conteggi e priorità degli esiti
+
+`summary.files_examined` conta esclusivamente i file decodificati e accettati; `summary.files_skipped` conta i file regolari esclusi. Un file selezionato ma non leggibile non incrementa `files_examined`.
+
+Il limite `MAX_FILES` riguarda i file selezionati prima della lettura. I file selezionati che in seguito falliscono lettura o decodifica continuano ad aver consumato uno dei 100 posti di selezione. I candidati successivi sono esclusi con `max_files_reached`, nel rispetto dell'ordine dei controlli del § 6.3.
+
+La precedenza degli stati resta:
+1. `blocked` per sicurezza o integrità;
+2. `failed` per errore tecnico o strutturale non recuperabile;
+3. `not_available` se nessun file è accettato;
+4. `partial` se almeno un file è accettato e almeno un file è escluso;
+5. `completed` se almeno un file è accettato e nessun file è escluso.
