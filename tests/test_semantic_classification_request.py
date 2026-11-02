@@ -28,7 +28,7 @@ def valid_request():
             "path": "intake/acq-example/source/SKILL.md",
             "sha256": "b" * 64,
             "text": "Use supplied documents.",
-            "size_bytes": 24
+            "size_bytes": 23
         }],
         "limits": {
             "max_files": 10,
