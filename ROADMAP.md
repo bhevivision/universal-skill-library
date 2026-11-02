@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore. Il classificatore statico e l'approvazione/rifiuto espliciti sono implementati e verificati su Linux e Windows: 65 test superati su Linux e Windows e validatore superato nel commit `1beab4c8b033b420afc3734fced1f18341c3cb0d` (run `41520570818`). Sono stati definiti e verificati il contratto tecnico e lo schema JSON della proposta semantica. È stato implementato il controllo applicativo delle prove: verifica riferimenti, identificativi univoci, appartenenza dei percorsi al materiale acquisito, impronte SHA-256, collegamenti simbolici e intervalli di righe, con ricontrollo finale contro modifiche concorrenti. La verifica conclusiva è superata: 95 test e validatore della libreria superati sia su Linux sia su Windows nel commit `b945f948fd940c584b73c128338a23565b886a5d` (run `41525205201`). Il servizio comune di integrità dei materiali è stato aggiunto e integrato nel classificatore statico, nell'approvazione e nel verificatore semantico; la verifica successiva ha superato 109 test e il validatore su Linux e Windows (run `41530833152`). La chiusura delle lacune del contratto semantico è verificata: stati not_available/failed vincolati a risultati non classificati e privi di affermazioni sul contenuto; richiesta d'ingresso formalizzata con schema JSON e controlli applicativi su percorsi, impronte, contenuti selezionati, limiti e permessi. La suite completa ha superato 183 test e il validatore su Linux e Windows nel commit `25979aaf490efdffe3fcaa271c53c457338c68e8` (run `41545015198`). Restano il motore semantico, l'autenticazione multiutente, la prova sul PC Windows dell'utilizzatore e il coordinatore.
+Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore, per la quale è stata preparata la procedura click-by-click in `docs/WINDOWS-LOCAL-VERIFICATION.md`. Il classificatore statico e l'approvazione/rifiuto espliciti sono implementati e verificati su Linux e Windows: 65 test superati su Linux e Windows e validatore superato nel commit `1beab4c8b033b420afc3734fced1f18341c3cb0d` (run `41520570818`). Sono stati definiti e verificati il contratto tecnico e lo schema JSON della proposta semantica. È stato implementato il controllo applicativo delle prove: verifica riferimenti, identificativi univoci, appartenenza dei percorsi al materiale acquisito, impronte SHA-256, collegamenti simbolici e intervalli di righe, con ricontrollo finale contro modifiche concorrenti. La verifica conclusiva è superata: 95 test e validatore della libreria superati sia su Linux sia su Windows nel commit `b945f948fd940c584b73c128338a23565b886a5d` (run `41525205201`). Il servizio comune di integrità dei materiali è stato aggiunto e integrato nel classificatore statico, nell'approvazione e nel verificatore semantico; la verifica successiva ha superato 109 test e il validatore su Linux e Windows (run `41530833152`). La chiusura delle lacune del contratto semantico è verificata: stati not_available/failed vincolati a risultati non classificati e privi di affermazioni sul contenuto; richiesta d'ingresso formalizzata con schema JSON e controlli applicativi su percorsi, impronte, contenuti selezionati, limiti e permessi. Dopo l'integrazione, la suite completa ha superato 183 test e il validatore su Ubuntu e Windows nel run `41545326945`. È stato eseguito un controllo documentale preliminare e redatto l'inventario statico dei quattro materiali presenti in `personalizzazione/`; non sono ancora acquisiti nei cataloghi. Restano la verifica sul PC Windows dell'utilizzatore, l'acquisizione ufficiale e la revisione dei materiali, il motore semantico, l'autenticazione multiutente e il coordinatore.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -9,7 +9,7 @@ Stato: il modello strutturale v1 è approvato. Il componente indipendente di acq
 - [x] Documentare architettura, glossario, modello, decisioni e questioni aperte.
 - [x] Approvare il modello concettuale v1, inclusa l'acquisizione di pacchetti non ancora classificati.
 - [x] Aggiornare i documenti architetturali per riflettere le decisioni confermate.
-- [ ] Verificare formalmente coerenza e completezza della documentazione aggiornata.
+- [x] Verificare formalmente coerenza e completezza della documentazione aggiornata rispetto ai componenti implementati; correggere le descrizioni obsolete e distinguere ciò che è implementato da ciò che resta futuro (ramo `documentation-inventory-closure`).
 
 ## Fase 1 — Inventario e criteri della libreria
 - [x] Analizzare i materiali già presenti senza modificarli.
@@ -17,7 +17,8 @@ Stato: il modello strutturale v1 è approvato. Il componente indipendente di acq
 - [x] Definire la distinzione tra materiale acquisito, classificazione e skill utilizzabile.
 - [x] Definire lo schema della scheda descrittiva esterna.
 - [x] Definire il trattamento di file singoli, cartelle, archivi, pacchetti compositi e riferimenti remoti.
-- [ ] Definire provenienza, impronta, versionamento e gestione dei duplicati in modo completo.
+- [x] Implementare provenienza di acquisizione, impronte SHA-256, versionamento degli algoritmi e rilevamento dei duplicati per i tipi supportati.
+- [ ] Definire il ciclo di vita delle versioni successive dello stesso materiale e le migrazioni degli schemi dei record.
 
 ## Fase 2 — Acquisizione e validazione eterogenea
 - [x] Separare controlli generali di acquisizione e integrità dai controlli specifici dei profili.
@@ -37,7 +38,7 @@ Stato: il modello strutturale v1 è approvato. Il componente indipendente di acq
 - [x] Definire il contratto di passaggio dal materiale acquisito al futuro classificatore.
 - [ ] Valutare un indice persistente dei duplicati se il volume del catalogo lo renderà necessario.
 - [x] Aggiungere l'esecuzione automatica della suite su Windows tramite GitHub Actions.
-- [ ] Verificare l'esecuzione sul computer Windows dell'utilizzatore.
+- [ ] Verificare l'esecuzione sul computer Windows dell'utilizzatore seguendo `docs/WINDOWS-LOCAL-VERIFICATION.md`.
 
 Criterio di uscita: un materiale locale può essere copiato e registrato senza modificare la sorgente; un riferimento remoto viene distinto da una copia locale; nessun materiale viene classificato, eseguito o certificato automaticamente durante l'acquisizione.
 
@@ -50,7 +51,7 @@ Criterio di uscita: un materiale locale può essere copiato e registrato senza m
 - [x] Collegare classificatore, approvazione e verificatore semantico al servizio comune.
 - [x] Aggiungere test per identità, duplicati, stati, percorsi, collegamenti simbolici, impronte, riferimenti remoti e schema.
 - [x] Verificare su Linux e Windows: 109 test superati su ciascun sistema e validatore superato (run `41530833152`).
-- [ ] Verificare il comportamento sul computer Windows dell'utilizzatore.
+- [ ] Verificare il comportamento sul computer Windows dell'utilizzatore seguendo `docs/WINDOWS-LOCAL-VERIFICATION.md`.
 
 ## Fase 3 — Classificazione dei materiali
 - [x] Definire il contratto di richiesta e risposta del futuro classificatore.
@@ -73,11 +74,11 @@ Criterio di uscita: un materiale locale può essere copiato e registrato senza m
 - [ ] Verificare il componente con prove automatiche e su Windows.
 
 ## Fase 4 — Inventario operativo delle skill esistenti
-Solo dopo che la procedura di acquisizione e conservazione è verificata:
-- UNLAZY: registrare riferimenti mancanti e dipendenze.
-- Archivista: registrare il riferimento mancante e le sezioni assenti.
-- Find Skills: verificare istruzioni, comandi e fonti.
-- Canva KDP: conservare e descrivere il file disponibile; è di 36 byte e appare danneggiato, non ricostruirlo come se fosse integro.
+Solo dopo che la procedura di acquisizione e conservazione è verificata sul computer Windows dell'utilizzatore si completa l'inventario operativo e si creano le schede ufficiali. È già stata eseguita un'ispezione statica preliminare, documentata in `docs/EXISTING-SKILLS-INVENTORY.md`:
+- UNLAZY: recuperare e verificare i tre riferimenti mancanti.
+- Archivista: recuperare e verificare `reference/regole-complete.md`.
+- Find Skills: verificare fonte, versione, dipendenze e comandi con effetti sull'ambiente.
+- Canva KDP: file di 36 byte apparentemente danneggiato; conservare senza modificarlo e recuperare l'originale soltanto se disponibile.
 
 Regola: preservare esattamente i materiali originali. Non riscrivere, correggere o adattare preventivamente. Acquisizione, documentazione, verifica e approvazione all'uso sono passaggi distinti.
 
