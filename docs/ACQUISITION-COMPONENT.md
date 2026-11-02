@@ -26,7 +26,7 @@ Esempi:
 3. Acquisisce un blocco esclusivo per evitare due aggiornamenti simultanei del catalogo.
 4. Rifiuta identificativi già registrati e cartelle di destinazione già esistenti.
 5. Copia il materiale in una cartella temporanea sotto `intake/`.
-6. Calcola SHA-256 e dimensione; confronta l'impronta della copia con quella della sorgente.
+6. Calcola SHA-256, algoritmo usato e dimensione; confronta l'impronta della copia con quella della sorgente.
 7. Valida la scheda con lo schema del catalogo.
 8. Pubblica la cartella conservata e aggiorna il catalogo tramite sostituzione atomica del file JSON.
 9. Se un errore ordinario avviene prima della registrazione, elimina la copia temporanea; se l'aggiornamento del catalogo fallisce dopo la pubblicazione, rimuove la cartella appena pubblicata.
@@ -72,7 +72,8 @@ Prima della pubblicazione viene confrontata l'impronta SHA-256 con i materiali l
 - Gli archivi non vengono estratti né eseguiti.
 - Il componente non scarica riferimenti remoti.
 - Il recupero automatico riguarda transazioni locali interrotte sullo stesso computer; blocchi di altri computer o registri corrotti richiedono controllo.
-- SHA-256 dimostra la corrispondenza dei contenuti rispetto all'impronta registrata, non la sicurezza del materiale.
+- SHA-256 dimostra la corrispondenza dei contenuti rispetto all'impronta registrata, non la sicurezza del materiale. Ogni scheda registra anche la versione dell'algoritmo: `sha256-file-v1` per file e archivi, `sha256-tree-v2` per cartelle e pacchetti a cartella.
+- I record precedenti privi del campo `digest_algorithm` continuano a essere verificati con il calcolo storico, senza invalidare le acquisizioni già registrate.
 - L'impronta delle cartelle include anche le cartelle vuote e distingue cartelle e file.
 - Il calcolo delle cartelle considera percorsi relativi e contenuti dei file; le cartelle vuote e i metadati del file system non fanno parte dell'impronta corrente.
 
