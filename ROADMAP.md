@@ -22,12 +22,12 @@ Criterio di uscita: modello e principi coerenti tra ARCHITECTURE.md, STRUCTURAL-
 - [ ] Stabilire provenienza, impronta, versionamento e gestione dei duplicati.
 
 ## Fase 2 — Acquisizione e validazione eterogenea
-- [ ] Separare controlli generali di acquisizione e integrità dai controlli specifici dei profili.
-- [ ] Rendere facoltativi gli analizzatori di formato; consentire la conservazione di formati sconosciuti.
-- [ ] Aggiornare cataloghi e schemi per record parziali e classificazioni provvisorie.
-- [ ] Aggiornare il validatore: nessun requisito universale di SKILL.md.
-- [ ] Aggiungere test per file, cartelle, archivi, pacchetti compositi, riferimenti remoti, formati sconosciuti e acquisizioni incomplete.
-- [ ] Verificare che originale e impronta non cambino dopo analisi e adattamento.
+- [x] Separare controlli generali di acquisizione e integrità dai controlli specifici dei profili.
+- [x] Consentire la conservazione e registrazione di formati sconosciuti; gli analizzatori restano facoltativi.
+- [x] Aggiungere il catalogo dei materiali e lo schema della scheda descrittiva esterna.
+- [x] Aggiornare il validatore: SKILL.md è controllato soltanto per il profilo Agent Skills.
+- [x] Aggiungere test per file, cartelle, archivi, pacchetti e acquisizioni incomplete/non classificate.
+- [x] Verificare l'impronta degli originali e rilevare modifiche successive all'acquisizione.
 - [ ] Eseguire test locali e GitHub Actions e conservare le prove.
 
 Criterio di uscita: un materiale non riconosciuto può essere acquisito e conservato; il sistema non lo presenta come skill utilizzabile senza classificazione e verifiche adeguate.

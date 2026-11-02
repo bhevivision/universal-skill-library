@@ -62,9 +62,19 @@ def check_schema(root, value, rel, source, errors):
 def safe_path(root, rel):
     if not isinstance(rel, str) or not rel or "\\" in rel:
         return None
-    path = (root / rel).resolve()
+    candidate = root / rel
     try:
-        path.relative_to(root.resolve())
+        candidate.relative_to(root)
+    except ValueError:
+        return None
+    current = candidate
+    while current != root:
+        if current.is_symlink():
+            return None
+        current = current.parent
+    path = candidate.resolve()
+    try:
+        path.relative_to(root)
     except ValueError:
         return None
     return path
@@ -109,6 +119,8 @@ def check_materials(root, materials, errors):
         status = acquisition.get("status")
         if status == "preserved" and not rel and not uri:
             errors.append(f"materiale {mid}: stato preserved senza originale locale o riferimento remoto")
+        if status == "preserved" and rel and not original.get("sha256"):
+            errors.append(f"materiale {mid}: originale locale conservato senza impronta SHA-256")
         if kind == "remote_reference":
             if not uri:
                 errors.append(f"materiale {mid}: riferimento remoto senza URI")
@@ -122,8 +134,11 @@ def check_materials(root, materials, errors):
         if path is None or not path.exists():
             errors.append(f"materiale {mid}: originale non trovato o percorso non sicuro ({rel})")
             continue
-        if kind in {"file", "archive", "package"} and not path.is_file():
+        if kind in {"file", "archive"} and not path.is_file():
             errors.append(f"materiale {mid}: il tipo {kind} richiede un file originale ({rel})")
+            continue
+        if kind == "package" and not (path.is_file() or path.is_dir()):
+            errors.append(f"materiale {mid}: il pacchetto deve essere un file o una cartella ({rel})")
             continue
         if kind == "directory" and not path.is_dir():
             errors.append(f"materiale {mid}: il tipo directory richiede una cartella originale ({rel})")

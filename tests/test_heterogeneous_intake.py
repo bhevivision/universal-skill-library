@@ -119,6 +119,43 @@ class HeterogeneousIntakeTests(unittest.TestCase):
         errors = validate_repository(self.root)
         self.assertTrue(any("non è classificato come skill" in error.lower() for error in errors), errors)
 
+    def test_accepts_directory_based_package(self):
+        source = self.root / "intake/acq-package/source"
+        source.mkdir(parents=True)
+        (source / "entry.txt").write_text("Pacchetto originale.\\n", encoding="utf-8")
+        self.register_material("package", "intake/acq-package/source")
+        self.assertEqual(validate_repository(self.root), [])
+
+    def test_accepts_incomplete_unclassified_material_without_local_copy(self):
+        write_json(self.root, "catalog/materials.json", {
+            "catalog_version": "1.0",
+            "materials": [{
+                "id": "acq.unknown",
+                "acquisition": {
+                    "status": "incomplete",
+                    "acquired_at": "2026-11-02T10:00:00Z",
+                    "method": "manual",
+                    "original": {"kind": "unknown"}
+                },
+                "classification": {"status": "unclassified", "kind": "unclassified"},
+                "documentation": {"status": "unknown"},
+                "verification": {"status": "not_verified"},
+                "usability": {"status": "not_assessed"}
+            }]
+        })
+        self.assertEqual(validate_repository(self.root), [])
+
+    def test_rejects_preserved_original_without_sha256(self):
+        source = self.root / "intake/acq-sample/source"
+        source.mkdir(parents=True)
+        (source / "procedure.txt").write_text("Procedura originale.\\n", encoding="utf-8")
+        self.register_material("file", "intake/acq-sample/source/procedure.txt")
+        materials = json.loads((self.root / "catalog/materials.json").read_text(encoding="utf-8"))
+        materials["materials"][0]["acquisition"]["original"].pop("sha256")
+        write_json(self.root, "catalog/materials.json", materials)
+        errors = validate_repository(self.root)
+        self.assertTrue(any("senza impronta SHA-256" in error for error in errors), errors)
+
 
 if __name__ == "__main__":
     unittest.main()

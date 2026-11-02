@@ -85,5 +85,71 @@ Comandi della suite esistente:
 
 Il loro superamento attesta soltanto i controlli implementati nella versione corrente, non la copertura del nuovo modello eterogeneo.
 
-## 9. Dati dinamici e limiti
+
+## 10. Contratto della scheda descrittiva esterna
+
+Ogni materiale acquisito ha una voce in `catalog/materials.json`, validata da `schemas/material-record.schema.json`. La scheda non viene inserita nel pacchetto originale.
+
+Campi principali:
+- `id`: identificativo stabile della registrazione.
+- `name`, `description`, `declared_version`, `format`: informazioni descrittive, facoltative se sconosciute.
+- `acquisition`: stato, data, metodo, provenienza e riferimento all'originale.
+- `acquisition.original.kind`: `file`, `directory`, `archive`, `package`, `remote_reference` oppure `unknown`.
+- `acquisition.original.path`: percorso relativo sotto `intake/`, quando esiste una copia locale.
+- `acquisition.original.uri`: riferimento remoto, quando il materiale non è conservato localmente.
+- `acquisition.original.sha256`: impronta del contenuto conservato; obbligatoria per materiale locale dichiarato `preserved`.
+- `classification`: stato, categoria, confidenza e motivazione.
+- `documentation`, `verification`, `usability`: stati indipendenti.
+- `dependencies`, `missing_references`, `notes`: dipendenze, lacune e annotazioni conosciute.
+
+Una scheda può essere incompleta. I campi ignoti si omettono o si registrano come stato sconosciuto; non si inventano.
+
+## 11. Regole di conservazione e integrità
+
+- File singolo: conservato come file, senza conversione o modifica.
+- Cartella: conservata come albero di file, con nomi e percorsi relativi originali.
+- Archivio: conservato come archivio binario originale; la validazione non lo estrae.
+- Pacchetto: può essere un singolo file o una cartella composta da più risorse.
+- Riferimento remoto: si conserva l'URI e si dichiara esplicitamente che non esiste una copia locale.
+- Materiale incompleto o non riconosciuto: può essere registrato senza essere dichiarato utilizzabile.
+
+Le copie locali sono collocate sotto `intake/<identificativo-acquisizione>/source/`; il percorso esatto è registrato nella scheda. Il validatore controlla che il percorso rimanga nella libreria e sotto `intake/`, rifiuta collegamenti simbolici e confronta l'impronta SHA-256. Per una cartella, l'impronta è calcolata in modo deterministico su percorsi relativi, tipo di elemento e contenuto dei file. Gli archivi non vengono aperti né eseguiti durante il controllo.
+
+La verifica d'integrità rileva modifiche rispetto all'impronta registrata; non certifica la sicurezza del contenuto. L'acquisizione e l'analisi non eseguono codice.
+
+## 12. Collegamento tra materiale e skill
+
+Una voce in `catalog/skills.json` può riferirsi:
+- a `source_record_id`, che punta a una scheda materiale classificata esplicitamente come `skill`; oppure
+- a `path`, per i pacchetti del profilo Agent Skills già organizzati con `SKILL.md`.
+
+Solo il secondo caso applica il controllo del frontmatter Agent Skills. Una skill collegata tramite `source_record_id` non deve contenere `SKILL.md`. Il materiale non classificato o classificato come risorsa, strumento o possibile skill non può essere inserito come skill eseguibile nel catalogo.
+
+Esempio di scheda minima per un file locale conservato:
+
+    {
+      "id": "acq.example",
+      "name": "Procedura di esempio",
+      "acquisition": {
+        "status": "preserved",
+        "acquired_at": "2026-11-02T10:00:00Z",
+        "method": "manual-upload",
+        "original": {
+          "kind": "file",
+          "path": "intake/acq-example/source/procedure.txt",
+          "sha256": "<64 caratteri esadecimali>"
+        }
+      },
+      "classification": {
+        "status": "classified",
+        "kind": "skill",
+        "confidence": "medium",
+        "rationale": "Scopo e procedura identificabili."
+      },
+      "documentation": {"status": "partial"},
+      "verification": {"status": "not_verified"},
+      "usability": {"status": "not_assessed"}
+    }
+
+## 13. Dati dinamici e limiti
 Strumenti effettivamente disponibili, agenti attivi, autorizzazioni della sessione, credenziali, stato delle attività e prove temporanee non sono verità permanenti del catalogo. Il modello non introduce ancora un motore semantico, un database runtime, API del coordinatore, installazione automatica o un motore di coordinamento.
