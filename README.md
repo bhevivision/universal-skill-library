@@ -59,7 +59,7 @@ Le prove del catalogo usano l'impronta dell'intero `catalog/materials.json`: se 
 
 Il componente `scripts/material_integrity.py` centralizza la lettura del record, il controllo dello stato di acquisizione, la sicurezza del percorso e il ricalcolo dell'impronta SHA-256. Mantiene il riconoscimento delle impronte storiche delle cartelle, comprese le versioni prive del campo `digest_algorithm`. I riferimenti remoti vengono controllati solo come metadati e non sono dichiarati verificati nel contenuto.
 
-Il risultato segue `schemas/material-integrity-result.schema.json`. Il servizio viene riutilizzato dal classificatore statico, dal componente di approvazione e dal verificatore delle prove semantiche. Non modifica materiali, cataloghi o proposte e non esegue contenuti.
+Il risultato segue `schemas/material-integrity-result.schema.json`. Il contratto è descritto in [MATERIAL-INTEGRITY-CONTRACT.md](docs/MATERIAL-INTEGRITY-CONTRACT.md). Il servizio viene riutilizzato dal classificatore statico, dal componente di approvazione e dal verificatore delle prove semantiche. Non modifica materiali, cataloghi o proposte e non esegue contenuti.
 
 ## Controlli disponibili
 
