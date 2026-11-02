@@ -77,12 +77,16 @@ La prima versione semantica lavora soltanto sui testi che gli analizzatori stati
 ## Controlli prima di salvare
 1. Verificare che identificativo e impronta corrispondano al materiale acquisito.
 2. Validare la risposta rispetto allo schema e rifiutare campi o tipi non previsti.
-3. Verificare che ogni prova punti a un file esaminato e alla sua impronta.
+3. Verificare che ogni prova punti a un file esaminato e alla sua impronta tramite `scripts/semantic_evidence_integrity.py`, inclusi unicità degli identificativi, riferimenti esistenti, appartenenza al materiale acquisito, assenza di collegamenti simbolici e validità degli intervalli di righe.
 4. Segnalare come non supportate le affermazioni prive di prove.
 5. Registrare metodo e versione dell'analizzatore.
 6. Ricontrollare l'impronta prima del salvataggio.
 7. Salvare una proposta separata, senza aggiornare il catalogo approvato.
 8. Lasciare la decisione al componente di approvazione esistente.
+
+## Stato del controllo delle prove
+
+Il controllo applicativo descritto nel contratto è implementato come componente indipendente e dispone di una suite dedicata. Verifica lo schema JSON e la coerenza dei riferimenti con i file conservati, senza eseguire il materiale. L'integrazione automatica nel futuro flusso di salvataggio delle proposte sarà effettuata insieme al motore semantico; fino ad allora il comando di verifica è eseguibile separatamente.
 
 ## Piano di realizzazione
 A. Contratto e schema: definire richiesta e proposta semantica; aggiungere test di validazione e compatibilità con le proposte statiche.
