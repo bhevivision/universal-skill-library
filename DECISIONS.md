@@ -48,8 +48,6 @@ Questo documento distingue decisioni confermate, proposte e questioni aperte. Le
 | O-003 | Gestione delle versioni successive dello stesso materiale e delle modifiche alla fonte. | Definire come collegare versioni distinte senza sovrascrivere l'originale precedente. |
 | O-004 | Analizzatori per formati aggiuntivi e relative prove specifiche. | Definire priorità e contratti per PDF, documenti d'ufficio, archivi e altri formati. |
 | O-005 | Estrazione isolata, scansione e gestione avanzata dei pacchetti non fidati. | Progettare un ambiente controllato prima di introdurre estrazione o analisi attiva. |
-
-
 | O-007 | Validità temporale delle prove. | Definire soglie per tipo e rischio della skill. |
 | O-008 | Compatibilità esatta degli agenti e delle loro versioni. | Verificare su Claude Code e Codex. |
 | O-009 | Protocollo comune degli adattatori. | Verificare differenze reali tra piattaforme. |
