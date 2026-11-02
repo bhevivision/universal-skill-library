@@ -85,4 +85,5 @@ class Tests(unittest.TestCase):
  def test_rejects_empty_specific_agent_compatibility(self):
   self.change("catalog/implementations.json",lambda d:d["implementations"][0].update(agent_compatibility={"mode":"specific","agents":[]}))
   self.assertTrue(any("agent_compatibility" in e for e in validate_repository(self.root)))
-\nif __name__=="__main__":unittest.main()
+
+if __name__=="__main__":unittest.main()
