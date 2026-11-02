@@ -1,0 +1,5 @@
+{
+ "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://bhevivision.github.io/universal-skill-library/schemas/capabilities-catalog.schema.json",
+ "title":"Catalogo delle capacità","type":"object","additionalProperties":false,"required":["catalog_version","capabilities"],
+ "properties":{"catalog_version":{"const":"1.0"},"capabilities":{"type":"array","items":{"type":"object"}}}
+}
