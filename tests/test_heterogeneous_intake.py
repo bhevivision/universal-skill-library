@@ -156,6 +156,65 @@ class HeterogeneousIntakeTests(unittest.TestCase):
         errors = validate_repository(self.root)
         self.assertTrue(any("senza impronta SHA-256" in error for error in errors), errors)
 
+    def test_accepts_remote_reference_without_local_copy(self):
+        write_json(self.root, "catalog/materials.json", {
+            "catalog_version": "1.0",
+            "materials": [{
+                "id": "acq.remote",
+                "acquisition": {
+                    "status": "preserved",
+                    "acquired_at": "2026-11-02T10:00:00Z",
+                    "method": "reference-registration",
+                    "original": {"kind": "remote_reference", "uri": "https://example.org/skill-package"}
+                },
+                "classification": {"status": "unclassified", "kind": "unclassified"},
+                "documentation": {"status": "unknown"},
+                "verification": {"status": "not_verified"},
+                "usability": {"status": "not_assessed"}
+            }]
+        })
+        self.assertEqual(validate_repository(self.root), [])
+
+    def test_rejects_original_path_that_escapes_intake(self):
+        source = self.root / "schemas/material-record.schema.json"
+        checksum = digest_file(source)
+        write_json(self.root, "catalog/materials.json", {
+            "catalog_version": "1.0",
+            "materials": [{
+                "id": "acq.escape",
+                "acquisition": {
+                    "status": "preserved",
+                    "acquired_at": "2026-11-02T10:00:00Z",
+                    "method": "test",
+                    "original": {
+                        "kind": "file",
+                        "path": "intake/../schemas/material-record.schema.json",
+                        "sha256": checksum
+                    }
+                },
+                "classification": {"status": "unclassified", "kind": "unclassified"},
+                "documentation": {"status": "unknown"},
+                "verification": {"status": "not_verified"},
+                "usability": {"status": "not_assessed"}
+            }]
+        })
+        errors = validate_repository(self.root)
+        self.assertTrue(any("senza risalire le cartelle" in error for error in errors), errors)
+
+    def test_rejects_symbolic_link_as_preserved_original(self):
+        source = self.root / "intake/acq-link/source"
+        source.mkdir(parents=True)
+        target = self.root / "outside.txt"
+        target.write_text("Non è un originale acquisito.\\n", encoding="utf-8")
+        link = source / "linked.txt"
+        try:
+            link.symlink_to(target)
+        except (OSError, NotImplementedError):
+            self.skipTest("Il sistema operativo non consente la creazione di collegamenti simbolici.")
+        self.register_material("file", "intake/acq-link/source/linked.txt")
+        errors = validate_repository(self.root)
+        self.assertTrue(any("percorso non sicuro" in error for error in errors), errors)
+
 
 if __name__ == "__main__":
     unittest.main()

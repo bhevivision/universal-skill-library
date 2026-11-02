@@ -127,8 +127,8 @@ def check_materials(root, materials, errors):
             continue
         if not rel:
             continue
-        if not rel.startswith("intake/"):
-            errors.append(f"materiale {mid}: l'originale locale deve trovarsi sotto intake/: {rel}")
+        if not rel.startswith("intake/") or ".." in Path(rel).parts:
+            errors.append(f"materiale {mid}: l'originale locale deve trovarsi sotto intake/ senza risalire le cartelle: {rel}")
             continue
         path = safe_path(root, rel)
         if path is None or not path.exists():
