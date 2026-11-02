@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore. Il classificatore e il coordinatore non sono ancora implementati.
+Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore. La prima versione del classificatore statico è implementata; restano il classificatore semantico universale, l'approvazione separata e il coordinatore.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -43,7 +43,11 @@ Criterio di uscita: un materiale locale può essere copiato e registrato senza m
 
 ## Fase 3 — Classificazione dei materiali
 - [x] Definire il contratto di richiesta e risposta del futuro classificatore.
-- [ ] Implementare il classificatore in ambiente isolato, con proposta separata e approvazione prima di modificare il catalogo.
+- [x] Implementare un classificatore statico limitato, in sola lettura, con controllo dell'impronta e proposta esterna al catalogo.
+- [x] Impedire al classificatore di eseguire materiali o aggiornare direttamente i cataloghi approvati.
+- [ ] Ampliare gli analizzatori per formati diversi e introdurre, se necessario, un livello semantico basato su modelli con isolamento e prove.
+- [ ] Implementare il flusso separato di revisione, approvazione e registrazione della proposta nel catalogo.
+- [ ] Verificare il componente con prove automatiche e su Windows.
 
 ## Fase 4 — Inventario operativo delle skill esistenti
 Solo dopo che la procedura di acquisizione e conservazione è verificata:
