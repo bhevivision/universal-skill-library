@@ -57,16 +57,16 @@ def _digest_tree(path, legacy=False):
             raise ValueError(f"Collegamento simbolico non ammesso: {item}")
         relative = item.relative_to(path).as_posix().encode("utf-8")
         if item.is_dir() and not legacy:
-            digest.update(b"D\\0" + relative + b"\\0")
+            digest.update(b"D\0" + relative + b"\0")
         elif item.is_file():
             if legacy:
-                digest.update(relative + b"\\0")
+                digest.update(relative + b"\0")
             else:
-                digest.update(b"F\\0" + relative + b"\\0")
+                digest.update(b"F\0" + relative + b"\0")
             with item.open("rb") as stream:
                 for chunk in iter(lambda: stream.read(1024 * 1024), b""):
                     digest.update(chunk)
-            digest.update(b"\\0")
+            digest.update(b"\0")
     return digest.hexdigest()
 
 TEXT_EXTENSIONS = {".md", ".markdown", ".txt", ".rst", ".json", ".yaml", ".yml", ".toml", ".py", ".js", ".ts", ".sh", ".ps1", ".bat", ".xml", ".html", ".css"}
