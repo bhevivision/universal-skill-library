@@ -25,9 +25,9 @@ Questo documento distingue decisioni confermate, proposte e questioni aperte. Un
 | P-005 | Catalogo e relazioni fuori dal frontmatter obbligatorio di SKILL.md. | Necessario per preservare compatibilità. |
 | P-006 | Versione gestita dalla libreria; metadata.version facoltativo. | Da validare sulle piattaforme. |
 | P-007 | Nuove skill sottoposte a controlli, test isolati, sicurezza e approvazione. | Da formalizzare. |
-| P-008 | Cataloghi JSON con schemi per singole voci e contenitori completi. | Implementato; test locali e CI da verificare sul commit conclusivo delle correzioni. |
+| P-008 | Cataloghi JSON con schemi per singole voci e contenitori completi. | Implementato; 19 test automatici e CI superati (run 32). |
 | P-009 | Metadati di selezione espliciti: capacità, ingressi, risultati, prerequisiti, vincoli, rischio e prove. | Proposta tecnica v1, da approvare. |
-| P-010 | Una dichiarazione stabile/verificata richiede prove esistenti e riferite allo stesso oggetto. | Implementato nei controlli v1; test locali e CI da verificare sul commit conclusivo delle correzioni. |\n| P-011 | Il frontmatter SKILL.md viene interpretato come YAML sicuro, con controllo delle chiavi duplicate e dei campi standard name/description. | Implementato; richiede test strutturali e CI. |\n| P-012 | La compatibilità agente è esplicita: `any` oppure `specific` con elenco di agenti e versioni. | Modello dati v1 implementato; da collaudare con agenti reali. |
+| P-010 | Una dichiarazione stabile/verificata richiede prove esistenti e riferite allo stesso oggetto. | Implementato nei controlli v1; 19 test automatici e CI superati (run 32). |\n| P-011 | Il frontmatter SKILL.md viene interpretato come YAML sicuro, con controllo delle chiavi duplicate e dei campi standard name/description. | Implementato; 19 test automatici e CI superati (run 32). |\n| P-012 | La compatibilità agente è esplicita: `any` oppure `specific` con elenco di agenti e versioni. | Modello dati v1 implementato; compatibilità effettiva ancora da collaudare con agenti reali. |
 
 ## Questioni aperte
 | ID | Questione | Prossima azione |
