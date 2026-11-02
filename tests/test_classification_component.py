@@ -64,6 +64,13 @@ class ClassificationComponentTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             analyze_material(self.root, "acq.skill")
 
+    def test_does_not_save_proposal_if_material_changes_after_analysis(self):
+        result = analyze_material(self.root, "acq.skill")
+        self.material.write_text("changed after analysis", encoding="utf-8")
+        with self.assertRaises(ValueError):
+            save_proposal(self.root, result, "proposal.stale")
+        self.assertFalse((self.root / "proposals/proposal.stale.json").exists())
+
     def test_unknown_binary_material_is_not_guessed_or_executed(self):
         binary = self.material.parent / "payload.bin"
         binary.write_bytes(b"\x00\xff\x00")
