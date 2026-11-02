@@ -86,6 +86,25 @@ class SemanticEngineTests(unittest.TestCase):
 
         self.assertFalse(adapter.called)
 
+    def test_adapter_cannot_mutate_the_validated_request_or_its_fingerprint(self):
+        request = valid_request()
+        expected_digest = hashlib.sha256(
+            json.dumps(request, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+        ).hexdigest()
+
+        class Adapter:
+            def analyze(self, adapter_request):
+                adapter_request["safety"]["allow_network_access"] = True
+                raise RuntimeError("adapter stopped")
+
+        proposal = run_semantic_engine(
+            request, analyzer=Adapter(), catalog_sha256="c" * 64
+        )
+
+        self.assertEqual(proposal["status"], "failed")
+        self.assertEqual(proposal["analyzer"]["input_sha256"], expected_digest)
+        self.assertFalse(request["safety"]["allow_network_access"])
+
     def test_missing_catalog_fingerprint_is_rejected(self):
         with self.assertRaises(ValueError):
             run_semantic_engine(valid_request())
