@@ -55,6 +55,12 @@ Esempio:
 
 Le prove del catalogo usano l'impronta dell'intero `catalog/materials.json`: se il catalogo cambia, la proposta deve essere verificata nuovamente. Il controllo dimostra la tracciabilità tecnica delle prove, non la correttezza del significato attribuito dal classificatore.
 
+## Servizio comune di integrità dei materiali
+
+Il componente `scripts/material_integrity.py` centralizza la lettura del record, il controllo dello stato di acquisizione, la sicurezza del percorso e il ricalcolo dell'impronta SHA-256. Mantiene il riconoscimento delle impronte storiche delle cartelle, comprese le versioni prive del campo `digest_algorithm`. I riferimenti remoti vengono controllati solo come metadati e non sono dichiarati verificati nel contenuto.
+
+Il risultato segue `schemas/material-integrity-result.schema.json`. Il servizio viene riutilizzato dal classificatore statico, dal componente di approvazione e dal verificatore delle prove semantiche. Non modifica materiali, cataloghi o proposte e non esegue contenuti.
+
 ## Controlli disponibili
 
 Comandi:
