@@ -64,7 +64,7 @@ class MaterialIntegrityTests(unittest.TestCase):
         record, catalog, catalog_path = load_material_record(self.root, "acq.example")
         self.assertEqual(record["id"], "acq.example")
         self.assertEqual(catalog["catalog_version"], "1.0")
-        self.assertEqual(catalog_path, self.root / "catalog/materials.json")
+        self.assertEqual(catalog_path.resolve(), (self.root / "catalog/materials.json").resolve())
 
     def test_load_rejects_missing_material(self):
         with self.assertRaises(MaterialIntegrityError) as caught:
