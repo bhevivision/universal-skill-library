@@ -48,3 +48,17 @@ Comandi:
     python scripts/validate_library.py
 
 La suite viene eseguita tramite GitHub Actions su Linux e Windows. Il superamento dei test prova soltanto i comportamenti coperti: non equivale a certificare la sicurezza o la funzionalità dei materiali acquisiti.
+
+## Approvazione delle classificazioni
+
+Le proposte non diventano classificazioni approvate automaticamente. Il componente `scripts/classification_approval.py` consente a un revisore di approvare o respingere una proposta, dopo aver ricontrollato l'impronta del materiale. La decisione viene registrata nella scheda del materiale; non crea una skill operativa e non autorizza l'esecuzione.
+
+Esempio di approvazione:
+
+    python scripts/classification_approval.py --decision approve --proposal-id class.nome-proposta --actor "nome del revisore" --reason "Motivazione"
+
+Esempio di rifiuto:
+
+    python scripts/classification_approval.py --decision reject --proposal-id class.nome-proposta --actor "nome del revisore" --reason "Motivazione"
+
+Dettagli: [Approvazione delle classificazioni](docs/CLASSIFICATION-APPROVAL.md).
