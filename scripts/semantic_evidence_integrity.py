@@ -26,7 +26,7 @@ def _safe_relative_path(root: Path, value: str) -> Path:
     if not isinstance(value, str) or not value or "\\" in value or "\x00" in value:
         raise ValueError("Percorso della prova non valido.")
     relative = PurePosixPath(value)
-    if relative.is_absolute() or any(part in {"", ".", ".."} for part in relative.parts):
+    if relative.is_absolute() or any(part in {"", ".", ".."} or ":" in part for part in relative.parts):
         raise ValueError("Percorso della prova non valido o contiene attraversamento di cartelle.")
     candidate = root.joinpath(*relative.parts)
     current = root
@@ -138,6 +138,11 @@ def validate_semantic_proposal(root, proposal):
             raise ValueError("Il riferimento remoto non deve dichiarare un'impronta di file locale.")
         if proposal["status"] != "not_available" or proposal["classification"]["kind"] != "unclassified":
             raise ValueError("Un riferimento remoto non esaminato deve restare not_available e unclassified.")
+        if (proposal["capabilities"] or proposal["interfaces"]["inputs"] or
+                proposal["interfaces"]["outputs"] or proposal["interfaces"]["usage_conditions"] or
+                proposal["dependencies"] or proposal["tools_and_platforms"] or
+                proposal["contradictions"] or proposal["risks"]):
+            raise ValueError("Un riferimento remoto non esaminato non può contenere affermazioni sul contenuto.")
     else:
         if not isinstance(original_digest, str) or proposal["material"]["sha256"] != original_digest:
             raise ValueError("L'impronta del materiale nella proposta non corrisponde al catalogo.")
@@ -174,6 +179,22 @@ def validate_semantic_proposal(root, proposal):
             raise ValueError(f"La prova è fuori dal materiale acquisito: {source}")
         if item["sha256"] != _sha256(evidence_path):
             raise ValueError(f"L'impronta della prova non corrisponde al file esaminato: {source}")
+        if item.get("kind") == "text_file":
+            try:
+                text_content = evidence_path.read_text(encoding="utf-8")
+            except (UnicodeError, OSError) as exc:
+                raise ValueError(f"La prova dichiarata testuale non è leggibile come UTF-8: {source}") from exc
+            if "\\x00" in text_content:
+                raise ValueError(f"La prova dichiarata testuale contiene byte nulli: {source}")
+        if "location" in item:
+            try:
+                line_count = len(evidence_path.read_text(encoding="utf-8").splitlines())
+            except (UnicodeError, OSError) as exc:
+                raise ValueError(f"Impossibile verificare le righe della prova: {source}") from exc
+            start = item["location"]["start_line"]
+            end = item["location"]["end_line"]
+            if start > end or end > line_count:
+                raise ValueError(f"Intervallo di righe non presente nel file della prova: {source}")
         content_evidence_count += 1
 
     if not remote and proposal["status"] == "completed" and proposal["classification"]["kind"] != "unclassified":
@@ -182,6 +203,12 @@ def validate_semantic_proposal(root, proposal):
 
     if remote and any(item["source"] != "catalog/materials.json" for item in evidence):
         raise ValueError("Le prove del riferimento remoto possono attestare soltanto i metadati di catalogo.")
+
+    # Ricontrollo finale per rilevare modifiche avvenute durante la verifica.
+    if _sha256(catalog_path) != catalog_hash:
+        raise ValueError("Il catalogo è cambiato durante la verifica delle prove.")
+    if not remote and _fingerprint(original_path, original) != original_digest:
+        raise ValueError("Il materiale è cambiato durante la verifica delle prove.")
 
     return True
 
