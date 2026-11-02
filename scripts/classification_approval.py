@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -27,18 +28,21 @@ def _required_text(value, label):
 
 
 def _atomic_json_write(path, value):
-    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-    if temporary.exists() or temporary.is_symlink():
-        raise FileExistsError(f"File temporaneo già presente: {temporary}")
+    temporary = None
     try:
-        with temporary.open("x", encoding="utf-8") as stream:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=path.parent,
+            prefix=f".{path.name}.", suffix=".tmp", delete=False
+        ) as stream:
+            temporary = Path(stream.name)
             json.dump(value, stream, ensure_ascii=False, indent=2)
-            stream.write("\n")
+            stream.write("\\n")
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary, path)
     finally:
-        temporary.unlink(missing_ok=True)
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def decide_proposal(root, proposal_id, *, decision, actor, rationale):
