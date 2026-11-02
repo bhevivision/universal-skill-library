@@ -148,5 +148,15 @@ class SemanticEvidenceIntegrityTests(unittest.TestCase):
             validate_semantic_proposal(self.root, self.proposal)
 
 
+    def test_rejects_line_range_outside_examined_file(self):
+        self.proposal["evidence"][0]["location"] = {"start_line": 1, "end_line": 99}
+        with self.assertRaisesRegex(ValueError, "Intervallo di righe"):
+            validate_semantic_proposal(self.root, self.proposal)
+
+    def test_accepts_line_range_present_in_examined_file(self):
+        self.proposal["evidence"][0]["location"] = {"start_line": 1, "end_line": 2}
+        self.assertTrue(validate_semantic_proposal(self.root, self.proposal))
+
+
 if __name__ == "__main__":
     unittest.main()
