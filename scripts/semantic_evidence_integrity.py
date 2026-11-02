@@ -9,9 +9,9 @@ from pathlib import Path, PurePosixPath
 from jsonschema import Draft202012Validator, FormatChecker
 
 if __package__ in {None, ""}:
-    from classify_material import _fingerprint, _load_catalog, _record_original_path
+    from material_integrity import load_material_record, verify_material
 else:
-    from scripts.classify_material import _fingerprint, _load_catalog, _record_original_path
+    from scripts.material_integrity import load_material_record, verify_material
 
 
 SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schemas/semantic-classification-proposal.schema.json"
@@ -115,28 +115,20 @@ def validate_semantic_proposal(root, proposal):
         if reference not in evidence_by_id:
             raise ValueError(f"Il riferimento alla prova è inesistente: {reference}")
 
-    catalog, catalog_path = _load_catalog(root)
     material_id = proposal["material"]["id"]
-    record = next(
-        (item for item in catalog["materials"]
-         if isinstance(item, dict) and item.get("id") == material_id),
-        None
-    )
-    if record is None:
-        raise ValueError(f"Materiale non presente nel catalogo: {material_id}")
-
+    record, catalog, catalog_path = load_material_record(root, material_id)
     acquisition = record.get("acquisition", {})
     original = acquisition.get("original", {})
-    if acquisition.get("status") != "preserved" and original.get("kind") != "remote_reference":
-        raise ValueError("Il materiale locale non risulta conservato nello stato preserved.")
     if proposal["material"]["original_kind"] != original.get("kind"):
         raise ValueError("Il tipo originale dichiarato nella proposta non corrisponde al catalogo.")
 
     remote = original.get("kind") == "remote_reference"
     original_digest = original.get("sha256")
     if remote:
-        if acquisition.get("status") not in {"received", "preserved"}:
-            raise ValueError("Il riferimento remoto non ha uno stato di acquisizione valido.")
+        integrity = verify_material(root, material_id, allowed_states=("received", "preserved"))
+        if integrity["status"] != "not_applicable":
+            problem = integrity["problems"][0]["message"] if integrity["problems"] else "Il riferimento remoto non è verificabile."
+            raise ValueError(problem)
         if proposal["material"]["sha256"] is not None:
             raise ValueError("Il riferimento remoto non deve dichiarare un'impronta di file locale.")
         if proposal["status"] != "not_available" or proposal["classification"]["kind"] != "unclassified":
@@ -146,13 +138,18 @@ def validate_semantic_proposal(root, proposal):
                 proposal["dependencies"] or proposal["tools_and_platforms"] or
                 proposal["contradictions"] or proposal["risks"]):
             raise ValueError("Un riferimento remoto non esaminato non può contenere affermazioni sul contenuto.")
+        original_path = None
     else:
+        if acquisition.get("status") != "preserved":
+            raise ValueError("Il materiale locale non risulta conservato nello stato preserved.")
         if not isinstance(original_digest, str) or proposal["material"]["sha256"] != original_digest:
             raise ValueError("L'impronta del materiale nella proposta non corrisponde al catalogo.")
-        original_path = _record_original_path(root, record)
-        if not original_path.exists() or _fingerprint(original_path, original) != original_digest:
+        integrity = verify_material(
+            root, material_id, expected_digest=original_digest, allowed_states=("preserved",)
+        )
+        if integrity["status"] != "verified":
             raise ValueError("Il materiale acquisito è stato modificato dopo l'acquisizione.")
-        original_path = original_path.resolve()
+        original_path = root / integrity["path"]
 
     catalog_hash = _sha256(catalog_path)
     content_evidence_count = 0
@@ -210,8 +207,16 @@ def validate_semantic_proposal(root, proposal):
     # Ricontrollo finale per rilevare modifiche avvenute durante la verifica.
     if _sha256(catalog_path) != catalog_hash:
         raise ValueError("Il catalogo è cambiato durante la verifica delle prove.")
-    if not remote and _fingerprint(original_path, original) != original_digest:
-        raise ValueError("Il materiale è cambiato durante la verifica delle prove.")
+    if not remote:
+        final_integrity = verify_material(
+            root, material_id, expected_digest=original_digest, allowed_states=("preserved",)
+        )
+        if final_integrity["status"] != "verified":
+            raise ValueError("Il materiale è cambiato durante la verifica delle prove.")
+    else:
+        final_integrity = verify_material(root, material_id, allowed_states=("received", "preserved"))
+        if final_integrity["status"] != "not_applicable":
+            raise ValueError("Il riferimento remoto è cambiato durante la verifica delle prove.")
 
     return True
 
