@@ -3,7 +3,8 @@
 from __future__ import annotations
 import argparse, json, re, sys
 from pathlib import Path
-from jsonschema import Draft202012Validator, FormatChecker\nimport yaml
+from jsonschema import Draft202012Validator, FormatChecker
+import yaml
 from referencing import Registry, Resource
 CATALOGS={
  "catalog/capabilities.json":("capabilities","schemas/capabilities-catalog.schema.json","schemas/capability.schema.json"),
@@ -60,8 +61,8 @@ class UniqueKeyLoader(yaml.SafeLoader):
   return mapping
 def frontmatter(p):
  t=p.read_text(encoding="utf-8")
- if not t.startswith("---\\n"):raise ValueError("frontmatter YAML assente o delimitatore iniziale mancante")
- end=t.find("\\n---",4)
+ if not t.startswith("---\n"):raise ValueError("frontmatter YAML assente o delimitatore iniziale mancante")
+ end=t.find("\n---",4)
  if end<0:raise ValueError("delimitatore finale del frontmatter mancante")
  values=yaml.load(t[4:end],Loader=UniqueKeyLoader)
  if not isinstance(values,dict):raise ValueError("frontmatter YAML deve contenere una mappa")
