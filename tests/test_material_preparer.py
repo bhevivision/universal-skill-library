@@ -202,24 +202,28 @@ class MaterialPreparerTests(unittest.TestCase):
         self.assertEqual(result["skipped"][0]["reason"], "file_too_large")
 
     def test_019_exact_total_limit_is_accepted(self):
-        (self.source / "a.txt").write_bytes(b"a" * MAX_FILE_BYTES)
-        (self.source / "b.txt").write_bytes(b"b" * (MAX_TOTAL_BYTES - MAX_FILE_BYTES))
+        for index in range(4):
+            (self.source / f"{index}.txt").write_bytes(bytes([65 + index]) * MAX_FILE_BYTES)
         self.register_directory()
         self.assertEqual(self.prepare()["summary"]["total_bytes"], MAX_TOTAL_BYTES)
 
     def test_020_total_size_limit_excludes_overflow(self):
-        (self.source / "a.txt").write_bytes(b"a" * (MAX_TOTAL_BYTES // 2))
-        (self.source / "b.txt").write_bytes(b"b" * (MAX_TOTAL_BYTES // 2 + 1))
-        self.register_directory()
-        self.assertEqual(self.prepare()["skipped"][0]["reason"], "total_size_limit")
-
-    def test_021_total_size_exclusion_does_not_prevent_later_small_file(self):
-        (self.source / "a.txt").write_bytes(b"a" * (600 * 1024))
-        (self.source / "b.txt").write_bytes(b"b" * (500 * 1024))
-        (self.source / "c.txt").write_bytes(b"c" * (400 * 1024))
+        for index in range(4):
+            (self.source / f"{index}.txt").write_bytes(b"a" * MAX_FILE_BYTES)
+        (self.source / "4.txt").write_bytes(b"b")
         self.register_directory()
         result = self.prepare()
-        self.assertEqual([x["source"].rsplit("/", 1)[-1] for x in result["files"]], ["a.txt", "c.txt"])
+        self.assertEqual(result["skipped"][0]["reason"], "total_size_limit")
+
+    def test_021_total_size_exclusion_does_not_prevent_later_small_file(self):
+        for index in range(3):
+            (self.source / f"{index}.txt").write_bytes(b"a" * MAX_FILE_BYTES)
+        (self.source / "3.txt").write_bytes(b"b" * (132 * 1024))
+        (self.source / "4.txt").write_bytes(b"c" * (200 * 1024))
+        (self.source / "5.txt").write_bytes(b"d" * (100 * 1024))
+        self.register_directory()
+        result = self.prepare()
+        self.assertEqual([x["source"].rsplit("/", 1)[-1] for x in result["files"]], ["0.txt", "1.txt", "2.txt", "3.txt", "5.txt"])
         self.assertEqual(result["summary"]["total_bytes"], 1000 * 1024)
 
     def test_022_maximum_one_hundred_selected_files(self):
@@ -394,8 +398,9 @@ class MaterialPreparerTests(unittest.TestCase):
         self.assertFalse((self.source / "guide.txt").exists())
 
     def test_040_archive_with_text_extension_is_read_as_data_only(self):
-        (self.source / "opaque.md").write_text("dato opaco", encoding="utf-8")
-        self.register_directory(kind="archive")
+        path = self.source / "opaque.md"
+        path.write_text("dato opaco", encoding="utf-8")
+        self.register_file(path, kind="archive")
         self.assertEqual(self.prepare()["files"][0]["content"], "dato opaco")
 
     def test_041_unknown_kind_uses_normal_selection_rules(self):
