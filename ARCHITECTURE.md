@@ -1,6 +1,6 @@
 # Architettura della libreria universale
 
-Stato: modello strutturale v1 approvato. Il modello ammette pacchetti eterogenei e conserva gli originali. La struttura di acquisizione è definita a livello architetturale; cataloghi, analizzatori, adattatori e controlli aggiornati per tutti i formati devono ancora essere implementati e collaudati. Le skill presenti non sono per questo certificate.
+Stato: modello strutturale v1 approvato. Sul ramo di lavoro sono implementati e verificati l'acquisizione di file, cartelle, archivi opachi e riferimenti remoti, il controllo comune d'integrità, il classificatore statico limitato, l'approvazione esplicita e i contratti della classificazione semantica. La suite ha superato 183 test e il validatore su Ubuntu e Windows nel run GitHub Actions 41545326945. La verifica sul computer Windows dell'utilizzatore resta distinta. Il motore semantico, gli analizzatori per ulteriori formati, gli adattatori interoperabili e il coordinatore non sono ancora implementati. Le skill presenti non sono per questo certificate.
 
 ## Scopo
 Trasformare un obiettivo espresso in linguaggio naturale in attività eseguibili e verificabili. La libreria può ricevere e conservare materiale prima di sapere se sia una skill. Il coordinatore utilizza soltanto elementi classificati e idonei allo specifico compito. Libreria e coordinatore sono distinti e indipendenti da un singolo modello o fornitore.
