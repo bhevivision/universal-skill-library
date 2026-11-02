@@ -223,6 +223,16 @@ def save_proposal(root, result, proposal_id):
     if not isinstance(proposal_id, str) or not re.fullmatch(r"[a-z0-9]+(?:[.-][a-z0-9]+)*", proposal_id):
         raise ValueError("Identificativo proposta non valido.")
     root = Path(root).resolve()
+    catalog, _ = _load_catalog(root)
+    material_id = result.get("material", {}).get("id")
+    record = next((item for item in catalog["materials"] if isinstance(item, dict) and item.get("id") == material_id), None)
+    if record is None:
+        raise ValueError("Il materiale della proposta non è più presente nel catalogo.")
+    original = record.get("acquisition", {}).get("original", {})
+    if original.get("kind") != "remote_reference":
+        current_path = _record_original_path(root, record)
+        if not current_path.exists() or _fingerprint(current_path, original) != result.get("material", {}).get("sha256"):
+            raise ValueError("Il materiale è cambiato dopo l'analisi; proposta non salvata.")
     result = dict(result)
     result["proposal_id"] = proposal_id
     directory = root / "proposals"
