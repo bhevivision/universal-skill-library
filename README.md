@@ -17,6 +17,9 @@ Agent Skills è un formato supportato, non un requisito per conservare un pacche
 - [Roadmap](ROADMAP.md)
 - [Struttura della libreria](docs/LIBRARY-STRUCTURE.md)
 - [Dati per la selezione autonoma delle skill](docs/SKILL-SELECTION.md)
+- [Progettazione della classificazione semantica](docs/SEMANTIC-CLASSIFICATION-DESIGN.md)
+- [Contratto tecnico della classificazione semantica](docs/SEMANTIC-CLASSIFICATION-CONTRACT.md)
+- [Schema JSON della proposta semantica](schemas/semantic-classification-proposal.schema.json)
 
 ## Componente indipendente di acquisizione
 
@@ -40,7 +43,10 @@ Esempio:
 
 Dettagli: [Componente di classificazione](docs/CLASSIFICATION-COMPONENT.md).
 
+La futura analisi semantica avrà un contratto e uno schema di proposta separati. In questa fase sono stati definiti lo schema JSON e i relativi test di contratto; il motore semantico non è ancora implementato.
+
 ## Controlli disponibili
+
 Comandi:
 
     python -m pip install -r requirements-dev.txt
