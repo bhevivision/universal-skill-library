@@ -125,7 +125,7 @@ def prepare_material(root, material_id: str) -> dict:
         return _failed_result(result, status, [_problem(exc.code, str(exc))])
     except (OSError, UnicodeError, RuntimeError, TypeError, ValueError) as exc:
         result = _base_result(material_id)
-        return _failed_result(result, "failed", [_problem("MATERIAL_LOOKUP_FAILED", str(exc))])
+        return _failed_result(result, "failed", [_problem("MATERIAL_LOOKUP_FAILED", "Impossibile recuperare il record del materiale dal catalogo.")])
 
     acquisition = record.get("acquisition")
     original = acquisition.get("original") if isinstance(acquisition, dict) else None
@@ -237,7 +237,7 @@ def prepare_material(root, material_id: str) -> dict:
     except (OSError, RuntimeError, ValueError) as exc:
         return _failed_result(
             result, "failed",
-            [_problem("INVENTORY_FAILED", f"Impossibile completare l'inventario del materiale: {exc}")],
+            [_problem("INVENTORY_FAILED", "Impossibile completare l'inventario del materiale a causa di un errore del file system.")],
         )
 
     # Ricontrollo indipendente dopo la lettura; nessun contenuto è restituito se l'originale è cambiato.
