@@ -22,4 +22,6 @@ La risposta dovrà riferirsi allo stesso identificativo e alla stessa impronta e
 
 ## Stato
 
-Contratto architetturale definito. Il classificatore, l'isolamento dell'analisi e l'approvazione delle proposte non sono ancora implementati.
+Il contratto è implementato nella prima versione tramite `scripts/classify_material.py`. Il componente verifica l'impronta, esegue analisi statica limitata e salva proposte in `proposals/`, senza modificare il catalogo. Non è ancora implementato un classificatore semantico universale basato su modelli intelligenti né il flusso separato di approvazione e registrazione nel catalogo.
+
+Per il comportamento effettivo e i limiti della prima versione, vedere `docs/CLASSIFICATION-COMPONENT.md`.
