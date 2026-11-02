@@ -88,7 +88,10 @@ class AcquisitionComponentTests(unittest.TestCase):
         source.mkdir()
         target = self.incoming / "secret.txt"
         target.write_text("segreto", encoding="utf-8")
-        (source / "link.txt").symlink_to(target)
+        try:
+            (source / "link.txt").symlink_to(target)
+        except (OSError, NotImplementedError):
+            self.skipTest("Il sistema operativo non consente la creazione di collegamenti simbolici.")
 
         with self.assertRaises(ValueError):
             acquire_material(self.root, source, "acq.symlink")
