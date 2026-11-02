@@ -61,7 +61,8 @@ class SemanticClassificationRequestTests(unittest.TestCase):
     def test_rejects_path_traversal(self):
         request = valid_request()
         request["files"][0]["path"] = "intake/acq-example/../../outside.md"
-        self.assertTrue(list(self.validator.iter_errors(request)))
+        with self.assertRaises(ValueError):
+            validate_semantic_request(request)
 
     def test_rejects_absolute_path(self):
         request = valid_request()
