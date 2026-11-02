@@ -8,41 +8,12 @@ import re
 import sys
 import tempfile
 from datetime import datetime, timezone
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 
 if __package__ in {None, ""}:
     from material_integrity import load_material_record, verify_material
 else:
     from scripts.material_integrity import load_material_record, verify_material
-
-
-def _load_catalog(root):
-    path = root / "catalog/materials.json"
-    if path.is_symlink() or not path.is_file():
-        raise ValueError("Catalogo materiali assente o non sicuro.")
-    catalog = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(catalog, dict) or catalog.get("catalog_version") != "1.0" or not isinstance(catalog.get("materials"), list):
-        raise ValueError("Struttura del catalogo materiali non valida.")
-    return catalog, path
-
-
-def _record_original_path(root, record):
-    relative = record.get("acquisition", {}).get("original", {}).get("path")
-    pure = PurePosixPath(relative) if isinstance(relative, str) else None
-    if pure is None or pure.is_absolute() or not pure.parts or pure.parts[0] != "intake" or ".." in pure.parts:
-        raise ValueError("Percorso dell'originale non valido.")
-    candidate = root.joinpath(*pure.parts)
-    current = candidate
-    while current != root:
-        if current.is_symlink():
-            raise ValueError("Collegamento simbolico nel percorso dell'originale.")
-        current = current.parent
-    resolved = candidate.resolve()
-    try:
-        resolved.relative_to((root / "intake").resolve())
-    except ValueError as exc:
-        raise ValueError("Originale fuori dalla cartella intake.") from exc
-    return resolved
 
 
 def _digest_file(path):
@@ -54,27 +25,6 @@ def _digest_file(path):
     return digest.hexdigest()
 
 
-def _digest_tree(path, legacy=False):
-    import hashlib
-    digest = hashlib.sha256()
-    entries = sorted(Path(path).rglob("*"), key=lambda item: item.relative_to(path).as_posix())
-    for item in entries:
-        if item.is_symlink():
-            raise ValueError(f"Collegamento simbolico non ammesso: {item}")
-        relative = item.relative_to(path).as_posix().encode("utf-8")
-        if item.is_dir() and not legacy:
-            digest.update(b"D\0" + relative + b"\0")
-        elif item.is_file():
-            if legacy:
-                digest.update(relative + b"\0")
-            else:
-                digest.update(b"F\0" + relative + b"\0")
-            with item.open("rb") as stream:
-                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-                    digest.update(chunk)
-            digest.update(b"\0")
-    return digest.hexdigest()
-
 TEXT_EXTENSIONS = {".md", ".markdown", ".txt", ".rst", ".json", ".yaml", ".yml", ".toml", ".py", ".js", ".ts", ".sh", ".ps1", ".bat", ".xml", ".html", ".css"}
 MAX_FILE_BYTES = 256 * 1024
 MAX_TOTAL_BYTES = 1024 * 1024
@@ -84,17 +34,6 @@ PROPOSAL_SCHEMA_VERSION = "1.0"
 
 def _now():
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-
-
-def _fingerprint(path, original):
-    algorithm = original.get("digest_algorithm")
-    if path.is_dir():
-        if algorithm not in {None, "sha256-tree-v2"}:
-            raise ValueError(f"Algoritmo di impronta non valido per cartella: {algorithm}")
-        return _digest_tree(path, legacy=algorithm is None)
-    if algorithm not in {None, "sha256-file-v1"}:
-        raise ValueError(f"Algoritmo di impronta non valido per file: {algorithm}")
-    return _digest_file(path)
 
 
 def _safe_text_files(path):
