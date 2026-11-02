@@ -15,11 +15,14 @@ def digest_file(path):
 
 def digest_directory(path):
     digest = hashlib.sha256()
-    for item in sorted(p for p in path.rglob("*") if p.is_file()):
-        digest.update(item.relative_to(path).as_posix().encode("utf-8"))
-        digest.update(b"\0")
-        digest.update(item.read_bytes())
-        digest.update(b"\0")
+    for item in sorted(path.rglob("*"), key=lambda entry: entry.relative_to(path).as_posix()):
+        relative = item.relative_to(path).as_posix().encode("utf-8")
+        if item.is_dir():
+            digest.update(b"D\\0" + relative + b"\\0")
+        elif item.is_file():
+            digest.update(b"F\\0" + relative + b"\\0")
+            digest.update(item.read_bytes())
+            digest.update(b"\\0")
     return digest.hexdigest()
 
 
@@ -97,6 +100,15 @@ class HeterogeneousIntakeTests(unittest.TestCase):
         self.register_material("archive", "intake/acq-archive/source/package.zip")
         self.assertEqual(validate_repository(self.root), [])
         self.assertEqual(archive.read_bytes(), before)
+
+    def test_rejects_added_empty_directory_after_preservation(self):
+        source = self.root / "intake/acq-empty/source"
+        source.mkdir(parents=True)
+        (source / "guide.txt").write_text("Originale.\\n", encoding="utf-8")
+        self.register_material("directory", "intake/acq-empty/source")
+        (source / "new-empty-directory").mkdir()
+        errors = validate_repository(self.root)
+        self.assertTrue(any("impronta SHA-256" in error for error in errors), errors)
 
     def test_rejects_modified_preserved_original(self):
         source = self.root / "intake/acq-sample/source"
