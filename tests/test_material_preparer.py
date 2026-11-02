@@ -268,20 +268,16 @@ class MaterialPreparerTests(unittest.TestCase):
         expected_texts, expected_evidence, expected_skipped = _read_evidence(self.source, self.root)
         result = self.prepare()
         self.assertEqual(
-            [(item["source"].removeprefix("intake/acq-sample/source/"), item["content"])
-             for item in result["files"]],
+            [(item["source"], item["content"]) for item in result["files"]],
             expected_texts,
         )
         self.assertEqual(
-            [(item["source"].removeprefix("intake/acq-sample/source/"), item["sha256"], item["bytes"])
-             for item in result["files"]],
-            [(item["source"].removeprefix("intake/acq-sample/source/"), item["sha256"], item["bytes"])
-             for item in expected_evidence],
+            [(item["source"], item["sha256"], item["bytes"]) for item in result["files"]],
+            [(item["source"], item["sha256"], item["bytes"]) for item in expected_evidence],
         )
         self.assertEqual(
-            [item["source"].removeprefix("intake/acq-sample/source/") for item in result["skipped"]],
-            [Path(item).name if "/" not in item else item.split("source/", 1)[-1]
-             for item in expected_skipped],
+            [item["source"] for item in result["skipped"]],
+            expected_skipped,
         )
 
 
