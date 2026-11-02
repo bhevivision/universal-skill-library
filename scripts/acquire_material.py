@@ -299,7 +299,7 @@ def _recover_transactions_locked(root):
                 if existing is not None:
                     old_original = existing.get("acquisition", {}).get("original", {})
                     new_original = record.get("acquisition", {}).get("original", {})
-                    if old_original.get("sha256") != new_original.get("sha256") or old_original.get("path") != new_original.get("path"):
+                    if any(old_original.get(key) != new_original.get(key) for key in ("kind", "path", "sha256", "digest_algorithm")):
                         raise RuntimeError("il catalogo contiene già un identificativo collegato a un contenuto diverso")
                     _verify_record_content(root, existing)
                     if stage and stage.exists():
@@ -320,6 +320,17 @@ def _recover_transactions_locked(root):
             except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError, ValueError, RuntimeError) as exc:
                 raise RuntimeError(f"Recupero interrotto per {journal_path.name}: {exc}") from exc
 
+    if transactions.exists():
+        for temporary in transactions.glob(".journal-*.tmp"):
+            if temporary.is_symlink() or not temporary.is_file():
+                raise RuntimeError(f"File temporaneo di transazione non sicuro: {temporary}")
+            temporary.unlink()
+    catalog_directory = root / "catalog"
+    if catalog_directory.is_dir() and not catalog_directory.is_symlink():
+        for temporary in catalog_directory.glob(".materials-*.tmp"):
+            if temporary.is_symlink() or not temporary.is_file():
+                raise RuntimeError(f"File temporaneo di catalogo non sicuro: {temporary}")
+            temporary.unlink()
     for child in sorted(intake.iterdir()):
         if child.is_dir() and child.name.startswith(".staging-"):
             if child.is_symlink():
