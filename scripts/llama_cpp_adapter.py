@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
 
 PROPOSAL_SCHEMA = (
@@ -55,14 +55,12 @@ def _validate_loopback_base_url(value: str) -> str:
     if parsed.query or parsed.fragment or parsed.path not in {"", "/"}:
         raise ValueError("Indicare soltanto l'indirizzo base del server, senza percorso, parametri o frammenti.")
     host = (parsed.hostname or "").lower()
-    is_loopback = host == "localhost"
+    try:
+        is_loopback = ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        is_loopback = False
     if not is_loopback:
-        try:
-            is_loopback = ipaddress.ip_address(host).is_loopback
-        except ValueError:
-            is_loopback = False
-    if not is_loopback:
-        raise ValueError("Per proteggere i dati, l'adattatore accetta esclusivamente indirizzi di loopback (127.0.0.1 o localhost).")
+        raise ValueError("Per proteggere i dati, l'adattatore accetta esclusivamente indirizzi IP di loopback (127.0.0.1 o ::1).")
     try:
         port = parsed.port
     except ValueError as exc:
@@ -88,6 +86,11 @@ def _semantic_output_schema() -> dict:
         "required": list(SEMANTIC_FIELDS),
         "properties": {field: properties[field] for field in SEMANTIC_FIELDS},
     }
+
+
+class _NoRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, request, file_pointer, code, message, headers, new_url):
+        return None
 
 
 class LlamaCppServerAdapter:
@@ -155,7 +158,9 @@ class LlamaCppServerAdapter:
         )
 
         try:
-            with urlopen(http_request, timeout=timeout) as response:
+            # Non usare proxy di sistema e non seguire reindirizzamenti verso host esterni.
+            opener = build_opener(ProxyHandler({}), _NoRedirectHandler())
+            with opener.open(http_request, timeout=timeout) as response:
                 if response.status != 200:
                     raise ValueError("Il server locale ha restituito uno stato HTTP non valido.")
                 raw = response.read(self.max_response_bytes + 1)
