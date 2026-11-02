@@ -22,6 +22,6 @@ La risposta dovrà riferirsi allo stesso identificativo e alla stessa impronta e
 
 ## Stato
 
-Il contratto è implementato nella prima versione tramite `scripts/classify_material.py`. Il componente verifica l'impronta, esegue analisi statica limitata e salva proposte in `proposals/`, senza modificare il catalogo. Non è ancora implementato un classificatore semantico universale basato su modelli intelligenti né il flusso separato di approvazione e registrazione nel catalogo.
+Il classificatore statico è implementato tramite `scripts/classify_material.py` e salva proposte separate in `proposals/`. Il flusso di revisione e approvazione esplicita è implementato tramite `scripts/classification_approval.py`; aggiorna la classificazione del materiale e registra la decisione, ma non crea automaticamente una skill operativa in `catalog/skills.json`. Il motore semantico universale basato su modelli intelligenti non è ancora implementato.
 
 Per il comportamento effettivo e i limiti della prima versione, vedere `docs/CLASSIFICATION-COMPONENT.md`.
