@@ -470,9 +470,25 @@ class MaterialPreparerTests(unittest.TestCase):
             "skipped", "summary", "problems",
         }.issubset(result))
 
+    def test_049_detected_inventory_error_fails_without_partial_contents(self):
+        (self.source / "guide.md").write_text("testo", encoding="utf-8")
+        self.register_directory()
+        original_rglob = Path.rglob
+        calls = {"count": 0}
+        def fail_during_inventory(path, pattern):
+            if path == self.source:
+                calls["count"] += 1
+                # Le prime due scansioni appartengono alla verifica d'integrità
+                # iniziale; la successiva è l'inventario del preparatore.
+                if calls["count"] == 3:
+                    raise PermissionError("inventario non accessibile")
+            return original_rglob(path, pattern)
+        with patch.object(Path, "rglob", fail_during_inventory):
+            self.assert_error_result(self.prepare(), "failed")
+
     # Parità osservabile con il classificatore
 
-    def test_049_matches_classifier_paths_text_and_evidence(self):
+    def test_050_matches_classifier_paths_text_and_evidence(self):
         (self.source / "zeta.md").write_text("Z", encoding="utf-8")
         (self.source / "nested").mkdir()
         (self.source / "nested/alpha.txt").write_text("A", encoding="utf-8")
@@ -487,7 +503,7 @@ class MaterialPreparerTests(unittest.TestCase):
         )
         self.assertEqual([x["source"] for x in result["skipped"]], expected_skipped)
 
-    def test_050_classifier_heuristic_remains_unchanged(self):
+    def test_051_classifier_heuristic_remains_unchanged(self):
         from scripts.classify_material import _propose
         texts = [("intake/a/SKILL.md", "---\nname: x\ndescription: y\n---\n# Instructions\n")]
         self.assertEqual(_propose(texts, "directory")[0], "skill")
