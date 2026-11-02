@@ -566,5 +566,28 @@ class MaterialPreparerTests(unittest.TestCase):
         self.assertEqual(result["status"], "blocked")
         self.assertEqual(result["files"], [])
 
+    def test_055_schema_rejects_blocked_or_failed_results_with_usable_contents(self):
+        from jsonschema import Draft202012Validator
+        (self.source / "guide.md").write_text("contenuto", encoding="utf-8")
+        self.register_directory()
+        valid = self.prepare()
+        schema_path = Path(__file__).resolve().parents[1] / "schemas/material-preparation-result.schema.json"
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        validator = Draft202012Validator(schema)
+
+        blocked_with_files = json.loads(json.dumps(valid))
+        blocked_with_files["status"] = "blocked"
+        blocked_with_files["problems"] = [{"code": "SYMLINK_NOT_ALLOWED", "message": "bloccato"}]
+        self.assertTrue(list(validator.iter_errors(blocked_with_files)))
+
+        failed_with_bytes = json.loads(json.dumps(valid))
+        failed_with_bytes["status"] = "failed"
+        failed_with_bytes["problems"] = [{"code": "INVENTORY_FAILED", "message": "errore"}]
+        failed_with_bytes["files"] = []
+        failed_with_bytes["summary"]["files_examined"] = 0
+        failed_with_bytes["summary"]["total_bytes"] = 1
+        self.assertTrue(list(validator.iter_errors(failed_with_bytes)))
+
+
 if __name__ == "__main__":
     unittest.main()
