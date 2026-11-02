@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore. La prima versione del classificatore statico è implementata; restano il classificatore semantico universale, l'approvazione separata e il coordinatore.
+Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore. Il classificatore statico e l'approvazione/rifiuto espliciti sono implementati e verificati su Linux e Windows: 65 test superati e validatore superato nel run `41520157849`. Restano il classificatore semantico universale, l'autenticazione multiutente, la prova sul PC Windows dell'utilizzatore e il coordinatore.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
