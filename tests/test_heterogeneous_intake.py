@@ -114,9 +114,9 @@ class HeterogeneousIntakeTests(unittest.TestCase):
         for item in sorted(source.rglob("*")):
             if item.is_file():
                 legacy.update(item.relative_to(source).as_posix().encode("utf-8"))
-                legacy.update(b"\\0")
+                legacy.update(b"\0")
                 legacy.update(item.read_bytes())
-                legacy.update(b"\\0")
+                legacy.update(b"\0")
         original["sha256"] = legacy.hexdigest()
         write_json(self.root, "catalog/materials.json", materials)
         self.assertEqual(validate_repository(self.root), [])
