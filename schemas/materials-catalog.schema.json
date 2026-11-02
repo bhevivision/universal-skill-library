@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bhevivision.github.io/universal-skill-library/schemas/materials-catalog.schema.json",
+  "title": "Catalogo dei materiali acquisiti",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["catalog_version", "materials"],
+  "properties": {
+    "catalog_version": {"const": "1.0"},
+    "materials": {"type": "array", "items": {"$ref": "material-record.schema.json"}}
+  }
+}
