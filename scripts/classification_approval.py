@@ -102,10 +102,10 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
         )
         if integrity["status"] != "verified":
             codes = {item["code"] for item in integrity["problems"]}
-            if "DIGEST_MISMATCH" in codes:
+            if codes.intersection({"DIGEST_MISMATCH", "EXPECTED_DIGEST_MISMATCH"}):
+                if integrity.get("actual_digest") == material.get("sha256"):
+                    raise ValueError("La proposta non corrisponde all'impronta registrata nell'acquisizione.")
                 raise ValueError("Il materiale è cambiato dopo l'analisi; decisione bloccata.")
-            if "EXPECTED_DIGEST_MISMATCH" in codes:
-                raise ValueError("La proposta non corrisponde all'impronta registrata nell'acquisizione.")
             problem = integrity["problems"][0]["message"] if integrity["problems"] else "Integrità del materiale non verificata."
             raise ValueError(problem)
         if original.get("sha256") != material.get("sha256"):
