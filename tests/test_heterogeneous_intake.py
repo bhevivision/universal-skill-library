@@ -50,7 +50,8 @@ class HeterogeneousIntakeTests(unittest.TestCase):
                     "original": {
                         "kind": kind,
                         "path": relative_path,
-                        "sha256": checksum
+                        "sha256": checksum,
+                        "digest_algorithm": "sha256-tree-v2" if source.is_dir() else "sha256-file-v1"
                     }
                 },
                 "classification": {
