@@ -20,7 +20,7 @@ Agent Skills è un formato supportato, non un requisito per conservare un pacche
 
 ## Componente indipendente di acquisizione
 
-Il componente `scripts/acquire_material.py` riceve file e cartelle locali, li copia sotto `intake/` senza eseguire il contenuto, calcola SHA-256, crea una scheda esterna e aggiorna `catalog/materials.json`. Riconosce gli archivi ZIP e TAR e li conserva come file opachi, senza estrarli. Può inoltre registrare un riferimento HTTP/HTTPS senza dichiarare che esista una copia locale.
+Il componente `scripts/acquire_material.py` riceve file e cartelle locali, li copia sotto `intake/` senza eseguire il contenuto, calcola SHA-256, crea una scheda esterna e aggiorna `catalog/materials.json`. Riconosce gli archivi ZIP e TAR e li conserva come file opachi, senza estrarli. Può inoltre registrare un riferimento HTTP/HTTPS senza dichiarare che esista una copia locale. Usa registri di transazione per recuperare acquisizioni interrotte sullo stesso computer e rileva contenuti duplicati anche con identificativi diversi.
 
 Esempi, dalla cartella principale della libreria:
 
@@ -37,4 +37,4 @@ Comandi:
     python -m unittest discover -s tests -v
     python scripts/validate_library.py
 
-La suite viene eseguita anche tramite GitHub Actions. Il superamento dei test prova soltanto i comportamenti coperti: non equivale a certificare la sicurezza o la funzionalità dei materiali acquisiti.
+La suite viene eseguita tramite GitHub Actions su Linux e Windows. Il superamento dei test prova soltanto i comportamenti coperti: non equivale a certificare la sicurezza o la funzionalità dei materiali acquisiti.
