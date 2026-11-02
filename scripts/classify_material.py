@@ -146,10 +146,10 @@ def _propose(texts, original_kind):
 
     combined = "\n".join(text for _, text in texts).lower()
     has_skill_metadata = (
-        re.search(r"(?m)^\\s*name\\s*:\\s*.+", combined) and
-        re.search(r"(?m)^\\s*description\\s*:\\s*.+", combined)
+        re.search(r"(?m)^\s*name\s*:\s*.+", combined) and
+        re.search(r"(?m)^\s*description\s*:\s*.+", combined)
     )
-    has_operational_section = bool(re.search(r"(?m)^\\s*#{1,6}\\s*instructions\\b", combined)) or "when to use" in combined
+    has_operational_section = bool(re.search(r"(?m)^\s*#{1,6}\s*instructions\b", combined)) or "when to use" in combined
     skill_markers = bool(has_skill_metadata and has_operational_section) or (
         "## instructions" in combined and ("skill" in combined or "when to use" in combined)
     )
