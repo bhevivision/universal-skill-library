@@ -45,7 +45,7 @@ class AcquisitionRecoveryAndDuplicateTests(unittest.TestCase):
         outside = Path(self.temp.name) / "outside"
         outside.mkdir()
         import shutil
-        shutil.rmtree(self.root / "intake")
+        shutil.rmtree(self.root / "intake", ignore_errors=True)
         try:
             (self.root / "intake").symlink_to(outside, target_is_directory=True)
         except (OSError, NotImplementedError):
