@@ -189,7 +189,7 @@
           "source": {
             "type": "string",
             "minLength": 1,
-            "pattern": "^intake/"
+            "pattern": "^(intake/|catalog/materials\\.json$)"
           },
           "sha256": {
             "type": "string",
