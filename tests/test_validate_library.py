@@ -86,4 +86,17 @@ class Tests(unittest.TestCase):
   self.change("catalog/implementations.json",lambda d:d["implementations"][0].update(agent_compatibility={"mode":"specific","agents":[]}))
   self.assertTrue(any("agent_compatibility" in e for e in validate_repository(self.root)))
 
+ def test_rejects_date_for_not_run_verification(self):
+  def edit(d):
+   d["skills"][0]["lifecycle"]="unverified"
+   d["skills"][0]["selection"]["verification"]={"status":"not_run","last_checked":"2026-11-02T10:00:00Z","evidence_refs":[]}
+  self.change("catalog/skills.json",edit)
+  self.assertTrue(any("last_checked" in e for e in validate_repository(self.root)))
+ def test_rejects_evidence_for_not_run_verification(self):
+  def edit(d):
+   d["skills"][0]["lifecycle"]="unverified"
+   d["skills"][0]["selection"]["verification"]={"status":"not_run","evidence_refs":["tests/evidence/skill.json"]}
+  self.change("catalog/skills.json",edit)
+  self.assertTrue(any("maxItems" in e for e in validate_repository(self.root)))
+
 if __name__=="__main__":unittest.main()
