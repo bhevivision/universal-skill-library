@@ -30,12 +30,20 @@ Stato: il modello strutturale v1 è approvato. Il modello di acquisizione eterog
 - [x] Definire il contratto pubblico del componente indipendente di acquisizione con test prima dell'implementazione.
 - [x] Implementare copia locale, scheda descrittiva, impronta, controlli di collisione e registrazione di riferimenti remoti.
 - [x] Verificare la nuova implementazione con tutti i test tramite GitHub Actions: 40 test superati e validatore superato (run `41513402663`).
-- [ ] Aggiungere recupero automatico da interruzione forzata e gestione dei duplicati per contenuto, non soltanto per identificativo.
-- [ ] Verificare l'esecuzione locale su Windows.
+- [x] Aggiungere recupero delle transazioni interrotte sullo stesso computer, con completamento o annullamento prudente.
+- [x] Rilevare duplicati di contenuto per file e cartelle, oltre ai duplicati per identificativo.
+- [x] Definire il contratto di passaggio dal materiale acquisito al futuro classificatore.
+- [ ] Valutare un indice persistente dei duplicati se il volume del catalogo lo renderà necessario.
+- [x] Aggiungere l'esecuzione automatica della suite su Windows tramite GitHub Actions.
+- [ ] Verificare l'esecuzione sul computer Windows dell'utilizzatore.
 
 Criterio di uscita: un materiale locale può essere copiato e registrato senza modificare la sorgente; un riferimento remoto viene distinto da una copia locale; nessun materiale viene classificato, eseguito o certificato automaticamente durante l'acquisizione.
 
-## Fase 3 — Inventario operativo delle skill esistenti
+## Fase 3 — Classificazione dei materiali
+- [x] Definire il contratto di richiesta e risposta del futuro classificatore.
+- [ ] Implementare il classificatore in ambiente isolato, con proposta separata e approvazione prima di modificare il catalogo.
+
+## Fase 4 — Inventario operativo delle skill esistenti
 Solo dopo che la procedura di acquisizione e conservazione è verificata:
 - UNLAZY: registrare riferimenti mancanti e dipendenze.
 - Archivista: registrare il riferimento mancante e le sezioni assenti.
@@ -44,13 +52,13 @@ Solo dopo che la procedura di acquisizione e conservazione è verificata:
 
 Regola: preservare esattamente i materiali originali. Non riscrivere, correggere o adattare preventivamente. Acquisizione, documentazione, verifica e approvazione all'uso sono passaggi distinti.
 
-## Fase 4 — Interoperabilità
+## Fase 5 — Interoperabilità
 Provare skill non sensibili su Claude Code e Codex e, se accessibile, su un'altra piattaforma. Separare contenuto canonico e adattamenti. Registrare prove, differenze e limiti.
 
-## Fase 5 — Prototipo del coordinatore
+## Fase 6 — Prototipo del coordinatore
 Realizzare formalizzazione obiettivo/criteri, selezione capacità e skill, controllo disponibilità e permessi, piano con dipendenze e parallelismo, registrazione stati/prove/decisioni, recupero selettivo e ripianificazione.
 
-## Fase 6 — Scelta e consolidamento del motore
+## Fase 7 — Scelta e consolidamento del motore
 Riprendere la ricerca già avviata su ORCA, LangGraph, Microsoft Agent Framework, Temporal, CrewAI e AutoGen. Esaminare il log Cognitive Continuous Validation, risolvere discrepanze, verificare registry/runtime/dipendenze, eseguire prove riproducibili su Windows e confrontare recupero, persistenza, parallelismo, sicurezza e osservabilità.
 
 Una fase non è completata perché i documenti sono stati scritti o il codice prodotto: servono prove consultabili. Se la verifica non è possibile, lo stato resta NON VERIFICABILE.
