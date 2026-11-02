@@ -41,6 +41,21 @@ class AcquisitionRecoveryAndDuplicateTests(unittest.TestCase):
         }), encoding="utf-8")
         return lock
 
+    def test_rejects_intake_directory_symlink(self):
+        outside = Path(self.temp.name) / "outside"
+        outside.mkdir()
+        import shutil
+        shutil.rmtree(self.root / "intake")
+        try:
+            (self.root / "intake").symlink_to(outside, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            self.skipTest("Il sistema operativo non consente la creazione di collegamenti simbolici.")
+        source = self.incoming / "outside.txt"
+        source.write_text("contenuto", encoding="utf-8")
+        with self.assertRaises(ValueError):
+            acquire_material(self.root, source, "acq.outside")
+        self.assertEqual(list(outside.iterdir()), [])
+
     def test_rejects_identical_file_content_under_a_different_identifier(self):
         first = self.incoming / "first.txt"
         second = self.incoming / "renamed-copy.txt"
