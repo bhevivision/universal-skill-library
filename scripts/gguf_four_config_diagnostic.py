@@ -265,6 +265,7 @@ def run_comparison(base_url, dataset_path, output_dir, timeout_seconds=120, max_
     }
     selected_configurations = [select_configuration(configuration_id)] if configuration_id else list(CONFIGURATIONS)
     comparison["protocol"]["selected_configurations"] = [item["id"] for item in selected_configurations]
+    comparison["protocol"]["total_runs"] = len(selected_configurations) * len(dataset["samples"])
     for config in selected_configurations:
         config_dir = output_dir / config["id"]
         adapter = StreamingDiagnosticAdapter(base_url, config, config_dir, timeout_seconds, max_tokens)
