@@ -102,7 +102,7 @@ class AcquisitionComponentTests(unittest.TestCase):
         source = self.incoming / "failure.txt"
         source.write_text("contenuto", encoding="utf-8")
 
-        with patch("scripts.acquire_material.shutil.copy2", side_effect=OSError("copia interrotta")):
+        with patch("scripts.acquire_material._copy_file_bounded", side_effect=OSError("copia interrotta")):
             with self.assertRaises(OSError):
                 acquire_material(self.root, source, "acq.failure")
 
