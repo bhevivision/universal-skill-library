@@ -319,3 +319,28 @@ La sintesi non è importare sei raccolte. È riutilizzare procedure e principi c
 - Verifica del funzionamento delle skill adattate: **non eseguita**.
 - Registrazione delle fonti nel catalogo materiali: **7 riferimenti remoti creati e validati** (ORCA separato in runtime e registro); nessuna copia locale è stata dichiarata o acquisita. Il componente di acquisizione esistente è stato riutilizzato come modello dati, senza eseguire i contenuti.
 - Coordinatore universale: **non ancora scelto né integrato**.
+
+
+## Gestore dei cataloghi: integrazione
+
+La versione del gestore sviluppata nella linea di lavoro PR #16 è stata portata in un ramo dedicato e riallineata ai nuovi schemi materiali/skill. Il gestore ora:
+- verifica tutte le schede materiali sorgente di una skill;
+- accetta source_record_id soltanto se la fonte è una skill classificata;
+- verifica prove di licenza e prove di verifica della skill;
+- blocca la rimozione di materiali ancora referenziati da source_record_id o source_material_ids;
+- controlla i collegamenti esistenti prima di leggere o modificare i cataloghi;
+- normalizza i percorsi radice per Windows e Linux.
+
+Limiti espliciti: nessun blocco per scritture concorrenti, nessuna transazione multi-catalogo, ricerca testuale e non semantica; collegamenti reciproci, manifesti e prove delle implementazioni e frontmatter completo restano nel validatore generale. Le scritture devono essere serializzate dal coordinatore e il validatore completo va eseguito prima di usare i cataloghi per pianificare.
+
+Questa integrazione è separata dalla linea PR #16 per evitare di modificare la verifica del motore semantico mentre si riallinea il gestore. La duplicazione temporanea del file catalog_manager.py tra le due linee dovrà essere consolidata prima della fusione finale.
+
+## Stato del coordinatore universale
+
+Il coordinatore non è ancora implementato. Le quattro skill di pianificazione, adattamento, ricerca e verifica forniscono procedure iniziali, ma non sostituiscono il motore. Prima dell'implementazione vanno riconciliate:
+- la correzione dell'adattatore semantico PR #14 e la prova reale PR #15;
+- il ramo cataloghi PR #16, che deriva da PR #8 e non include PR #14;
+- la nuova provenienza multipla e le prove di licenza introdotte nelle PR #19/#20;
+- il gestore cataloghi aggiornato in questa linea.
+
+Il primo componente del coordinatore dovrà essere un pianificatore indipendente dalla piattaforma e un validatore deterministico del piano; l'esecuzione degli strumenti resterà separata.
