@@ -292,3 +292,39 @@ I conteggi dichiarati dal README del registro, dal registro corrente, dal README
 | Verifica su Windows | Non eseguita |
 
 **Conclusione:** l'analisi ha individuato materiale riutilizzabile e una strada concreta per accelerare la libreria. Non è ancora stata dichiarata alcuna delle sei risorse come skill funzionante o ammessa. Il passo successivo è completare la verifica delle dipendenze e delle fonti, quindi trasformare le procedure approvate in pacchetti Agent Skills e schede interne coerenti con gli schemi già esistenti.
+
+
+## 8. Integrazione delle fonti recuperate dalla Library dell'utente
+
+Dopo la prima stesura di questa analisi è stata eseguita una ricerca separata nella Library delle conversazioni precedenti. Sono emersi materiali che non erano presenti nell'albero GitHub del progetto e che correggono due valutazioni preliminari.
+
+### UNLAZY: modello esteso già disponibile
+
+È stato individuato il documento **“Studio e progettazione completa del sistema UNLAZY su fondazione OKF”**, di 2.109 righe, che descrive:
+- analisi del modello OKF v0.2;
+- distinzione tra conoscenza, fonte, versione, documento, prova, verifica, risultato e attestazione;
+- requisiti, criteri, regole versionate, esecuzioni, ricevute, decisioni e Gate;
+- modello dell'agente e limiti che gli impediscono di inventare prove, ignorare un blocco o sovrascrivere la storia.
+
+È stato inoltre individuato il documento di struttura **UNLAZY-SYSTEM**, che specifica un sistema permanente separato dallo stato dei singoli progetti, con 14 documenti CORE, modelli di piano e registro verifiche, cartelle separate per pianificazione, esecuzione, verifica, prove e cronologia, oltre a 10 test avversari.
+
+Questi documenti costituiscono fonti di approfondimento importanti e non devono essere confusi con i tre file esatti citati dalla skill (`tipi_di_prova.md`, `file_di_controllo.md`, `casi_reali.md`). La ricerca non ha ancora dimostrato che quei tre file esistano con quei nomi o che siano contenuti integralmente nei documenti più ampi. Il loro stato resta quindi **non recuperato**, mentre il modello UNLAZY più ampio è **recuperato e consultabile**.
+
+Nuova decisione: non attendere quei tre file per estrarre il nucleo universale già documentato; mantenere però aperta la verifica delle differenze e degli esempi che potrebbero contenere.
+
+### Archivista: fonte completa individuata
+
+È stato individuato nella Library il documento **“ARCHIVISTA DEL LIBRO — Sistema Completo — File Unico”**, versione `TEMPLATE_MASTER_v3`, datato 09/08/2026. La descrizione del documento indica che unifica il Template Master, il vocabolario, il glossario, l'Archivio Aziendale e il registro delle versioni. È presente anche una versione precedente `TEMPLATE_MASTER_v1`.
+
+Questa fonte permette di superare il blocco concettuale causato dal riferimento `reference/regole-complete.md` mancante nel deposito GitHub: il riferimento è stato recuperato come documento completo nella Library, ma non è ancora stato acquisito nel deposito del progetto né sottoposto a confronto riga per riga con la skill breve.
+
+Nuova decisione: analizzare il documento v3 come fonte principale dell'Archivista, estrarre solo le regole trasferibili (identità distinte, provenienza, cronologia, versioni, non sovrascrittura, gestione dei mancanti e approvazione umana) e lasciare fuori la struttura delle 17 sezioni del libro e le regole specifiche KDP.
+
+### Effetto sulla matrice decisionale
+
+| Risorsa | Stato aggiornato |
+|---|---|
+| UNLAZY | Modello esteso recuperato dalla Library; tre riferimenti specifici ancora non individuati |
+| Archivista | Documento completo TEMPLATE_MASTER_v3 recuperato dalla Library; acquisizione e confronto con la skill breve ancora da eseguire |
+
+**Nota di provenienza:** i documenti recuperati dalla Library non sono ancora file versionati nel repository GitHub del progetto. Non vanno presentati come già acquisiti nel catalogo materiali. La loro presenza nella Library è una fonte recuperabile, non una prova di integrazione o funzionamento.
