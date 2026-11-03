@@ -46,7 +46,7 @@ Esempio:
 
 Dettagli: [Componente di classificazione](docs/CLASSIFICATION-COMPONENT.md).
 
-La futura analisi semantica avrà un contratto e uno schema di proposta separati. In questa fase sono stati definiti lo schema JSON e i relativi test di contratto; il motore semantico non è ancora implementato.
+Il motore semantico sostituibile è implementato in `scripts/semantic_engine.py` e collegato al preparatore, al controllo delle prove e al salvataggio controllato tramite `scripts/semantic_pipeline.py`. L'adattatore `llama.cpp` è disponibile e verificato con un server HTTP simulato; questa branca non contiene ancora la prova con un vero modello GGUF. La valutazione con GGUF reale, l'isolamento del processo e il primo insieme di campioni sono sviluppati separatamente nella PR #8.
 
 ## Controllo dell'integrità delle prove semantiche
 
