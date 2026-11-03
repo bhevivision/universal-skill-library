@@ -29,6 +29,10 @@ MAX_FILES = 100
 PROPOSAL_SCHEMA_VERSION = "1.0"
 
 
+def _now():
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
 def _propose(texts, original_kind):
     if original_kind == "remote_reference":
         return "unclassified", "low", "Il riferimento remoto non è stato scaricato né esaminato."
