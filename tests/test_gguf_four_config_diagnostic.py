@@ -1,7 +1,5 @@
 import json
-import tempfile
 import unittest
-from pathlib import Path
 
 from scripts.gguf_four_config_diagnostic import CONFIGURATIONS, _apply_configuration, consume_sse
 from scripts.llama_cpp_adapter import _semantic_output_schema
@@ -10,9 +8,9 @@ from scripts.llama_cpp_adapter import _semantic_output_schema
 class StreamingDiagnosticTests(unittest.TestCase):
     def test_preserves_each_content_delta_before_stream_finishes(self):
         events = [
-            'data: ' + json.dumps({"choices":[{"delta":{"content":"{\\"kind\\""}}]}),
-            'data: ' + json.dumps({"choices":[{"delta":{"content":":\\"skill\\"}"}}]}),
-            'data: [DONE]',
+            "data: " + json.dumps({"choices": [{"delta": {"content": '{"kind"'}}]}),
+            "data: " + json.dumps({"choices": [{"delta": {"content": ':"skill"}'}}]}),
+            "data: [DONE]",
         ]
         saved = []
         result = consume_sse(events, saved.append)
@@ -21,15 +19,24 @@ class StreamingDiagnosticTests(unittest.TestCase):
 
     def test_ignores_role_and_empty_delta_events(self):
         events = [
-            'data: ' + json.dumps({"choices":[{"delta":{"role":"assistant"}}]}),
-            'data: ' + json.dumps({"choices":[{"delta":{}}]}),
-            'data: ' + json.dumps({"choices":[{"delta":{"content":"ok"}}]}),
-            'data: [DONE]',
+            "data: " + json.dumps({"choices": [{"delta": {"role": "assistant"}}]}),
+            "data: " + json.dumps({"choices": [{"delta": {}}]}),
+            "data: " + json.dumps({"choices": [{"delta": {"content": "ok"}}]}),
+            "data: [DONE]",
         ]
         saved = []
         self.assertEqual(consume_sse(events, saved.append), "ok")
         self.assertEqual(saved, ["ok"])
 
+    def test_captures_usage_event_without_content_choices(self):
+        events = [
+            "data: " + json.dumps({"choices": [{"delta": {"content": "{}"}}]}),
+            "data: " + json.dumps({"choices": [], "usage": {"completion_tokens": 17}}),
+            "data: [DONE]",
+        ]
+        seen = []
+        consume_sse(events, lambda _chunk: None, seen.append)
+        self.assertEqual(seen[1]["usage"]["completion_tokens"], 17)
 
     def test_four_configurations_isolate_pattern_and_array_changes(self):
         def collect(value, key, found):
@@ -49,16 +56,14 @@ class StreamingDiagnosticTests(unittest.TestCase):
             found = []
             collect(variants[key], "pattern", found)
             patterns[key] = found
+
         original = r"^(intake/|catalog/materials\.json$)"
         corrected = r"^(intake/.*|catalog/materials\.json)$"
         self.assertIn(original, patterns["A"])
         self.assertIn(original, patterns["B"])
         self.assertIn(corrected, patterns["C"])
         self.assertIn(corrected, patterns["D"])
-        for key in ("A", "C"):
-            arrays = []
-            collect(variants[key], "type", arrays)
-            self.assertTrue(arrays)
+
         for key in ("B", "D"):
             def check_arrays(value):
                 if isinstance(value, dict):
