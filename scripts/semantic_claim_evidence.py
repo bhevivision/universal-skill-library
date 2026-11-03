@@ -32,6 +32,8 @@ def normalize_model_json(content):
     if not isinstance(content, str) or not content.strip():
         raise ValueError("Risposta del modello vuota o non testuale.")
     raw = content.strip()
+    if raw.startswith("["):
+        raise ValueError("La risposta del modello deve essere un oggetto JSON, non un elenco.")
     if raw.startswith("{") and raw.endswith("}"):
         return _decode_object(raw)
 
