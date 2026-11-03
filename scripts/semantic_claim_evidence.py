@@ -130,7 +130,7 @@ def _claim_text_fields(proposal):
             yield item, "value"
 
 
-def validate_claim_evidence(root, proposal):
+def validate_claim_evidence(root, proposal, allowed_sources=None):
     """Ogni testo assertivo deve avere citazioni esatte in file con SHA-256 verificato."""
     root = Path(root).resolve()
     if not isinstance(proposal, dict):
@@ -146,6 +146,7 @@ def validate_claim_evidence(root, proposal):
             raise ValueError("Identificativo della prova duplicato.")
         by_id[item["id"]] = item
 
+    allowed_sources = allowed_sources or {}
     checked_files = {}
     claims = list(_claim_text_fields(proposal))
     for claim, field in claims:
@@ -172,6 +173,8 @@ def validate_claim_evidence(root, proposal):
             if item.get("kind") != "text_file":
                 raise ValueError("Le affermazioni richiedono prove da file testuali.")
             source = item.get("source")
+            if allowed_sources and (source not in allowed_sources or allowed_sources[source] != item.get("sha256")):
+                raise ValueError("La prova non corrisponde a un file selezionato e autorizzato nella richiesta.")
             if source not in checked_files:
                 path = _safe_source(root, source)
                 digest = hashlib.sha256(path.read_bytes()).hexdigest()
