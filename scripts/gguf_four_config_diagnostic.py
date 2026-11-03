@@ -31,7 +31,7 @@ CONFIGURATIONS = (
 )
 
 
-def consume_sse(lines, on_chunk):
+def consume_sse(lines, on_chunk, on_event=None):
     """Consuma eventi SSE e salva ogni frammento appena arriva."""
     pieces = []
     for raw_line in lines:
@@ -46,7 +46,7 @@ def consume_sse(lines, on_chunk):
             event = json.loads(data)
         except json.JSONDecodeError:
             continue
-        choices = event.get("choices") or []
+        if on_event is not None:\n            on_event(event)\n        choices = event.get("choices") or []
         if choices:
             delta = choices[0].get("delta") or {}
             fragment = delta.get("content")
@@ -147,7 +147,7 @@ class StreamingDiagnosticAdapter:
             method="POST",
         )
 
-        def save_fragment(fragment):
+        def observe_event(event):\n            usage = event.get("usage")\n            if isinstance(usage, dict):\n                value = usage.get("completion_tokens")\n                if isinstance(value, int) and value >= 0:\n                    metrics["completion_tokens"] = value\n            choices = event.get("choices") or []\n            if choices and choices[0].get("finish_reason") is not None:\n                metrics["finish_reason"] = choices[0].get("finish_reason")\n\n        def save_fragment(fragment):
             now = time.monotonic()
             if first_text[0] is None:
                 first_text[0] = now
@@ -169,7 +169,7 @@ class StreamingDiagnosticAdapter:
         try:
             opener = build_opener(ProxyHandler({}), _NoRedirectHandler())
             with opener.open(http_request, timeout=self.timeout_seconds) as response:
-                content = consume_sse(response, save_fragment)
+                content = consume_sse(response, save_fragment, observe_event)
                 # llama.cpp può includere usage nell'ultimo evento SSE; se presente viene
                 # registrato dal parser dedicato nelle versioni server che lo supportano.
             metrics["status"] = "stream_completed"
