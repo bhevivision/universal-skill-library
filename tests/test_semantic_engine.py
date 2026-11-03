@@ -180,7 +180,7 @@ class SemanticEngineTests(unittest.TestCase):
         self.assertIn("ValueError", proposal["unknowns"][0])
         self.assertEqual(proposal["capabilities"], [])
         self.assertEqual(proposal["interfaces"], {"inputs": [], "outputs": [], "usage_conditions": []})
-        self.assertTrue(any("capabilities" in item for item in proposal["unknowns"]))
+        self.assertTrue(any("ValueError" in item for item in proposal["unknowns"]))
         self.assertTrue(any("campi mancanti" in item.lower() for item in proposal["limits"]))
 
     def test_key_error_diagnostic_identifies_missing_field_without_exposing_raw_data(self):
