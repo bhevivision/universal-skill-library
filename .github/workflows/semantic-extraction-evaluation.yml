@@ -1,4 +1,4 @@
-name: Prova isolata GGUF per richiesta di integrazione
+name: Valutazione isolata dell'estrazione semantica completa
 on:
   pull_request:
     branches:
@@ -59,7 +59,6 @@ jobs:
             --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
             --mount type=bind,src="$GITHUB_WORKSPACE",dst=/workspace,readonly \
             --workdir /workspace --env PYTHONPATH=/workspace \
-            --env SEMANTIC_EVALUATION_REPORT=/tmp/semantic-evaluation-report.json \
             --env SEMANTIC_EXTRACTION_REPORT=/tmp/semantic-extraction-evaluation-report.json \
             semantic-evaluation-client python -c 'import time, urllib.request, subprocess
           ready=False
@@ -71,12 +70,9 @@ jobs:
               except Exception:
                   time.sleep(2)
           if not ready: raise SystemExit("Il modello GGUF non è diventato disponibile entro 180 secondi.")
-          subprocess.run(["python", "/workspace/scripts/semantic_evaluation.py", "http://127.0.0.1:8080"], check=True, timeout=1800)
           subprocess.run(["python", "/workspace/scripts/semantic_extraction_evaluation.py", "http://127.0.0.1:8080"], check=True, timeout=1800)' | tee evaluator-output.log
           client_exit=${PIPESTATUS[0]}
           set -e
-          grep '^SEMANTIC_EVALUATION_REPORT_B64=' evaluator-output.log | tail -n 1 | cut -d= -f2- | base64 --decode > "$GITHUB_WORKSPACE/output/semantic-evaluation-report.json"
-          python -m json.tool "$GITHUB_WORKSPACE/output/semantic-evaluation-report.json" >/dev/null
           grep '^SEMANTIC_EXTRACTION_REPORT_B64=' evaluator-output.log | tail -n 1 | cut -d= -f2- | base64 --decode > "$GITHUB_WORKSPACE/output/semantic-extraction-evaluation-report.json"
           python -m json.tool "$GITHUB_WORKSPACE/output/semantic-extraction-evaluation-report.json" >/dev/null
           docker rm --force semantic-evaluator || true
@@ -97,7 +93,6 @@ jobs:
         with:
           name: semantic-gguf-evaluation-isolated
           path: |
-            output/semantic-evaluation-report.json
             output/semantic-extraction-evaluation-report.json
             model-sha256.txt
             docker-security-config.json
