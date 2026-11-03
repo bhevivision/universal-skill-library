@@ -2,6 +2,7 @@
 """Adattatore per un server llama.cpp raggiungibile soltanto tramite loopback."""
 from __future__ import annotations
 
+import copy
 import ipaddress
 import json
 from pathlib import Path
@@ -91,6 +92,14 @@ def _validate_loopback_base_url(value: str) -> str:
 
 
 def _semantic_output_schema() -> dict:
+    """Builds a compact, self-contained schema for llama.cpp constrained decoding.
+
+    The application schema remains authoritative in semantic_engine. The local
+    model receives only the structural contract it must generate. In particular,
+    avoid $ref/$defs expansion and conditional branches: llama.cpp converts JSON
+    Schema to a grammar, and large repeated references can exceed its grammar
+    rule limit, silently disabling constrained generation in affected builds.
+    """
     try:
         full_schema = json.loads(PROPOSAL_SCHEMA.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -98,9 +107,10 @@ def _semantic_output_schema() -> dict:
     properties = full_schema.get("properties", {})
     if any(field not in properties for field in SEMANTIC_FIELDS):
         raise ValueError("Lo schema della proposta non contiene tutti i campi semantici richiesti.")
-    output_definitions = {
-        "$defs": full_schema.get("$defs", {}),
-        "properties": {field: properties[field] for field in SEMANTIC_FIELDS},
+
+    definitions = full_schema.get("$defs", {})
+    output_properties = {
+        field: copy.deepcopy(properties[field]) for field in SEMANTIC_FIELDS
     }
 
     def require_quotes(value):
@@ -116,28 +126,28 @@ def _semantic_output_schema() -> dict:
             for child in value:
                 require_quotes(child)
 
-    require_quotes(output_definitions)
-
     def model_citation_contract(value):
         if isinstance(value, dict):
-            properties = value.get("properties", {})
-            if "evidence_refs" in properties:
+            props = value.get("properties", {})
+            if "evidence_refs" in props:
                 required = value.setdefault("required", [])
                 if "evidence_refs" in required:
                     required.remove("evidence_refs")
-                refs = properties["evidence_refs"]
+                refs = props["evidence_refs"]
                 if isinstance(refs, dict):
                     refs.pop("minItems", None)
-            if "evidence_quotes" in properties:
-                quote_schema = properties["evidence_quotes"]
-                quote_schema["minItems"] = 1
-                quote_schema["items"] = {
-                    "type": "object",
-                    "additionalProperties": False,
-                    "required": ["source", "quote"],
-                    "properties": {
-                        "source": {"type": "string", "minLength": 1},
-                        "quote": {"type": "string", "minLength": 1},
+            if "evidence_quotes" in props:
+                props["evidence_quotes"] = {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["source", "quote"],
+                        "properties": {
+                            "source": {"type": "string", "minLength": 1},
+                            "quote": {"type": "string", "minLength": 1},
+                        },
                     },
                 }
             for child in value.values():
@@ -146,19 +156,45 @@ def _semantic_output_schema() -> dict:
             for child in value:
                 model_citation_contract(child)
 
-    model_citation_contract(output_definitions)
-    evidence_schema = output_definitions["properties"].get("evidence")
-    if isinstance(evidence_schema, dict):
-        evidence_schema["maxItems"] = 0
-    return {
-        "$schema": full_schema.get("$schema"),
-        "title": "Campi semantici della proposta",
+    working = {"properties": output_properties}
+    require_quotes(working)
+    model_citation_contract(working)
+
+    def inline_and_simplify(value, stack=()):
+        if isinstance(value, list):
+            return [inline_and_simplify(item, stack) for item in value]
+        if not isinstance(value, dict):
+            return value
+        reference = value.get("$ref")
+        if reference is not None:
+            prefix = "#/$defs/"
+            if not isinstance(reference, str) or not reference.startswith(prefix):
+                raise ValueError("Lo schema semantico contiene un riferimento non supportato.")
+            name = reference[len(prefix):]
+            if name not in definitions or name in stack:
+                raise ValueError("Lo schema semantico contiene un riferimento non risolvibile.")
+            target = copy.deepcopy(definitions[name])
+            merged = {key: child for key, child in value.items() if key != "$ref"}
+            merged.update(target)
+            return inline_and_simplify(merged, stack + (name,))
+        # Conditional validation belongs to the application validator, not the
+        # generation grammar. Removing it keeps the model-side grammar bounded.
+        return {
+            key: inline_and_simplify(child, stack)
+            for key, child in value.items()
+            if key not in {"$defs", "$ref", "$schema", "title", "description", "allOf", "if", "then"}
+        }
+
+    schema = inline_and_simplify({
         "type": "object",
         "additionalProperties": False,
-        "$defs": output_definitions["$defs"],
         "required": list(SEMANTIC_FIELDS),
-        "properties": output_definitions["properties"],
-    }
+        "properties": output_properties,
+    })
+    evidence_schema = schema["properties"].get("evidence")
+    if isinstance(evidence_schema, dict):
+        evidence_schema["maxItems"] = 0
+    return schema
 
 
 CLASSIFICATION_SYSTEM_PROMPT = """Classifica il materiale fornito scegliendo UNA SOLA classe primaria:
