@@ -134,8 +134,8 @@ class AcquisitionComponentTests(unittest.TestCase):
             target.write_bytes(b"x" * 64)
             return result
 
-        with patch("scripts.acquire_material.MAX_ACQUISITION_BYTES", 16), patch(
-            "scripts.acquire_material._inspect_source", side_effect=inspect_then_grow
+        with patch.object(acquisition, "MAX_ACQUISITION_BYTES", 16), patch.object(
+            acquisition, "_inspect_source", side_effect=inspect_then_grow
         ):
             with self.assertRaisesRegex(ValueError, "limite massimo"):
                 acquire_material(self.root, source, "acq.growing")
