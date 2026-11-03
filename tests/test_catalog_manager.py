@@ -225,5 +225,15 @@ class CatalogManagerTests(unittest.TestCase):
         with self.assertRaisesRegex(CatalogError, "la prova riguarda"):
             put_entry(self.root, "materials", self.material("source.wrong-proof", license_record=license_record))
 
+
+    def test_list_rejects_existing_dangling_source_material_reference(self):
+        put_entry(self.root, "capabilities", self.capability())
+        catalog_path = self.root / "catalog" / "skills.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        catalog["skills"].append(self.skill(source_material_ids=["source.missing"]))
+        catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+        with self.assertRaisesRegex(CatalogError, "Materiale sorgente inesistente"):
+            list_entries(self.root, "skills")
+
 if __name__ == "__main__":
     unittest.main()
