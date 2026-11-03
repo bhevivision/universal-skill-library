@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.gguf_four_config_diagnostic import consume_sse
+from scripts.gguf_four_config_diagnostic import CONFIGURATIONS, _apply_configuration, consume_sse
+from scripts.llama_cpp_adapter import _semantic_output_schema
 
 
 class StreamingDiagnosticTests(unittest.TestCase):
@@ -28,6 +29,47 @@ class StreamingDiagnosticTests(unittest.TestCase):
         saved = []
         self.assertEqual(consume_sse(events, saved.append), "ok")
         self.assertEqual(saved, ["ok"])
+
+
+    def test_four_configurations_isolate_pattern_and_array_changes(self):
+        def collect(value, key, found):
+            if isinstance(value, dict):
+                if key in value:
+                    found.append(value[key])
+                for child in value.values():
+                    collect(child, key, found)
+            elif isinstance(value, list):
+                for child in value:
+                    collect(child, key, found)
+
+        base = _semantic_output_schema()
+        variants = {item["id"]: _apply_configuration(base, item) for item in CONFIGURATIONS}
+        patterns = {}
+        for key in variants:
+            found = []
+            collect(variants[key], "pattern", found)
+            patterns[key] = found
+        original = r"^(intake/|catalog/materials\.json$)"
+        corrected = r"^(intake/.*|catalog/materials\.json)$"
+        self.assertIn(original, patterns["A"])
+        self.assertIn(original, patterns["B"])
+        self.assertIn(corrected, patterns["C"])
+        self.assertIn(corrected, patterns["D"])
+        for key in ("A", "C"):
+            arrays = []
+            collect(variants[key], "type", arrays)
+            self.assertTrue(arrays)
+        for key in ("B", "D"):
+            def check_arrays(value):
+                if isinstance(value, dict):
+                    if value.get("type") == "array":
+                        self.assertIn("maxItems", value)
+                    for child in value.values():
+                        check_arrays(child)
+                elif isinstance(value, list):
+                    for child in value:
+                        check_arrays(child)
+            check_arrays(variants[key])
 
 
 if __name__ == "__main__":
