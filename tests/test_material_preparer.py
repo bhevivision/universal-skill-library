@@ -498,7 +498,7 @@ class MaterialPreparerTests(unittest.TestCase):
         result = self.prepare()
         with patch("scripts.classify_material.prepare_material", wraps=prepare_material) as shared_preparer:
             proposal = analyze_material(self.root, "acq.sample")
-        shared_preparer.assert_called_once_with(self.root, "acq.sample")
+        shared_preparer.assert_called_once_with(self.root.resolve(), "acq.sample")
         self.assertEqual(proposal["analysis"]["files_examined"], len(result["files"]))
         proposal_evidence = [item for item in proposal["evidence"] if item.get("type") == "text_file"]
         self.assertEqual(
