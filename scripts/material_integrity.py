@@ -18,6 +18,8 @@ from urllib.parse import urlparse
 SCHEMA_VERSION = "1.0"
 DEFAULT_ALLOWED_STATES = ("preserved",)
 CHUNK_SIZE = 1024 * 1024
+MAX_TREE_ENTRIES = 10000
+MAX_TREE_DEPTH = 64
 
 
 class MaterialIntegrityError(ValueError):
@@ -74,20 +76,58 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _bounded_tree_entries(path: Path):
+    """Restituisce al massimo MAX_TREE_ENTRIES voci senza seguire collegamenti."""
+    entries = []
+    pending = [(path, 0)]
+    while pending:
+        current, depth = pending.pop()
+        children = []
+        with os.scandir(current) as iterator:
+            for entry in iterator:
+                children.append(entry)
+                if len(entries) + len(children) > MAX_TREE_ENTRIES:
+                    raise MaterialIntegrityError(
+                        "TREE_LIMIT_EXCEEDED", "Numero massimo di elementi dell'albero superato."
+                    )
+        children.sort(key=lambda item: item.name)
+        subdirectories = []
+        for entry in children:
+            child = Path(entry.path)
+            info = entry.stat(follow_symlinks=False)
+            if stat.S_ISLNK(info.st_mode):
+                raise MaterialIntegrityError(
+                    "SYMLINK_NOT_ALLOWED", f"Collegamento simbolico non ammesso nel materiale: {child}"
+                )
+            if stat.S_ISDIR(info.st_mode):
+                if depth + 1 > MAX_TREE_DEPTH:
+                    raise MaterialIntegrityError(
+                        "TREE_LIMIT_EXCEEDED", "Profondità massima dell'albero superata."
+                    )
+                entries.append((child, "directory"))
+                subdirectories.append((child, depth + 1))
+            elif stat.S_ISREG(info.st_mode):
+                entries.append((child, "file"))
+            else:
+                raise MaterialIntegrityError(
+                    "NON_REGULAR_ENTRY", f"Elemento non regolare nel materiale: {child}"
+                )
+            if len(entries) > MAX_TREE_ENTRIES:
+                raise MaterialIntegrityError(
+                    "TREE_LIMIT_EXCEEDED", "Numero massimo di elementi dell'albero superato."
+                )
+        pending.extend(reversed(subdirectories))
+    return sorted(entries, key=lambda item: item[0].relative_to(path).as_posix())
+
+
 def _sha256_tree(path: Path, *, legacy: bool = False) -> str:
     """Replica sha256-tree-v2 e la precedente impronta directory senza versione."""
     digest = hashlib.sha256()
-    entries = sorted(path.rglob("*"), key=lambda item: item.relative_to(path).as_posix())
-    for item in entries:
-        if item.is_symlink():
-            raise MaterialIntegrityError(
-                "SYMLINK_NOT_ALLOWED",
-                f"Collegamento simbolico non ammesso nel materiale: {item}",
-            )
+    for item, kind in _bounded_tree_entries(path):
         relative = item.relative_to(path).as_posix().encode("utf-8")
-        if item.is_dir() and not legacy:
+        if kind == "directory" and not legacy:
             digest.update(b"D\0" + relative + b"\0")
-        elif item.is_file():
+        elif kind == "file":
             if legacy:
                 digest.update(relative + b"\0")
             else:
