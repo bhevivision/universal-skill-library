@@ -26,7 +26,7 @@ Per add e update, --entry contiene l'intero oggetto JSON della voce, non una mod
 ## Controlli applicati
 
 - Ogni catalogo viene validato rispetto al proprio schema JSON.
-- Prima di leggere o modificare, vengono caricati tutti i cataloghi e controllati i collegamenti esistenti.
+- Prima di leggere o modificare, vengono caricati tutti i cataloghi e controllati i riferimenti essenziali delle voci esistenti.
 - Le capacità collegate a una skill devono esistere.
 - Le skill collegate a una capacità o a un'implementazione devono esistere.
 - Ogni identificativo in source_material_ids deve esistere nel catalogo materiali.
@@ -40,11 +40,14 @@ Per add e update, --entry contiene l'intero oggetto JSON della voce, non una mod
 
 ## Limiti da rispettare
 
-- Il gestore controlla l'esistenza e la sicurezza del percorso SKILL.md; la verifica completa del frontmatter e della struttura resta affidata a scripts/validate_library.py.
+- Il gestore controlla i riferimenti essenziali, ma non verifica tutti i collegamenti reciproci tra capacità e skill.
+- Il gestore non controlla ancora la versione, il manifesto e le prove delle implementazioni.
+- Controlla l'esistenza e la sicurezza del percorso SKILL.md; la verifica completa del frontmatter e della struttura resta affidata a scripts/validate_library.py.
+- Dopo una sequenza di modifiche a più cataloghi, eseguire sempre scripts/validate_library.py: il validatore completo controlla collegamenti reciproci, manifesti, versioni, prove e frontmatter. Il coordinatore dovrà eseguire questo controllo prima di usare i cataloghi per un piano.
 - La ricerca è testuale, non semantica.
 - Il gestore non esegue skill, non assegna autorizzazioni e non promuove automaticamente una skill a verificata.
 - Le modifiche ai cataloghi devono essere serializzate: la scrittura atomica di un singolo file non impedisce la perdita di aggiornamenti concorrenti.
-- Le modifiche a più cataloghi non sono una transazione unica. Per collegare una nuova capacità e una skill, inserire prima la capacità senza skill_ids, poi la skill, infine aggiornare la capacità con lo skill_id.
+- Le modifiche a più cataloghi non sono una transazione unica. Per collegare una nuova capacità e una skill, inserire prima la capacità senza skill_ids, poi la skill, infine aggiornare la capacità con lo skill_id. Durante questa sequenza i collegamenti reciproci possono essere temporaneamente incompleti.
 - Il validatore completo della libreria deve essere eseguito dopo le modifiche e prima di considerare conclusa l'operazione.
 
 Una voce unverified, experimental, draft o blocked mantiene il proprio stato. La presenza nel catalogo non la rende automaticamente eseguibile.
