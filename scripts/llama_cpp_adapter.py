@@ -137,6 +137,196 @@ def _classification_output_schema() -> dict:
     }
 
 
+def _decode_model_json(content):
+    """Accetta le forme testuali documentate da llama.cpp senza riparare JSON ambiguo."""
+    if isinstance(content, list):
+        text_parts = [
+            item.get("text") for item in content
+            if isinstance(item, dict) and isinstance(item.get("text"), str)
+        ]
+        if not text_parts:
+            raise ValueError("Il contenuto della risposta del modello è vuoto.")
+        content = "".join(text_parts)
+    if isinstance(content, dict):
+        return content
+    if not isinstance(content, str):
+        raise ValueError("Il contenuto della risposta del modello non è testuale.")
+    candidate = content.strip()
+    if candidate.startswith("```"):
+        lines = candidate.splitlines()
+        if len(lines) < 3 or not lines[-1].strip().startswith("```"):
+            raise ValueError("Blocco JSON delimitato non completo.")
+        if lines[0].strip().lower() not in {"```", "```json"}:
+            raise ValueError("Etichetta del blocco JSON non ammessa.")
+        candidate = "\\n".join(lines[1:-1]).strip()
+    value = json.loads(candidate)
+    if not isinstance(value, dict):
+        raise ValueError("La risposta semantica del modello deve essere un oggetto JSON.")
+    return value
+
+
+def _verified_input_evidence(request):
+    evidence = []
+    seen = set()
+    for item in request.get("selected_content", []):
+        if not isinstance(item, dict):
+            continue
+        source, digest = item.get("path"), item.get("sha256")
+        if (
+            not isinstance(source, str) or not source.startswith("intake/")
+            or "\\\\" in source or ".." in source.split("/")
+            or not isinstance(digest, str) or len(digest) != 64
+            or any(char not in "0123456789abcdef" for char in digest)
+            or source in seen
+        ):
+            continue
+        seen.add(source)
+        evidence.append({
+            "id": f"ev.sample-{len(evidence) + 1:03d}",
+            "source": source,
+            "sha256": digest,
+            "kind": "text_file",
+        })
+    return evidence
+
+
+def _keep_supported_claims(items, valid_refs, allowed_fields):
+    if not isinstance(items, list):
+        return []
+    kept = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        refs = item.get("evidence_refs")
+        if not isinstance(refs, list):
+            continue
+        refs = list(dict.fromkeys(ref for ref in refs if isinstance(ref, str) and ref in valid_refs))
+        if not refs:
+            continue
+        claim = {key: value for key, value in item.items() if key in allowed_fields}
+        claim["evidence_refs"] = refs
+        kept.append(claim)
+    return kept
+
+
+def _normalize_full_semantic_result(result, request):
+    """Rende prudente l'output: le prove provengono solo dagli input verificabili."""
+    evidence = _verified_input_evidence(request)
+    if not evidence:
+        raise ValueError("La richiesta non contiene prove testuali ammesse per l'analisi semantica.")
+    valid_refs = {item["id"] for item in evidence}
+    raw_classification = result.get("classification")
+    if not isinstance(raw_classification, dict):
+        raw_classification = {}
+    kind = raw_classification.get("kind", raw_classification.get("type"))
+    confidence = raw_classification.get("confidence")
+    rationale = raw_classification.get("rationale")
+    summary = raw_classification.get("summary")
+    refs = raw_classification.get("evidence_refs", [])
+    refs = list(dict.fromkeys(ref for ref in refs if isinstance(ref, str) and ref in valid_refs)) if isinstance(refs, list) else []
+    allowed_kinds = {"skill", "tool", "agent", "workflow", "resource", "composite"}
+    valid_classification = (
+        kind in allowed_kinds and confidence in {"low", "medium", "high"}
+        and isinstance(rationale, str) and rationale.strip()
+        and isinstance(summary, str) and summary.strip() and refs
+    )
+    if valid_classification:
+        classification = {
+            "kind": kind, "confidence": confidence,
+            "rationale": rationale.strip(), "summary": summary.strip(),
+            "evidence_refs": refs,
+        }
+    else:
+        classification = {
+            "kind": "unclassified", "confidence": "low",
+            "rationale": "La classificazione del modello non è associabile a prove valide.",
+            "summary": "Classificazione non disponibile.",
+            "evidence_refs": [evidence[0]["id"]],
+        }
+
+    capabilities = _keep_supported_claims(
+        result.get("capabilities"), valid_refs,
+        {"id", "name", "description", "certainty", "evidence_refs"},
+    )
+    capabilities = [
+        item for item in capabilities
+        if all(isinstance(item.get(key), str) and item[key].strip() for key in ("id", "name", "description"))
+        and item.get("certainty") in {"declared", "inferred"}
+    ]
+    interfaces_raw = result.get("interfaces")
+    interfaces_raw = interfaces_raw if isinstance(interfaces_raw, dict) else {}
+    interfaces = {}
+    for field in ("inputs", "outputs", "usage_conditions"):
+        interfaces[field] = _keep_supported_claims(
+            interfaces_raw.get(field), valid_refs, {"value", "certainty", "evidence_refs"}
+        )
+        interfaces[field] = [
+            item for item in interfaces[field]
+            if isinstance(item.get("value"), str) and item["value"].strip()
+            and item.get("certainty") in {"declared", "inferred", "unknown"}
+        ]
+
+    dependencies = _keep_supported_claims(
+        result.get("dependencies"), valid_refs,
+        {"name", "relationship", "certainty", "evidence_refs"},
+    )
+    dependencies = [
+        item for item in dependencies
+        if isinstance(item.get("name"), str) and item["name"].strip()
+        and item.get("relationship") in {"runtime", "installation", "service", "platform", "other", "unknown"}
+        and item.get("certainty") in {"declared", "inferred", "unknown"}
+        and (item["certainty"] == "unknown" or item["evidence_refs"])
+    ]
+    tools = _keep_supported_claims(
+        result.get("tools_and_platforms"), valid_refs,
+        {"name", "kind", "compatibility", "evidence_refs"},
+    )
+    tools = [
+        item for item in tools
+        if isinstance(item.get("name"), str) and item["name"].strip()
+        and item.get("kind") in {"tool", "platform", "service", "library", "other"}
+        and item.get("compatibility") in {"mentioned_not_verified", "not_applicable", "unknown"}
+    ]
+    risks = _keep_supported_claims(
+        result.get("risks"), valid_refs, {"description", "certainty", "evidence_refs"}
+    )
+    risks = [
+        item for item in risks
+        if isinstance(item.get("description"), str) and item["description"].strip()
+        and item.get("certainty") in {"declared", "inferred"}
+    ]
+    contradictions = _keep_supported_claims(
+        result.get("contradictions"), valid_refs, {"description", "evidence_refs"}
+    )
+    contradictions = [
+        item for item in contradictions
+        if isinstance(item.get("description"), str) and item["description"].strip()
+    ]
+    strings = lambda key: [
+        value.strip() for value in result.get(key, [])
+        if isinstance(value, str) and value.strip()
+    ] if isinstance(result.get(key), list) else []
+    limits = strings("limits")
+    if not limits:
+        limits = ["Risultato normalizzato in modalità prudenziale; la verifica indipendente è ancora necessaria."]
+    if not valid_classification:
+        limits.append("Le affermazioni prive di riferimenti a prove fornite sono state scartate.")
+    return {
+        "status": "partial",
+        "classification": classification,
+        "capabilities": capabilities,
+        "interfaces": interfaces,
+        "dependencies": dependencies,
+        "tools_and_platforms": tools,
+        "evidence": evidence,
+        "missing_references": strings("missing_references"),
+        "contradictions": contradictions,
+        "risks": risks,
+        "unknowns": strings("unknowns"),
+        "limits": list(dict.fromkeys(limits)),
+    }
+
+
 class _NoRedirectHandler(HTTPRedirectHandler):
     def redirect_request(self, request, file_pointer, code, message, headers, new_url):
         return None
@@ -230,14 +420,15 @@ class LlamaCppServerAdapter:
             raise ValueError("La risposta del modello supera il limite massimo consentito.")
         try:
             envelope = json.loads(raw.decode("utf-8"))
-            content = envelope["choices"][0]["message"]["content"]
-            result = json.loads(content)
-        except (UnicodeError, json.JSONDecodeError, KeyError, IndexError, TypeError) as exc:
+            message = envelope["choices"][0]["message"]
+            content = message.get("content")
+            if content is None and isinstance(message.get("parsed"), dict):
+                content = message["parsed"]
+            result = _decode_model_json(content)
+        except (UnicodeError, json.JSONDecodeError, KeyError, IndexError, TypeError, ValueError) as exc:
             raise ValueError("Il server locale non ha restituito una risposta JSON leggibile.") from exc
-        if not isinstance(result, dict):
-            raise ValueError("La risposta semantica del modello deve essere un oggetto JSON.")
         if not self.classification_only:
-            return result
+            return _normalize_full_semantic_result(result, request)
 
         allowed_kinds = {"skill", "tool", "agent", "workflow", "resource", "composite"}
         kind = result.get("kind")
