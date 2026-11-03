@@ -101,4 +101,46 @@ class Tests(unittest.TestCase):
   errors=validate_repository(self.root)
   self.assertTrue(errors, "La verifica not_run ha accettato prove: " + repr(errors))
 
+ def source_material(self, *, classification_status="classified", kind="resource"):
+  return {
+   "id":"material.archivista",
+   "name":"Fonte Archivista",
+   "acquisition":{
+    "status":"received",
+    "acquired_at":"2026-11-03T10:00:00Z",
+    "method":"riferimento remoto registrato per test",
+    "source":"https://example.org/archivista",
+    "original":{"kind":"remote_reference","uri":"https://example.org/archivista"}
+   },
+   "classification":{
+    "status":classification_status,
+    "kind":kind,
+    "confidence":"high",
+    "rationale":"Fonte documentale classificata come risorsa."
+   },
+   "documentation":{"status":"partial"},
+   "verification":{"status":"not_verified"},
+   "usability":{"status":"not_assessed"}
+  }
+
+ def test_accepts_classified_resource_as_skill_source(self):
+  self.change("catalog/materials.json",lambda d:d["materials"].append(self.source_material()))
+  def edit(d):
+   d["skills"][0]["source_record_id"]="material.archivista"
+  self.change("catalog/skills.json",edit)
+  self.assertEqual(validate_repository(self.root),[])
+
+ def test_rejects_unclassified_resource_as_skill_source(self):
+  self.change("catalog/materials.json",lambda d:d["materials"].append(self.source_material(classification_status="not_examined")))
+  self.change("catalog/skills.json",lambda d:d["skills"][0].update(source_record_id="material.archivista"))
+  self.assertTrue(any("materiale sorgente" in e.lower() for e in validate_repository(self.root)))
+
+ def test_validates_skill_path_even_when_source_record_is_present(self):
+  self.change("catalog/materials.json",lambda d:d["materials"].append(self.source_material()))
+  def edit(d):
+   d["skills"][0]["source_record_id"]="material.archivista"
+   d["skills"][0]["path"]="skills/missing-skill/SKILL.md"
+  self.change("catalog/skills.json",edit)
+  self.assertTrue(any("SKILL.md" in e for e in validate_repository(self.root)))
+
 if __name__=="__main__":unittest.main()
