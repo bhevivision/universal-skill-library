@@ -3,8 +3,16 @@ on:
   pull_request:
     branches:
       - semantic-engine-v1
+      - semantic-evaluation-isolation-v1
     paths:
       - docs/SEMANTIC-EVALUATION-TRIGGER.md
+      - scripts/semantic_engine.py
+      - scripts/semantic_claim_evidence.py
+      - scripts/llama_cpp_adapter.py
+      - scripts/semantic_extraction_evaluation.py
+      - schemas/semantic-classification-proposal.schema.json
+      - evaluation/semantic-extraction-samples.json
+      - .github/workflows/semantic-extraction-evaluation.yml
   workflow_dispatch:
 permissions:
   contents: read
