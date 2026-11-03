@@ -17,6 +17,7 @@ Agent Skills è un formato supportato, non un requisito per conservare un pacche
 - [Roadmap](ROADMAP.md)
 - [Struttura della libreria](docs/LIBRARY-STRUCTURE.md)
 - [Dati per la selezione autonoma delle skill](docs/SKILL-SELECTION.md)
+- [Prima implementazione del motore semantico](docs/SEMANTIC-ENGINE-IMPLEMENTATION.md)
 - [Progettazione della classificazione semantica](docs/SEMANTIC-CLASSIFICATION-DESIGN.md)
 - [Contratto tecnico della classificazione semantica](docs/SEMANTIC-CLASSIFICATION-CONTRACT.md)
 - [Schema JSON della richiesta semantica](schemas/semantic-classification-request.schema.json)
@@ -46,7 +47,7 @@ Esempio:
 
 Dettagli: [Componente di classificazione](docs/CLASSIFICATION-COMPONENT.md).
 
-La futura analisi semantica avrà un contratto e uno schema di proposta separati. In questa fase sono stati definiti lo schema JSON e i relativi test di contratto; il motore semantico non è ancora implementato.
+Il motore semantico sostituibile è implementato in `scripts/semantic_engine.py` e collegato al preparatore, al controllo delle prove e al salvataggio controllato tramite `scripts/semantic_pipeline.py`. L'adattatore `llama.cpp` è disponibile e verificato con un server HTTP simulato; questa branca non contiene ancora la prova con un vero modello GGUF. La valutazione con GGUF reale, l'isolamento del processo e il primo insieme di campioni sono sviluppati separatamente nella PR #8.
 
 ## Controllo dell'integrità delle prove semantiche
 

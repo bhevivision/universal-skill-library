@@ -1,6 +1,6 @@
 # Roadmap del progetto
 
-Stato: il modello strutturale v1 è approvato. Il componente indipendente di acquisizione gestisce copie locali, riferimenti remoti, recupero delle transazioni interrotte e rilevamento dei duplicati. La suite GitHub Actions ha superato 48 test e il validatore su Linux e Windows nel commit `8995b94f398b43ac5a86018ca2b89a72c91d05cb` (run `41516548748`). Resta la prova sul computer Windows dell'utilizzatore, per la quale è stata preparata la procedura click-by-click in `docs/WINDOWS-LOCAL-VERIFICATION.md`. Il classificatore statico e l'approvazione/rifiuto espliciti sono implementati e verificati su Linux e Windows: 65 test superati su Linux e Windows e validatore superato nel commit `1beab4c8b033b420afc3734fced1f18341c3cb0d` (run `41520570818`). Sono stati definiti e verificati il contratto tecnico e lo schema JSON della proposta semantica. È stato implementato il controllo applicativo delle prove: verifica riferimenti, identificativi univoci, appartenenza dei percorsi al materiale acquisito, impronte SHA-256, collegamenti simbolici e intervalli di righe, con ricontrollo finale contro modifiche concorrenti. La verifica conclusiva è superata: 95 test e validatore della libreria superati sia su Linux sia su Windows nel commit `b945f948fd940c584b73c128338a23565b886a5d` (run `41525205201`). Il servizio comune di integrità dei materiali è stato aggiunto e integrato nel classificatore statico, nell'approvazione e nel verificatore semantico; la verifica successiva ha superato 109 test e il validatore su Linux e Windows (run `41530833152`). La chiusura delle lacune del contratto semantico è verificata: stati not_available/failed vincolati a risultati non classificati e privi di affermazioni sul contenuto; richiesta d'ingresso formalizzata con schema JSON e controlli applicativi su percorsi, impronte, contenuti selezionati, limiti e permessi. Dopo l'integrazione, la suite completa ha superato 183 test e il validatore su Ubuntu e Windows nel run `41545326945`. È stato eseguito un controllo documentale preliminare e redatto l'inventario statico dei quattro materiali presenti in `personalizzazione/`; non sono ancora acquisiti nei cataloghi. Restano la verifica sul PC Windows dell'utilizzatore, l'acquisizione ufficiale e la revisione dei materiali, il motore semantico, l'autenticazione multiutente e il coordinatore.
+Stato: il modello strutturale v1 è approvato. Acquisizione, integrità, classificazione statica, approvazione esplicita e contratti della classificazione semantica sono implementati e verificati tramite GitHub Actions. La suite precedente ha superato 183 test e il validatore su Ubuntu e Windows nel run `41545326945`. La verifica sul computer Windows personale è **NON APPLICABILE**: il precedente computer è fuori uso, non esiste una copia locale del repository e il lavoro prosegue direttamente su GitHub. Questa limitazione è documentata in `docs/WINDOWS-LOCAL-VERIFICATION.md`; non blocca lo sviluppo. Il primo flusso semantico integrato è implementato nel ramo `semantic-engine-v1`: collega preparazione, costruzione automatica della richiesta, adattatore, verifica delle prove e salvataggio esclusivo delle proposte. La suite è arrivata a 199 test superati su Ubuntu e Windows nel run `41549548947`. È stato aggiunto un adattatore per `llama.cpp` con accesso limitato a loopback e test tramite server simulato; l'inferenza con un vero file GGUF resta NON VERIFICATA perché non è disponibile il computer di destinazione. Restano isolamento del processo di inferenza e valutazione della qualità semantica. L'inventario dei quattro materiali in `personalizzazione/` resta preliminare e non equivale ad acquisizione ufficiale. Restano inoltre gli analizzatori per altri formati, l'inventario operativo, l'interoperabilità reale, il coordinatore e la scelta/consolidamento del motore di orchestrazione.
 
 ## Fase 0 — Conservazione e modello strutturale
 - [x] Verificare repository, ramo e file correnti.
@@ -19,6 +19,7 @@ Stato: il modello strutturale v1 è approvato. Il componente indipendente di acq
 - [x] Definire il trattamento di file singoli, cartelle, archivi, pacchetti compositi e riferimenti remoti.
 - [x] Implementare provenienza di acquisizione, impronte SHA-256, versionamento degli algoritmi e rilevamento dei duplicati per i tipi supportati.
 - [ ] Definire il ciclo di vita delle versioni successive dello stesso materiale e le migrazioni degli schemi dei record.
+- [ ] Valutare un indice persistente dei duplicati se il volume del catalogo lo renderà necessario.
 
 ## Fase 2 — Acquisizione e validazione eterogenea
 - [x] Separare controlli generali di acquisizione e integrità dai controlli specifici dei profili.
@@ -27,20 +28,15 @@ Stato: il modello strutturale v1 è approvato. Il componente indipendente di acq
 - [x] Aggiornare il validatore: SKILL.md è controllato soltanto per il profilo Agent Skills.
 - [x] Aggiungere test per file, cartelle, archivi, pacchetti e acquisizioni incomplete/non classificate.
 - [x] Verificare l'impronta degli originali e rilevare modifiche successive all'acquisizione.
-- [x] Eseguire i 30 test e il validatore tramite GitHub Actions sul commit `d57f0b11690a71dafc1144b5fa8b7b560ab0bd0b`.
-- [x] Definire il contratto pubblico del componente indipendente di acquisizione con test prima dell'implementazione.
 - [x] Implementare copia locale, scheda descrittiva, impronta, controlli di collisione e registrazione di riferimenti remoti.
-- [x] Verificare la prima implementazione tramite GitHub Actions: 40 test superati e validatore superato (run `41513402663`).
-- [x] Verificare la versione rafforzata su Linux e Windows: 48 test superati su ciascun sistema e validatore superato (run `41516548748`).
 - [x] Aggiungere recupero delle transazioni interrotte sullo stesso computer, con completamento o annullamento prudente.
 - [x] Rilevare duplicati di contenuto per file e cartelle, oltre ai duplicati per identificativo.
 - [x] Versionare l'algoritmo delle impronte e mantenere la lettura delle impronte storiche.
 - [x] Definire il contratto di passaggio dal materiale acquisito al futuro classificatore.
-- [ ] Valutare un indice persistente dei duplicati se il volume del catalogo lo renderà necessario.
 - [x] Aggiungere l'esecuzione automatica della suite su Windows tramite GitHub Actions.
-- [ ] Verificare l'esecuzione sul computer Windows dell'utilizzatore seguendo `docs/WINDOWS-LOCAL-VERIFICATION.md`.
+- [ ] Progettare un percorso controllato di acquisizione dei materiali già presenti nel repository tramite GitHub Actions, senza richiedere una copia locale personale.
 
-Criterio di uscita: un materiale locale può essere copiato e registrato senza modificare la sorgente; un riferimento remoto viene distinto da una copia locale; nessun materiale viene classificato, eseguito o certificato automaticamente durante l'acquisizione.
+Criterio di uscita: un materiale può essere copiato e registrato senza modificare la sorgente; un riferimento remoto viene distinto da una copia locale; nessun materiale viene classificato, eseguito o certificato automaticamente durante l'acquisizione.
 
 ## Fase 2.5 — Servizio comune di integrità dei materiali
 - [x] Definire il contratto tecnico di identità, stato, percorso e impronta.
@@ -50,45 +46,46 @@ Criterio di uscita: un materiale locale può essere copiato e registrato senza m
 - [x] Separare il servizio comune dal classificatore statico.
 - [x] Collegare classificatore, approvazione e verificatore semantico al servizio comune.
 - [x] Aggiungere test per identità, duplicati, stati, percorsi, collegamenti simbolici, impronte, riferimenti remoti e schema.
-- [x] Verificare su Linux e Windows: 109 test superati su ciascun sistema e validatore superato (run `41530833152`).
-- [ ] Verificare il comportamento sul computer Windows dell'utilizzatore seguendo `docs/WINDOWS-LOCAL-VERIFICATION.md`.
+- [x] Verificare su Linux e Windows tramite GitHub Actions.
+- [ ] Verifica sul computer Windows personale: **NON APPLICABILE** finché il computer precedente resta fuori uso; non blocca il progetto.
 
 ## Fase 3 — Classificazione dei materiali
-- [x] Definire il contratto di richiesta e risposta del futuro classificatore.
-- [x] Implementare un classificatore statico limitato, in sola lettura, con controllo dell'impronta e proposta esterna al catalogo.
-- [x] Impedire al classificatore di eseguire materiali o aggiornare direttamente i cataloghi approvati.
 - [x] Definire il contratto tecnico della richiesta e della risposta semantica, indipendente dal fornitore.
-- [x] Definire lo schema JSON versionato della proposta semantica.
-- [x] Scrivere test automatici per campi obbligatori, categorie, stati, prove, impronte e autorizzazione all'analisi remota.
-- [x] Implementare il controllo applicativo dei riferimenti alle prove, dell'identità e delle impronte dei file esaminati, senza eseguire i materiali.
-- [x] Aggiungere test per riferimenti mancanti, identificativi duplicati, impronte errate, percorsi esterni, attraversamento di cartelle, collegamenti simbolici e intervalli di righe.
-- [x] Eseguire e verificare i nuovi test su Linux e Windows tramite GitHub Actions: 95 test superati su ciascun sistema e validatore superato (run `41525205201`).
-- [x] Vincolare nello schema gli stati `not_available` e `failed`: classificazione `unclassified`, confidenza bassa, nessuna affermazione semantica e sole prove di metadati del catalogo.
-- [x] Richiedere limiti espliciti per ogni risultato `partial`.
-- [x] Definire lo schema JSON della richiesta al motore, con campi obbligatori, limiti quantitativi e permessi di sicurezza non modificabili.
-- [x] Aggiungere controlli applicativi per percorsi canonici sotto `intake/`, corrispondenza tra file autorizzati e contenuti selezionati, impronte, dimensioni e limiti complessivi.
-- [x] Verificare la chiusura contrattuale su Linux e Windows: 183 test superati su ciascun sistema e validatore superato (run `41545015198`).
-- [ ] Implementare il motore semantico locale sostituibile, con stato esplicito not_available se non configurato.
+- [x] Definire gli schemi JSON versionati e i relativi test.
+- [x] Implementare il controllo applicativo delle prove, dell'identità e delle impronte.
+- [x] Vincolare gli stati `not_available` e `failed` a risultati non classificati e privi di affermazioni sul contenuto.
+- [x] Formalizzare la richiesta al motore con limiti e permessi di sicurezza non modificabili.
+- [ ] Implementare il motore semantico locale sostituibile.
+  - [x] Creare il confine eseguibile e l'interfaccia per adattatori locali.
+  - [x] Restituire `not_available` se nessun adattatore è configurato.
+  - [x] Integrare preparazione del materiale, costruzione della richiesta e controllo delle impronte nel flusso unico (`scripts/semantic_pipeline.py`).
+  - [x] Implementare l'adattatore locale `llama.cpp` con risposta JSON strutturata, connessione solo loopback, proxy disabilitati e reindirizzamenti rifiutati.
+  - [ ] Eseguire l'inferenza con un vero modello GGUF e misurare qualità, memoria e tempi sul computer di destinazione.
+  - [x] Validare le prove con `validate_semantic_proposal` prima del salvataggio.
+  - [x] Salvare le proposte separatamente in `proposals/`, senza aggiornare i cataloghi approvati e senza sovrascrivere proposte esistenti.
+  - [x] Aggiungere test iniziali su materiale alterato, permessi minimi, adattatore malformato e prove falsificate.
+  - [ ] Aggiungere isolamento effettivo del runtime, limiti di tempo totali, gestione risorse e test avversari estesi.
+  - [ ] Costruire un insieme di valutazione con classificazioni attese e misure di qualità semantica.
 - [ ] Ampliare gli analizzatori per formati diversi e introdurre prove specifiche per ciascun formato.
-- [ ] Collegare la classificazione approvata al processo controllato di ammissione nel catalogo operativo delle skill; la revisione e l'approvazione/rifiuto della classificazione sono già implementate, ma non creano automaticamente una skill operativa.
-- [ ] Verificare il componente con prove automatiche e su Windows.
+- [ ] Collegare la classificazione approvata al processo controllato di ammissione nel catalogo operativo delle skill.
+- [ ] Verificare il componente tramite GitHub Actions su Linux e Windows. La prova sul computer personale resta separata e non applicabile al momento.
 
 ## Fase 4 — Inventario operativo delle skill esistenti
-Solo dopo che la procedura di acquisizione e conservazione è verificata sul computer Windows dell'utilizzatore si completa l'inventario operativo e si creano le schede ufficiali. È già stata eseguita un'ispezione statica preliminare, documentata in `docs/EXISTING-SKILLS-INVENTORY.md`:
+È già stata eseguita un'ispezione statica preliminare, documentata in `docs/EXISTING-SKILLS-INVENTORY.md`. L'acquisizione ufficiale non è ancora avvenuta. Il precedente vincolo della verifica sul PC personale è stato rimosso: occorre progettare un percorso di acquisizione eseguibile su GitHub per i materiali già presenti nel repository.
 - UNLAZY: recuperare e verificare i tre riferimenti mancanti.
 - Archivista: recuperare e verificare `reference/regole-complete.md`.
 - Find Skills: verificare fonte, versione, dipendenze e comandi con effetti sull'ambiente.
-- Canva KDP: file di 36 byte apparentemente danneggiato; conservare senza modificarlo e recuperare l'originale soltanto se disponibile.
+- Canva KDP: file di 36 byte apparentemente danneggiato; conservarlo senza modificarlo e recuperare l'originale soltanto se disponibile.
 
 Regola: preservare esattamente i materiali originali. Non riscrivere, correggere o adattare preventivamente. Acquisizione, documentazione, verifica e approvazione all'uso sono passaggi distinti.
 
 ## Fase 5 — Interoperabilità
-Provare skill non sensibili su Claude Code e Codex e, se accessibile, su un'altra piattaforma. Separare contenuto canonico e adattamenti. Registrare prove, differenze e limiti.
+Provare skill non sensibili su Claude Code e Codex e, se accessibile, su un'altra piattaforma. Separare contenuto canonico e adattamenti. Registrare prove, differenze e limiti. Le verifiche che richiedono applicazioni installate su un computer personale restano non verificabili finché tale ambiente non sarà disponibile.
 
 ## Fase 6 — Prototipo del coordinatore
 Realizzare formalizzazione obiettivo/criteri, selezione capacità e skill, controllo disponibilità e permessi, piano con dipendenze e parallelismo, registrazione stati/prove/decisioni, recupero selettivo e ripianificazione.
 
-## Fase 7 — Scelta e consolidamento del motore
-Riprendere la ricerca già avviata su ORCA, LangGraph, Microsoft Agent Framework, Temporal, CrewAI e AutoGen. Esaminare il log Cognitive Continuous Validation, risolvere discrepanze, verificare registry/runtime/dipendenze, eseguire prove riproducibili su Windows e confrontare recupero, persistenza, parallelismo, sicurezza e osservabilità.
+## Fase 7 — Scelta e consolidamento del motore di orchestrazione
+Riprendere la ricerca già avviata su ORCA, LangGraph, Microsoft Agent Framework, Temporal, CrewAI e AutoGen. Esaminare il log Cognitive Continuous Validation, risolvere discrepanze, verificare registry/runtime/dipendenze e confrontare recupero, persistenza, parallelismo, sicurezza e osservabilità. Le prove su Windows remoto tramite GitHub Actions non sostituiscono quelle su un'installazione Windows personale.
 
 Una fase non è completata perché i documenti sono stati scritti o il codice prodotto: servono prove consultabili. Se la verifica non è possibile, lo stato resta NON VERIFICABILE.
