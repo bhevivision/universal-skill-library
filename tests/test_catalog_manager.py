@@ -93,6 +93,7 @@ class CatalogManagerTests(unittest.TestCase):
         entry["id"] = "test.skill"
         entry["path"] = "skills/resource-discovery-assessment/SKILL.md"
         entry["capability_ids"] = ["cap.read"]
+        entry["selection"]["verification"] = {"status": "not_run", "evidence_refs": []}
         if source_material_ids is not None:
             entry["source_material_ids"] = source_material_ids
         else:
