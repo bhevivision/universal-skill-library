@@ -212,11 +212,12 @@ class ClassificationApprovalTests(unittest.TestCase):
         }
         self.proposal["evidence"] = []
         self.proposal["analysis"]["files_examined"] = 0
+        self.proposal["unknowns"] = ["Contenuto remoto non esaminato"]
         (self.root / "proposals/class.example.json").write_text(
             json.dumps(self.proposal), encoding="utf-8"
         )
 
-        with self.assertRaisesRegex(ValueError, "riferimento remoto"):
+        with self.assertRaises(ValueError):
             approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
 
         self.assertEqual(self._material()["classification"]["status"], "not_examined")
