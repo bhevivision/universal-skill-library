@@ -105,6 +105,12 @@ class ExactClaimEvidenceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_claim_evidence(self.root, self.proposal)
 
+    def test_rejects_completed_with_unclassified_result(self):
+        self.proposal["status"] = "completed"
+        self.proposal["classification"]["kind"] = "unclassified"
+        with self.assertRaisesRegex(ValueError, "unclassified"):
+            validate_claim_evidence(self.root, self.proposal)
+
     def test_rejects_completed_when_any_claim_is_unsupported(self):
         self.proposal["status"] = "completed"
         self.proposal["capabilities"][0]["evidence_quotes"] = []
