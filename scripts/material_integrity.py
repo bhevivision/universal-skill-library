@@ -422,7 +422,7 @@ def verify_material(
             "INVALID_ACQUISITION_STATE", "INVALID_ORIGINAL_PATH", "PATH_OUTSIDE_INTAKE",
             "SYMLINK_NOT_ALLOWED", "ORIGINAL_NOT_FOUND", "DIGEST_MISMATCH",
             "EXPECTED_DIGEST_MISMATCH", "CATALOG_CHANGED_DURING_CHECK",
-            "DIGEST_CHANGED_DURING_CHECK",
+            "DIGEST_CHANGED_DURING_CHECK", "TREE_LIMIT_EXCEEDED",
         } else "failed"
         return result
     except (OSError, UnicodeError, RuntimeError) as exc:
