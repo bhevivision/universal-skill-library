@@ -128,6 +128,7 @@ def _validate_links(root: Path, kind: str, entry: dict, catalogs: dict):
 
 
 def _all_catalogs(root: Path):
+    root = Path(root).resolve()
     loaded = {}
     for kind in CATALOGS:
         _, _, loaded[kind] = _load_catalog(root, kind)
@@ -151,6 +152,7 @@ def _atomic_write(path: Path, value: dict):
 
 
 def list_entries(root: Path, kind: str):
+    root = Path(root).resolve()
     _, collection, catalog = _load_catalog(root, kind)
     return catalog[collection]
 
@@ -170,6 +172,7 @@ def search_entries(root: Path, kind: str, query: str):
 
 
 def put_entry(root: Path, kind: str, entry: dict, *, replace: bool = False):
+    root = Path(root).resolve()
     if not isinstance(entry, dict) or not isinstance(entry.get("id"), str):
         raise CatalogError("La voce deve essere un oggetto JSON con campo id testuale.")
     catalogs = _all_catalogs(root)
@@ -201,6 +204,7 @@ def put_entry(root: Path, kind: str, entry: dict, *, replace: bool = False):
 
 
 def remove_entry(root: Path, kind: str, entry_id: str):
+    root = Path(root).resolve()
     catalogs = _all_catalogs(root)
     path, collection, catalog = _load_catalog(root, kind)
     matches = [item for item in catalog[collection] if item.get("id") == entry_id]
