@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -64,7 +65,12 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
     proposal_path = proposals_dir / f"{proposal_id}.json"
     if proposal_path.is_symlink() or not proposal_path.is_file():
         raise FileNotFoundError(f"Proposta non trovata o non sicura: {proposal_id}")
-    proposal = json.loads(proposal_path.read_text(encoding="utf-8"))
+    proposal_bytes = proposal_path.read_bytes()
+    proposal_digest = hashlib.sha256(proposal_bytes).hexdigest()
+    try:
+        proposal = json.loads(proposal_bytes.decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError("La proposta non è un documento JSON UTF-8 valido.") from exc
     if not isinstance(proposal, dict) or proposal.get("proposal_id") != proposal_id:
         raise ValueError("Identità della proposta non valida.")
     if proposal.get("status") != "pending_approval":
@@ -127,6 +133,7 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
         "actor": actor,
         "rationale": rationale,
         "material_sha256": material.get("sha256"),
+        "proposal_sha256": proposal_digest,
         "proposed_kind": proposed_kind
     }
     history.append(decision_record)
@@ -144,6 +151,13 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
     elif classification.get("status") != "classified":
         classification.update({"status": "unclassified", "kind": "unclassified", "rationale": rationale})
 
+    # Blocca la decisione se il documento è cambiato durante la revisione.
+    try:
+        current_proposal_digest = hashlib.sha256(proposal_path.read_bytes()).hexdigest()
+    except OSError as exc:
+        raise ValueError("La proposta non è più disponibile; decisione non registrata.") from exc
+    if current_proposal_digest != proposal_digest:
+        raise ValueError("La proposta è cambiata durante la decisione; operazione bloccata.")
     _atomic_json_write(catalog_path, catalog)
     return {"material_id": material_id, "proposal_id": proposal_id, **decision_record}
 
