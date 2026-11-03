@@ -1,6 +1,6 @@
 name: Diagnostica GGUF - configurazioni isolate
 
-run-name: Diagnostica GGUF \${{ inputs.configuration }}
+run-name: Diagnostica GGUF ${{ inputs.configuration }}
 
 on:
   workflow_dispatch:
@@ -26,13 +26,13 @@ permissions:
 
 jobs:
   compare-one-configuration:
-    name: Configurazione \${{ inputs.configuration }}
+    name: Configurazione ${{ inputs.configuration }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: \${{ github.sha }}
+          ref: ${{ github.sha }}
 
       - uses: actions/setup-python@v5
         with:
@@ -81,9 +81,9 @@ jobs:
 
       - name: Execute four samples for selected configuration
         env:
-          CONFIGURATION: \${{ inputs.configuration }}
-          REQUEST_TIMEOUT: \${{ inputs.timeout_seconds }}
-          MAX_TOKENS: \${{ inputs.max_tokens }}
+          CONFIGURATION: ${{ inputs.configuration }}
+          REQUEST_TIMEOUT: ${{ inputs.timeout_seconds }}
+          MAX_TOKENS: ${{ inputs.max_tokens }}
         run: |
           set -euo pipefail
           mkdir -p output/gguf-four-configs
@@ -133,7 +133,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gguf-diagnostic-\${{ inputs.configuration }}-\${{ github.run_id }}
+          name: gguf-diagnostic-${{ inputs.configuration }}-${{ github.run_id }}
           path: |
             output/gguf-four-configs/
             model-sha256.txt
