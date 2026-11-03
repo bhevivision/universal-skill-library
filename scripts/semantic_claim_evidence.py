@@ -194,6 +194,8 @@ def validate_claim_evidence(root, proposal, allowed_sources=None):
             raise ValueError(f"Nessuna citazione valida per tutti i riferimenti dell'affermazione: {field}.")
 
     if proposal.get("status") == "completed":
+        if proposal.get("classification", {}).get("kind") == "unclassified":
+            raise ValueError("completed non ammesso con classificazione unclassified.")
         if proposal.get("missing_references") or proposal.get("contradictions") or proposal.get("unknowns") or proposal.get("limits"):
             raise ValueError("completed non ammesso: restano riferimenti mancanti, contraddizioni, incognite o limiti.")
         if not claims:
