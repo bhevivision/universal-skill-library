@@ -1,6 +1,6 @@
 {
   "id": "proof.skill.verification.evidence-based-review.manual-01",
-  "subject": "skill.verification.evidence-based-review",
+  "subject": "verification.evidence-based-review",
   "result": "inconclusive",
   "tested_at": "2026-11-03T20:29:21Z",
   "command": "Applicazione manuale delle istruzioni SKILL.md in ChatGPT GPT-6 al caso controllato documentato in tests/cases/skills/initial-skill-behavior-tests.md; nessuna installazione o invocazione di runtime esterno.",
