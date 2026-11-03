@@ -1,15 +1,10 @@
 name: Diagnostica GGUF - configurazioni isolate
 
-run-name: Diagnostica GGUF ${{ inputs.configuration }}
+run-name: Diagnostica GGUF - quattro configurazioni isolate
 
 on:
   workflow_dispatch:
     inputs:
-      configuration:
-        description: Configurazione da eseguire
-        required: true
-        type: choice
-        options: [A, B, C, D]
       timeout_seconds:
         description: Limite di inattività per singola richiesta (secondi)
         required: true
@@ -26,7 +21,12 @@ permissions:
 
 jobs:
   compare-one-configuration:
-    name: Configurazione ${{ inputs.configuration }}
+    name: Configurazione ${{ matrix.configuration }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        configuration: [A, B, C, D]
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -81,7 +81,7 @@ jobs:
 
       - name: Execute four samples for selected configuration
         env:
-          CONFIGURATION: ${{ inputs.configuration }}
+          CONFIGURATION: ${{ matrix.configuration }}
           REQUEST_TIMEOUT: ${{ inputs.timeout_seconds }}
           MAX_TOKENS: ${{ inputs.max_tokens }}
         run: |
@@ -133,7 +133,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gguf-diagnostic-${{ inputs.configuration }}-${{ github.run_id }}
+          name: gguf-diagnostic-${{ matrix.configuration }}-${{ github.run_id }}
           path: |
             output/gguf-four-configs/
             model-sha256.txt
