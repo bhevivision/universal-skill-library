@@ -148,9 +148,17 @@ def _sha256_tree(path: Path, *, legacy: bool = False) -> str:
 def _safe_catalog_path(root: Path) -> Path:
     catalog_dir = root / "catalog"
     catalog_path = catalog_dir / "materials.json"
-    if catalog_dir.is_symlink() or catalog_path.is_symlink():
+    try:
+        directory_info = catalog_dir.lstat()
+        file_info = catalog_path.lstat()
+    except OSError as exc:
+        raise MaterialIntegrityError("CATALOG_UNREADABLE", "Il catalogo materiali non è disponibile.") from exc
+    if (
+        stat.S_ISLNK(directory_info.st_mode) or _is_reparse_point(directory_info)
+        or stat.S_ISLNK(file_info.st_mode) or _is_reparse_point(file_info)
+    ):
         raise MaterialIntegrityError(
-            "SYMLINK_NOT_ALLOWED", "Il percorso del catalogo contiene un collegamento simbolico."
+            "SYMLINK_NOT_ALLOWED", "Il percorso del catalogo contiene un collegamento o punto di reindirizzamento."
         )
     if not catalog_path.is_file():
         raise MaterialIntegrityError(
@@ -243,15 +251,20 @@ def _safe_original_path(root: Path, original: dict) -> Path:
         )
 
     intake_root = root / "intake"
-    if intake_root.is_symlink():
-        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "La cartella intake non può essere un collegamento simbolico.")
+    try:
+        intake_info = intake_root.lstat()
+    except OSError as exc:
+        raise MaterialIntegrityError("ORIGINAL_NOT_FOUND", "La cartella intake non è disponibile.") from exc
+    if stat.S_ISLNK(intake_info.st_mode) or _is_reparse_point(intake_info):
+        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "La cartella intake non può essere un collegamento o punto di reindirizzamento.")
     candidate = root.joinpath(*pure.parts)
     current = root
     for part in pure.parts:
         current = current / part
-        if current.is_symlink():
+        current_info = current.lstat()
+        if stat.S_ISLNK(current_info.st_mode) or _is_reparse_point(current_info):
             raise MaterialIntegrityError(
-                "SYMLINK_NOT_ALLOWED", f"Collegamento simbolico nel percorso dell'originale: {relative_value}"
+                "SYMLINK_NOT_ALLOWED", f"Collegamento o punto di reindirizzamento nel percorso dell'originale: {relative_value}"
             )
     try:
         resolved = candidate.resolve(strict=True)
