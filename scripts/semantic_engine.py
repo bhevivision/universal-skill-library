@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
-from jsonschema.exceptions import ValidationError
 
 try:
     from scripts.semantic_evidence_integrity import validate_semantic_request
@@ -101,6 +100,15 @@ def _base_proposal(request: dict, catalog_sha256: str, status: str, reason: str)
     return proposal
 
 
+class ProposalValidationError(ValueError):
+    """Errore di schema con diagnostica sicura, senza esporre valori del modello."""
+
+    def __init__(self, location: str, rule: str):
+        self.location = location
+        self.rule = rule
+        super().__init__(f"Proposta non conforme in {location} ({rule}).")
+
+
 def _validate_proposal_schema(proposal: dict) -> None:
     try:
         schema = json.loads(PROPOSAL_SCHEMA.read_text(encoding="utf-8"))
@@ -112,7 +120,7 @@ def _validate_proposal_schema(proposal: dict) -> None:
     if errors:
         error = errors[0]
         location = ".".join(str(part) for part in error.absolute_path) or "proposta"
-        raise ValueError(f"Proposta dell'analizzatore non conforme in {location}: {error.message}")
+        raise ProposalValidationError(location, str(error.validator))
 
 
 def run_semantic_engine(
@@ -196,9 +204,8 @@ def run_semantic_engine(
         # Non conservare un risultato parziale o potenzialmente malformato.
         # Per gli errori di schema registra solo il percorso e la regola, mai il valore grezzo.
         diagnostic = type(exc).__name__
-        if isinstance(exc, ValidationError):
-            location = ".".join(str(part) for part in exc.absolute_path) or "proposta"
-            diagnostic += " at " + location + " (" + str(exc.validator) + ")"
+        if isinstance(exc, ProposalValidationError):
+            diagnostic += " at " + exc.location + " (" + exc.rule + ")"
         proposal = _base_proposal(
             request_snapshot,
             catalog_sha256,
