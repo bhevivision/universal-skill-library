@@ -93,14 +93,33 @@ def _semantic_output_schema() -> dict:
     properties = full_schema.get("properties", {})
     if any(field not in properties for field in SEMANTIC_FIELDS):
         raise ValueError("Lo schema della proposta non contiene tutti i campi semantici richiesti.")
+    output_definitions = {
+        "$defs": full_schema.get("$defs", {}),
+        "properties": {field: properties[field] for field in SEMANTIC_FIELDS},
+    }
+
+    def require_quotes(value):
+        if isinstance(value, dict):
+            props = value.get("properties", {})
+            if "evidence_refs" in props and "evidence_quotes" in props:
+                required = value.setdefault("required", [])
+                if "evidence_quotes" not in required:
+                    required.append("evidence_quotes")
+            for child in value.values():
+                require_quotes(child)
+        elif isinstance(value, list):
+            for child in value:
+                require_quotes(child)
+
+    require_quotes(output_definitions)
     return {
         "$schema": full_schema.get("$schema"),
         "title": "Campi semantici della proposta",
         "type": "object",
         "additionalProperties": False,
-        "$defs": full_schema.get("$defs", {}),
+        "$defs": output_definitions["$defs"],
         "required": list(SEMANTIC_FIELDS),
-        "properties": {field: properties[field] for field in SEMANTIC_FIELDS},
+        "properties": output_definitions["properties"],
     }
 
 
