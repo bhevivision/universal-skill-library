@@ -2,9 +2,11 @@ import hashlib
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
+from scripts import material_integrity
 from scripts.material_integrity import (
     MaterialIntegrityError,
     load_material_record,
@@ -168,6 +170,32 @@ class MaterialIntegrityTests(unittest.TestCase):
         result = verify_material(self.root, "acq.legacy")
         self.assertEqual(result["status"], "verified")
         self.assertEqual(result["digest_algorithm"], "sha256-tree-legacy")
+
+    def test_file_hash_rejects_path_replaced_with_symlink_before_open(self):
+        outside = self.root / "outside.txt"
+        outside.write_text("secret", encoding="utf-8")
+        original_open = material_integrity._open_fd
+
+        def replace_then_open(path, flags, *args, **kwargs):
+            if Path(path) == self.original:
+                self.original.unlink()
+                self.original.symlink_to(outside)
+            return original_open(path, flags, *args, **kwargs)
+
+        try:
+            with patch("scripts.material_integrity._open_fd", side_effect=replace_then_open):
+                with self.assertRaises((OSError, MaterialIntegrityError)):
+                    material_integrity._sha256_file(self.original)
+        except (OSError, NotImplementedError):
+            self.skipTest("Collegamenti simbolici non disponibili in questo ambiente")
+
+    def test_directory_hash_stops_when_tree_budget_is_exceeded(self):
+        folder = self.root / "intake/acq-example/source"
+        (folder / "second.txt").write_text("second", encoding="utf-8")
+        with patch.object(material_integrity, "MAX_TREE_ENTRIES", 1):
+            with self.assertRaises(MaterialIntegrityError) as caught:
+                material_integrity._sha256_tree(folder)
+        self.assertEqual(caught.exception.code, "TREE_LIMIT_EXCEEDED")
 
     def test_catalog_symlink_is_rejected(self):
         catalog = self.root / "catalog/materials.json"

@@ -23,9 +23,11 @@ TEXT_EXTENSIONS = {
 MAX_FILE_BYTES = 256 * 1024
 MAX_TOTAL_BYTES = 1024 * 1024
 MAX_FILES = 100
+MAX_INVENTORY_ENTRIES = 10000
+MAX_INVENTORY_DEPTH = 64
 
 _BLOCKING_CODES = {
-    "MATERIAL_NOT_FOUND", "DUPLICATE_MATERIAL_ID", "INVALID_RECORD",
+    "MATERIAL_NOT_FOUND", "DUPLICATE_MATERIAL_ID", "INVALID_RECORD", "INVENTORY_LIMIT_EXCEEDED", "NON_REGULAR_ENTRY",
     "INVALID_ACQUISITION_STATE", "INVALID_ORIGINAL_PATH", "PATH_OUTSIDE_INTAKE",
     "SYMLINK_NOT_ALLOWED", "ORIGINAL_NOT_FOUND", "DIGEST_MISMATCH",
     "EXPECTED_DIGEST_MISMATCH", "CATALOG_CHANGED_DURING_CHECK",
@@ -97,13 +99,62 @@ def _failed_result(result: dict, status: str, problems: list[dict]) -> dict:
     return result
 
 
+def _is_reparse_point(info) -> bool:
+    flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return bool(getattr(info, "st_file_attributes", 0) & flag)
+
+
 def _inventory(path: Path) -> list[Path]:
-    if path.is_symlink():
-        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico.")
-    if path.is_file():
+    root_info = path.lstat()
+    if stat.S_ISLNK(root_info.st_mode) or _is_reparse_point(root_info):
+        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento o punto di reindirizzamento.")
+    if stat.S_ISREG(root_info.st_mode):
         return [path]
-    # Materializza l'inventario: un errore esplicito non deve produrre un elenco parziale.
-    return sorted(path.rglob("*"))
+    if not stat.S_ISDIR(root_info.st_mode):
+        raise MaterialIntegrityError("NON_REGULAR_ENTRY", "Il materiale non è un file o una cartella regolare.")
+    entries = []
+    pending = [(path, 0)]
+    while pending:
+        current, depth = pending.pop()
+        children = []
+        with os.scandir(current) as iterator:
+            for entry in iterator:
+                children.append(entry)
+                if len(entries) + len(children) > MAX_INVENTORY_ENTRIES:
+                    raise MaterialIntegrityError(
+                        "INVENTORY_LIMIT_EXCEEDED",
+                        "Numero massimo di elementi nell'inventario superato."
+                    )
+        children.sort(key=lambda item: item.name)
+        subdirectories = []
+        for entry in children:
+            child = Path(entry.path)
+            info = entry.stat(follow_symlinks=False)
+            if stat.S_ISLNK(info.st_mode) or _is_reparse_point(info):
+                raise MaterialIntegrityError(
+                    "SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico."
+                )
+            if stat.S_ISDIR(info.st_mode):
+                if depth + 1 > MAX_INVENTORY_DEPTH:
+                    raise MaterialIntegrityError(
+                        "INVENTORY_LIMIT_EXCEEDED",
+                        "Profondità massima dell'inventario superata."
+                    )
+                entries.append(child)
+                subdirectories.append((child, depth + 1))
+            elif stat.S_ISREG(info.st_mode):
+                entries.append(child)
+            else:
+                raise MaterialIntegrityError(
+                    "NON_REGULAR_ENTRY", "L'inventario contiene un elemento non regolare."
+                )
+            if len(entries) > MAX_INVENTORY_ENTRIES:
+                raise MaterialIntegrityError(
+                    "INVENTORY_LIMIT_EXCEEDED",
+                    "Numero massimo di elementi nell'inventario superato."
+                )
+        pending.extend(reversed(subdirectories))
+    return sorted(entries, key=lambda item: item.relative_to(path).as_posix())
 
 
 def _relative_source(item: Path, root: Path) -> str:
@@ -134,7 +185,7 @@ def _read_bounded_file(path: Path, expected_size: int) -> bytes:
     sostituito tra il controllo del percorso e l'apertura.
     """
     before = path.lstat()
-    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+    if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISREG(before.st_mode):
         raise OSError("Il percorso non identifica un file regolare stabile.")
 
     flags = os.O_RDONLY
@@ -146,7 +197,7 @@ def _read_bounded_file(path: Path, expected_size: int) -> bytes:
     descriptor = os.open(path, flags)
     try:
         opened = os.fstat(descriptor)
-        if not stat.S_ISREG(opened.st_mode):
+        if not stat.S_ISREG(opened.st_mode) or _is_reparse_point(opened):
             raise OSError("Il descrittore non identifica un file regolare.")
         if _file_identity(opened) != _file_identity(before):
             raise OSError("Il file è cambiato durante l'apertura.")
@@ -163,7 +214,7 @@ def _read_bounded_file(path: Path, expected_size: int) -> bytes:
 
         after_fd = os.fstat(descriptor)
         after_path = path.lstat()
-        if not stat.S_ISREG(after_path.st_mode):
+        if not stat.S_ISREG(after_path.st_mode) or _is_reparse_point(after_path):
             raise OSError("Il percorso non identifica più un file regolare.")
         if _file_identity(after_fd) != _file_identity(opened):
             raise OSError("Il file aperto è cambiato durante la lettura.")

@@ -1,7 +1,11 @@
 import hashlib
 import json
+import os
+import shutil
+import socket
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from scripts.classification_approval import approve_proposal, reject_proposal
@@ -14,6 +18,9 @@ class ClassificationApprovalTests(unittest.TestCase):
         (self.root / "intake/acq-example/source").mkdir(parents=True)
         (self.root / "catalog").mkdir()
         (self.root / "proposals").mkdir()
+        (self.root / "schemas").mkdir()
+        schema_source = Path(__file__).resolve().parents[1] / "schemas/classification-proposal.schema.json"
+        shutil.copyfile(schema_source, self.root / "schemas/classification-proposal.schema.json")
         self.original = self.root / "intake/acq-example/source/material.md"
         self.original.write_text("# Example skill\n\n## Instructions\nDo the work.\n", encoding="utf-8")
         digest = hashlib.sha256(self.original.read_bytes()).hexdigest()
@@ -42,7 +49,7 @@ class ClassificationApprovalTests(unittest.TestCase):
             "status": "pending_approval",
             "material": {"id": "acq.example", "sha256": digest, "original_kind": "file"},
             "proposal": {"kind": "skill", "confidence": "medium", "rationale": "Metadati e istruzioni rilevati."},
-            "evidence": [{"source": "intake/acq-example/source/material.md", "type": "text_excerpt", "excerpt": "Example skill"}],
+            "evidence": [{"source": "catalog/materials.json", "type": "identity", "material_id": "acq.example", "sha256": digest}, {"source": "intake/acq-example/source/material.md", "type": "text_file", "sha256": hashlib.sha256(self.original.read_bytes()).hexdigest(), "bytes": self.original.stat().st_size}],
             "dependencies": [],
             "missing_references": [],
             "unknowns": [],
@@ -70,6 +77,11 @@ class ClassificationApprovalTests(unittest.TestCase):
         self.assertEqual(classification["confidence"], "medium")
         self.assertEqual(classification["decisions"][0]["decision"], "approved")
         self.assertEqual(result["decision"], "approved")
+        expected_proposal_digest = hashlib.sha256(
+            (self.root / "proposals/class.example.json").read_bytes()
+        ).hexdigest()
+        self.assertEqual(result["proposal_sha256"], expected_proposal_digest)
+        self.assertEqual(classification["decisions"][0]["proposal_sha256"], expected_proposal_digest)
         self.assertEqual((self.root / "catalog/skills.json").read_bytes(), skills_before)
         self.assertEqual(self.original.read_bytes(), original_before)
 
@@ -89,6 +101,7 @@ class ClassificationApprovalTests(unittest.TestCase):
 
     def test_preserves_error_when_proposal_fingerprint_is_stale(self):
         self.proposal["material"]["sha256"] = "0" * 64
+        self.proposal["evidence"][0]["sha256"] = "0" * 64
         (self.root / "proposals/class.example.json").write_text(
             json.dumps(self.proposal), encoding="utf-8"
         )
@@ -139,6 +152,40 @@ class ClassificationApprovalTests(unittest.TestCase):
         self.assertEqual(classification["kind"], "resource")
         self.assertEqual(classification["decisions"][0]["decision"], "rejected")
 
+    def test_rejects_proposal_with_invalid_evidence_hash(self):
+        path = self.root / "proposals/class.example.json"
+        self.proposal["evidence"][1]["sha256"] = "0" * 64
+        path.write_text(json.dumps(self.proposal), encoding="utf-8")
+        before = (self.root / "catalog/materials.json").read_bytes()
+        with self.assertRaises(ValueError):
+            approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+        self.assertEqual((self.root / "catalog/materials.json").read_bytes(), before)
+
+    def test_rejects_proposal_changed_between_review_and_commit(self):
+        from scripts import classification_approval as approval
+        original_catalog_reader = approval._read_catalog
+
+        def change_after_catalog_snapshot(root):
+            result = original_catalog_reader(root)
+            path = self.root / "proposals/class.example.json"
+            path.write_text(path.read_text(encoding="utf-8") + " ", encoding="utf-8")
+            return result
+
+        with patch("scripts.classification_approval._read_catalog", side_effect=change_after_catalog_snapshot):
+            with self.assertRaisesRegex(ValueError, "proposta è cambiata"):
+                approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+        self.assertEqual(self._material()["classification"]["status"], "not_examined")
+
+    def test_refuses_to_write_while_acquisition_catalog_lock_is_held(self):
+        lock = self.root / ".materials-acquisition.lock"
+        lock.write_text(json.dumps({
+            "pid": os.getpid(), "hostname": socket.gethostname(),
+            "created_at": "2026-11-03T00:00:00Z"
+        }), encoding="utf-8")
+        with self.assertRaisesRegex(RuntimeError, "già in corso"):
+            approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+        self.assertEqual(self._material()["classification"]["status"], "not_examined")
+
     def test_malformed_proposal_is_rejected_without_catalog_changes(self):
         path = self.root / "proposals/class.example.json"
         path.write_text(json.dumps({"proposal_id": "class.example", "status": "pending_approval", "material": []}), encoding="utf-8")
@@ -147,6 +194,33 @@ class ClassificationApprovalTests(unittest.TestCase):
             approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
         self.assertEqual((self.root / "catalog/materials.json").read_bytes(), before)
 
+
+    def test_remote_reference_cannot_be_approved_as_a_skill_without_content_evidence(self):
+        path = self.root / "catalog/materials.json"
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+        catalog["materials"][0]["acquisition"] = {
+            "status": "received",
+            "original": {"kind": "remote_reference", "uri": "https://example.org/skill"}
+        }
+        path.write_text(json.dumps(catalog), encoding="utf-8")
+        self.proposal["material"] = {
+            "id": "acq.example", "sha256": None, "original_kind": "remote_reference"
+        }
+        self.proposal["proposal"] = {
+            "kind": "skill", "confidence": "high",
+            "rationale": "Il contenuto remoto è una skill."
+        }
+        self.proposal["evidence"] = []
+        self.proposal["analysis"]["files_examined"] = 0
+        self.proposal["unknowns"] = ["Contenuto remoto non esaminato"]
+        (self.root / "proposals/class.example.json").write_text(
+            json.dumps(self.proposal), encoding="utf-8"
+        )
+
+        with self.assertRaises(ValueError):
+            approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+
+        self.assertEqual(self._material()["classification"]["status"], "not_examined")
 
 if __name__ == "__main__":
     unittest.main()

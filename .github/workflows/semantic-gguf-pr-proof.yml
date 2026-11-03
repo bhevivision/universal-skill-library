@@ -3,6 +3,11 @@ on:
   pull_request:
     branches:
       - model/structural-model-v1
+    paths:
+      - "scripts/semantic_*.py"
+      - "tests/test_semantic*.py"
+      - "schemas/semantic*.json"
+      - "docs/SEMANTIC*.md"
   push:
     branches:
       - semantic-evaluation-isolation-v1

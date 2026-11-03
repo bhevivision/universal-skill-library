@@ -13,6 +13,7 @@ File del componente: `scripts/classification_approval.py`.
 - Prima della decisione, il componente ricalcola l'impronta dell'originale locale e la confronta sia con l'acquisizione sia con la proposta. Se il materiale è cambiato, blocca la decisione.
 - Il responsabile e la motivazione della decisione sono obbligatori.
 - La decisione viene registrata nello storico `classification.decisions` della scheda materiale.
+- Ogni decisione registra anche SHA-256 della proposta esatta esaminata; la proposta viene riletta prima della scrittura e la decisione si blocca se nel frattempo è cambiata.
 - Una stessa proposta non può ricevere due decisioni.
 - La proposta originale resta conservata come prova di ciò che era stato suggerito. Lo storico nella scheda materiale registra l'esito della revisione.
 
@@ -43,8 +44,10 @@ Una proposta approvata come `skill` è quindi riconosciuta come materiale di tip
 
 ## Tracciabilità e limiti
 
-Ogni decisione conserva identificativo della proposta, esito, data, responsabile dichiarato, motivazione, impronta del materiale e categoria proposta.
+Ogni decisione conserva identificativo della proposta, esito, data, responsabile dichiarato, motivazione, impronta del materiale, impronta SHA-256 della proposta e categoria proposta.
 
 Il campo `actor` è dichiarato da chi esegue il comando: questa prima versione non include autenticazione personale, firma digitale o controllo dei ruoli. L'approvazione è quindi un passaggio esplicito e tracciato, ma non una prova crittografica dell'identità del revisore.
 
-La scrittura del catalogo usa un file temporaneo nella stessa cartella e sostituzione atomica. Non è ancora previsto un sistema multiutente con blocco distribuito o gestione automatica delle modifiche concorrenti.
+La proposta viene letta da un descrittore stabile, entro 2 MiB, e convalidata rispetto a `schemas/classification-proposal.schema.json`. Le prove testuali vengono verificate singolarmente rispetto ai file reali sotto `intake/`, entro 256 KiB ciascuna.
+
+L'approvazione usa lo stesso blocco esclusivo locale dell'acquisizione, così due operazioni cooperative non possono aggiornare contemporaneamente il catalogo. Prima della scrittura ricontrolla sia l'impronta della proposta sia quella del catalogo. Il blocco non è distribuito e non protegge da programmi esterni che ignorano il blocco; non sostituisce autenticazione o autorizzazioni multiutente.

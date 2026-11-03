@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import socket
+import stat
 import sys
 import tarfile
 import tempfile
@@ -24,6 +25,10 @@ from jsonschema import Draft202012Validator, FormatChecker
 ID_PATTERN = re.compile(r"^[a-z0-9]+(?:[.-][a-z0-9]+)*$")
 MATERIAL_SCHEMA = "schemas/material-record.schema.json"
 LOCK_NAME = ".materials-acquisition.lock"
+MAX_ACQUISITION_FILES = 10000
+MAX_ACQUISITION_BYTES = 1073741824
+MAX_ACQUISITION_DEPTH = 64
+MAX_ACQUISITION_ENTRIES = 10000
 
 
 class DuplicateMaterialError(ValueError):
@@ -41,58 +46,245 @@ def _validate_id(material_id):
         raise ValueError("Identificativo non valido: usare lettere minuscole, numeri, punti o trattini.")
 
 
-def _reject_symlinks(path):
+def _is_reparse_point(info):
+    flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return bool(getattr(info, "st_file_attributes", 0) & flag)
+
+
+def _bounded_entries(path):
+    """Elenca un albero entro limiti rigidi di elementi e profondità."""
     path = Path(path)
-    if path.is_symlink():
-        raise ValueError(f"Collegamento simbolico non ammesso: {path}")
-    if path.is_dir():
-        for item in path.rglob("*"):
-            if item.is_symlink():
-                raise ValueError(f"Collegamento simbolico non ammesso: {item}")
+    root_info = path.lstat()
+    if stat.S_ISLNK(root_info.st_mode) or _is_reparse_point(root_info):
+        raise ValueError(f"Collegamento o punto di reindirizzamento non ammesso: {path}")
+    if stat.S_ISREG(root_info.st_mode):
+        info = root_info
+        if not stat.S_ISREG(info.st_mode):
+            raise ValueError(f"Elemento non regolare non ammesso: {path}")
+        return [(path, "file", info)]
+    if not path.is_dir():
+        raise ValueError(f"Sorgente non regolare non ammessa: {path}")
+
+    entries = []
+    pending = [(path, 0)]
+    file_count = 0
+    total_bytes = 0
+    while pending:
+        current, depth = pending.pop()
+        children = []
+        with os.scandir(current) as iterator:
+            for entry in iterator:
+                children.append(entry)
+                if len(entries) + len(children) > MAX_ACQUISITION_ENTRIES:
+                    raise ValueError("Il materiale supera il numero massimo di elementi acquisibili.")
+        children.sort(key=lambda item: item.name)
+        subdirectories = []
+        for entry in children:
+            child = Path(entry.path)
+            info = entry.stat(follow_symlinks=False)
+            if stat.S_ISLNK(info.st_mode) or _is_reparse_point(info):
+                raise ValueError(f"Collegamento o punto di reindirizzamento non ammesso: {child}")
+            if stat.S_ISDIR(info.st_mode):
+                if depth + 1 > MAX_ACQUISITION_DEPTH:
+                    raise ValueError("Il materiale supera la profondità massima consentita.")
+                entries.append((child, "directory", info))
+                subdirectories.append((child, depth + 1))
+            elif stat.S_ISREG(info.st_mode):
+                file_count += 1
+                total_bytes += info.st_size
+                if file_count > MAX_ACQUISITION_FILES:
+                    raise ValueError("Il materiale supera il numero massimo di file acquisibili.")
+                if total_bytes > MAX_ACQUISITION_BYTES:
+                    raise ValueError("Il materiale supera il limite massimo di byte acquisibili.")
+                entries.append((child, "file", info))
+            else:
+                raise ValueError(f"Elemento non regolare non ammesso: {child}")
+            if len(entries) > MAX_ACQUISITION_ENTRIES:
+                raise ValueError("Il materiale supera il numero massimo di elementi acquisibili.")
+        pending.extend(reversed(subdirectories))
+    return sorted(entries, key=lambda item: item[0].relative_to(path).as_posix())
+
+
+def _inspect_source(path):
+    """Controlla la sorgente senza seguire collegamenti e con risorse limitate."""
+    entries = _bounded_entries(Path(path))
+    files = [item for item in entries if item[1] == "file"]
+    total_bytes = sum(item[2].st_size for item in files)
+    if len(files) > MAX_ACQUISITION_FILES:
+        raise ValueError("Il materiale supera il numero massimo di file acquisibili.")
+    if total_bytes > MAX_ACQUISITION_BYTES:
+        raise ValueError("Il materiale supera il limite massimo di byte acquisibili.")
+    return len(files), total_bytes
+
+
+def _copy_file_bounded(source, destination, counters):
+    """Copia un file regolare limitando i byte effettivamente letti, anche se cresce."""
+    source = Path(source)
+    destination = Path(destination)
+    before = source.lstat()
+    if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISREG(before.st_mode):
+        raise ValueError(f"Elemento non regolare non ammesso: {source}")
+    if counters["files"] + 1 > MAX_ACQUISITION_FILES:
+        raise ValueError("Il materiale supera il numero massimo di file acquisibili.")
+    remaining_budget = MAX_ACQUISITION_BYTES - counters["bytes"]
+    if before.st_size > remaining_budget:
+        raise ValueError("Il materiale supera il limite massimo di byte acquisibili.")
+
+    flags = os.O_RDONLY
+    if hasattr(os, "O_BINARY"):
+        flags |= os.O_BINARY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(source, flags)
+    copied = 0
+    try:
+        opened = os.fstat(descriptor)
+        identity = (before.st_dev, before.st_ino)
+        if not stat.S_ISREG(opened.st_mode) or _is_reparse_point(opened) or (opened.st_dev, opened.st_ino) != identity:
+            raise ValueError("Il file sorgente è cambiato durante l'apertura.")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with destination.open("xb") as output:
+            while True:
+                allowance = min(1024 * 1024, remaining_budget - copied + 1)
+                chunk = os.read(descriptor, allowance)
+                if not chunk:
+                    break
+                copied += len(chunk)
+                if copied > remaining_budget:
+                    raise ValueError("Il materiale supera il limite massimo di byte acquisibili durante la copia.")
+                output.write(chunk)
+            output.flush()
+            os.fsync(output.fileno())
+        after_fd = os.fstat(descriptor)
+        after_path = source.lstat()
+        if (after_fd.st_dev, after_fd.st_ino) != identity:
+            raise ValueError("Il file sorgente è cambiato durante la copia.")
+        if (after_path.st_dev, after_path.st_ino) != identity or stat.S_ISLNK(after_path.st_mode) or _is_reparse_point(after_path):
+            raise ValueError("Il percorso sorgente è stato sostituito durante la copia.")
+        if after_fd.st_size != copied or before.st_size != copied:
+            raise ValueError("La dimensione del file sorgente è cambiata durante la copia.")
+        os.chmod(destination, stat.S_IMODE(before.st_mode))
+        os.utime(destination, ns=(before.st_atime_ns, before.st_mtime_ns))
+    except Exception:
+        destination.unlink(missing_ok=True)
+        raise
+    finally:
+        os.close(descriptor)
+    counters["files"] += 1
+    counters["bytes"] += copied
+
+
+def _copy_directory_bounded(source, destination):
+    """Copia un albero con limiti applicati durante la lettura effettiva."""
+    source = Path(source)
+    destination = Path(destination)
+    source_info = source.lstat()
+    if stat.S_ISLNK(source_info.st_mode) or _is_reparse_point(source_info) or not stat.S_ISDIR(source_info.st_mode):
+        raise ValueError("La cartella sorgente è cambiata o non è sicura.")
+    entries = _bounded_entries(source)
+    destination.mkdir(parents=True, exist_ok=False)
+    for item, kind, info in sorted(
+        (entry for entry in entries if entry[1] == "directory"),
+        key=lambda entry: (len(entry[0].relative_to(source).parts), entry[0].relative_to(source).as_posix())
+    ):
+        target = destination / item.relative_to(source)
+        target.mkdir(parents=True, exist_ok=True)
+    counters = {"files": 0, "bytes": 0}
+    for item, kind, _info in entries:
+        if kind == "file":
+            _copy_file_bounded(item, destination / item.relative_to(source), counters)
+    for item, kind, info in entries:
+        if kind == "directory":
+            target = destination / item.relative_to(source)
+            os.chmod(target, stat.S_IMODE(info.st_mode))
+            os.utime(target, ns=(info.st_atime_ns, info.st_mtime_ns))
+            after = item.lstat()
+            if stat.S_ISLNK(after.st_mode) or _is_reparse_point(after) or not stat.S_ISDIR(after.st_mode):
+                raise ValueError(f"La cartella sorgente è stata sostituita durante la copia: {item}")
+            if os.name != "nt" and (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                raise ValueError(f"La cartella sorgente è stata sostituita durante la copia: {item}")
+            if os.name == "nt" and (
+                after.st_mtime_ns != info.st_mtime_ns or after.st_ctime_ns != info.st_ctime_ns
+            ):
+                raise ValueError(f"La cartella sorgente è cambiata durante la copia: {item}")
+    source_after = source.lstat()
+    if stat.S_ISLNK(source_after.st_mode) or _is_reparse_point(source_after) or not stat.S_ISDIR(source_after.st_mode):
+        raise ValueError("La cartella sorgente è stata sostituita durante la copia.")
+    if os.name != "nt" and (source_after.st_dev, source_after.st_ino) != (source_info.st_dev, source_info.st_ino):
+        raise ValueError("La cartella sorgente è stata sostituita durante la copia.")
+    if os.name == "nt" and (
+        source_after.st_mtime_ns != source_info.st_mtime_ns
+        or source_after.st_ctime_ns != source_info.st_ctime_ns
+    ):
+        raise ValueError("La cartella sorgente è cambiata durante la copia.")
+    return counters["files"], counters["bytes"]
+
+
+def _update_digest_from_file(digest, path):
+    path = Path(path)
+    before = path.lstat()
+    if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISREG(before.st_mode):
+        raise ValueError(f"Il percorso non identifica un file regolare: {path}")
+    flags = os.O_RDONLY
+    if hasattr(os, "O_BINARY"):
+        flags |= os.O_BINARY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags)
+    try:
+        opened = os.fstat(descriptor)
+        identity = (before.st_dev, before.st_ino)
+        if not stat.S_ISREG(opened.st_mode) or _is_reparse_point(opened) or (opened.st_dev, opened.st_ino) != identity:
+            raise ValueError(f"Il file è cambiato durante l'apertura: {path}")
+        while True:
+            chunk = os.read(descriptor, 1024 * 1024)
+            if not chunk:
+                break
+            digest.update(chunk)
+        after_fd = os.fstat(descriptor)
+        after_path = path.lstat()
+        if (after_fd.st_dev, after_fd.st_ino) != identity:
+            raise ValueError(f"Il file è cambiato durante la lettura: {path}")
+        if (after_path.st_dev, after_path.st_ino) != identity or stat.S_ISLNK(after_path.st_mode) or _is_reparse_point(after_path):
+            raise ValueError(f"Il percorso è stato sostituito durante la lettura: {path}")
+        if after_fd.st_size != opened.st_size:
+            raise ValueError(f"La dimensione del file è cambiata durante la lettura: {path}")
+    finally:
+        os.close(descriptor)
 
 
 def _digest_file(path):
     digest = hashlib.sha256()
-    with Path(path).open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(chunk)
+    _update_digest_from_file(digest, path)
     return digest.hexdigest()
 
 
 def _digest_directory(path):
     digest = hashlib.sha256()
-    for item in sorted(Path(path).rglob("*"), key=lambda entry: entry.relative_to(path).as_posix()):
-        if item.is_symlink():
-            raise ValueError(f"Collegamento simbolico non ammesso: {item}")
+    for item, kind, _info in _bounded_entries(Path(path)):
         relative = item.relative_to(path).as_posix().encode("utf-8")
-        if item.is_dir():
+        if kind == "directory":
             digest.update(b"D\0" + relative + b"\0")
-        elif item.is_file():
+        else:
             digest.update(b"F\0" + relative + b"\0")
-            with item.open("rb") as stream:
-                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-                    digest.update(chunk)
+            _update_digest_from_file(digest, item)
             digest.update(b"\0")
     return digest.hexdigest()
 
 
 def _digest_directory_legacy(path):
     digest = hashlib.sha256()
-    for item in sorted(Path(path).rglob("*")):
-        if item.is_symlink():
-            raise ValueError(f"Collegamento simbolico non ammesso: {item}")
-        if item.is_file():
+    for item, kind, _info in _bounded_entries(Path(path)):
+        if kind == "file":
             digest.update(item.relative_to(path).as_posix().encode("utf-8"))
             digest.update(b"\0")
-            with item.open("rb") as stream:
-                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-                    digest.update(chunk)
+            _update_digest_from_file(digest, item)
             digest.update(b"\0")
     return digest.hexdigest()
 
 
 def _directory_size(path):
-    return sum(item.stat().st_size for item in Path(path).rglob("*") if item.is_file())
+    return sum(info.st_size for _item, kind, info in _bounded_entries(Path(path)) if kind == "file")
 
 
 def _infer_kind(source):
@@ -383,9 +575,9 @@ def acquire_material(root, source, material_id, *, name=None, description=None,
     if source_input.is_symlink():
         raise ValueError("Il materiale sorgente non può essere un collegamento simbolico.")
     source_path = source_input.resolve(strict=True)
-    _reject_symlinks(source_path)
     if not (source_path.is_file() or source_path.is_dir()):
         raise ValueError("Sono ammessi soltanto file e cartelle.")
+    _inspect_source(source_path)
     try:
         source_path.relative_to(root)
     except ValueError:
@@ -421,14 +613,16 @@ def acquire_material(root, source, material_id, *, name=None, description=None,
         stage = Path(tempfile.mkdtemp(prefix=f".staging-{folder_name}-", dir=intake))
         staged_source = stage / "source"
         if source_path.is_dir():
-            shutil.copytree(source_path, staged_source, copy_function=shutil.copy2)
-            digest, byte_size = _digest_directory(staged_source), _directory_size(staged_source)
+            copied_files, byte_size = _copy_directory_bounded(source_path, staged_source)
+            digest = _digest_directory(staged_source)
             stored_path = f"intake/{folder_name}/source"
         else:
             staged_source.mkdir()
             copied_file = staged_source / source_path.name
-            shutil.copy2(source_path, copied_file)
-            digest, byte_size = _digest_file(copied_file), copied_file.stat().st_size
+            counters = {"files": 0, "bytes": 0}
+            _copy_file_bounded(source_path, copied_file, counters)
+            byte_size = counters["bytes"]
+            digest = _digest_file(copied_file)
             stored_path = f"intake/{folder_name}/source/{source_path.name}"
 
         source_digest = _digest_directory(source_path) if source_path.is_dir() else _digest_file(source_path)

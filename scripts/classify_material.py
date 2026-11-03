@@ -12,20 +12,17 @@ from pathlib import Path
 
 if __package__ in {None, ""}:
     from material_integrity import load_material_record, verify_material
+    from material_preparer import prepare_material
 else:
     from scripts.material_integrity import load_material_record, verify_material
+    from scripts.material_preparer import prepare_material
 
 
-def _digest_file(path):
-    import hashlib
-    digest = hashlib.sha256()
-    with Path(path).open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-TEXT_EXTENSIONS = {".md", ".markdown", ".txt", ".rst", ".json", ".yaml", ".yml", ".toml", ".py", ".js", ".ts", ".sh", ".ps1", ".bat", ".xml", ".html", ".css"}
+TEXT_EXTENSIONS = {
+    ".md", ".markdown", ".txt", ".rst", ".json", ".yaml", ".yml",
+    ".toml", ".py", ".js", ".ts", ".sh", ".ps1", ".bat", ".xml",
+    ".html", ".css",
+}
 MAX_FILE_BYTES = 256 * 1024
 MAX_TOTAL_BYTES = 1024 * 1024
 MAX_FILES = 100
@@ -34,51 +31,6 @@ PROPOSAL_SCHEMA_VERSION = "1.0"
 
 def _now():
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-
-
-def _safe_text_files(path):
-    if path.is_symlink():
-        raise ValueError("Il materiale contiene un collegamento simbolico.")
-    candidates = [path] if path.is_file() else sorted(path.rglob("*"))
-    selected, total = [], 0
-    for item in candidates:
-        if item.is_symlink():
-            raise ValueError(f"Collegamento simbolico non ammesso nell'analisi: {item}")
-        if not item.is_file() or item.suffix.lower() not in TEXT_EXTENSIONS:
-            continue
-        size = item.stat().st_size
-        if size > MAX_FILE_BYTES or len(selected) >= MAX_FILES or total + size > MAX_TOTAL_BYTES:
-            continue
-        selected.append(item)
-        total += size
-    return selected
-
-
-def _read_evidence(path, root):
-    evidence, texts, skipped = [], [], []
-    candidates = [path] if path.is_file() else sorted(path.rglob("*"))
-    eligible = _safe_text_files(path)
-    eligible_set = set(eligible)
-    for item in candidates:
-        if item.is_file() and item not in eligible_set:
-            skipped.append(item.relative_to(root).as_posix())
-    for item in eligible:
-        try:
-            content = item.read_text(encoding="utf-8")
-        except (UnicodeError, OSError):
-            skipped.append(item.relative_to(root).as_posix())
-            continue
-        if "\x00" in content:
-            skipped.append(item.relative_to(root).as_posix())
-            continue
-        texts.append((item.relative_to(root).as_posix(), content))
-        evidence.append({
-            "source": item.relative_to(root).as_posix(),
-            "type": "text_file",
-            "sha256": _digest_file(item),
-            "bytes": item.stat().st_size
-        })
-    return texts, evidence, skipped
 
 
 def _propose(texts, original_kind):
@@ -141,10 +93,21 @@ def analyze_material(root, material_id):
             raise ValueError(problem)
         path = root / integrity["path"]
         digest = integrity["actual_digest"]
-        texts, evidence, skipped = _read_evidence(path, root)
+        prepared = prepare_material(root, material_id)
+        if prepared.get("status") not in {"completed", "partial", "not_available"}:
+            details = prepared.get("problems", [])
+            raise ValueError("Preparazione condivisa non completata: " + ", ".join(
+                item.get("code", "UNKNOWN") for item in details if isinstance(item, dict)
+            ))
+        texts = [(item["source"], item["content"]) for item in prepared.get("files", [])]
+        evidence = [{
+            "source": item["source"], "type": "text_file",
+            "sha256": item["sha256"], "bytes": item["bytes"]
+        } for item in prepared.get("files", [])]
+        skipped = [item.get("source") for item in prepared.get("skipped", [])]
 
     proposed_kind, confidence, rationale = _propose(texts, kind)
-    if evidence:
+    if kind != "remote_reference":
         evidence.insert(0, {"source": "catalog/materials.json", "type": "identity", "material_id": material_id, "sha256": digest})
     limits = [
         "Analisi statica: nessun file, comando, programma o contenuto incorporato è stato eseguito.",

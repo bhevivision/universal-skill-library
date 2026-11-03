@@ -18,7 +18,8 @@ La proposta viene salvata in `proposals/class.nome-proposta.json`. Gli identific
 
 - Controlla che il materiale esista, sia in stato `preserved` e mantenga l'impronta SHA-256 registrata.
 - Rifiuta collegamenti simbolici.
-- Legge soltanto file testuali con estensioni ammesse, codifica UTF-8 e limiti massimi di dimensione e numero di file.
+- Usa `material_preparer.py` come percorso comune di preparazione e lettura, con estensioni ammesse, UTF-8, limiti per file e complessivi e controllo d'integrità finale.
+- L'inventario è limitato a 10.000 elementi e 64 livelli; il superamento blocca la preparazione senza restituire contenuti parziali.
 - Non estrae archivi, non visita riferimenti remoti e non esegue codice o comandi.
 - Applica indicatori dichiarati e ripetibili per proporre una categoria: `skill`, `tool`, `agent`, `workflow`, `resource`, `composite` oppure `unclassified`.
 - Registra percorsi e impronte dei file esaminati, senza copiare estratti del contenuto nella proposta; registra motivazione, confidenza, elementi non analizzati e limiti.
@@ -32,14 +33,14 @@ Ogni proposta contiene:
 - stato `pending_approval`;
 - identificativo e impronta del materiale esaminato;
 - categoria proposta, confidenza e motivazione;
-- prove consultabili con percorso del file;
+- prova d'identità del materiale e prove consultabili con percorso, impronta e dimensione dei file esaminati;
 - dipendenze e riferimenti mancanti, anche quando non sono determinabili;
 - informazioni sconosciute e limiti dell'analisi;
 - metodo e quantità dei file esaminati.
 
 ## Approvazione e catalogazione
 
-La proposta non è una classificazione approvata. Il componente separato `scripts/classification_approval.py` consente di approvare o respingere una proposta. Prima della decisione verifica di nuovo l'impronta e registra esito, responsabile dichiarato, motivazione e identificativo della proposta nella scheda del materiale. I dettagli sono in `docs/CLASSIFICATION-APPROVAL.md`.
+La proposta non è una classificazione approvata. Il componente separato `scripts/classification_approval.py` consente di approvare o respingere una proposta. Prima della decisione convalida l'intera proposta rispetto allo schema, verifica che le prove puntino a file sotto `intake/` e che impronte e dimensioni corrispondano ai contenuti effettivi, ricontrolla il materiale e registra l'impronta SHA-256 esatta della proposta insieme a esito, responsabile dichiarato e motivazione. I dettagli sono in `docs/CLASSIFICATION-APPROVAL.md`.
 
 L'approvazione aggiorna soltanto la classificazione del materiale. Non crea una voce in `catalog/skills.json` e non abilita l'esecuzione. La proposta originale resta conservata come prova del suggerimento iniziale.
 
