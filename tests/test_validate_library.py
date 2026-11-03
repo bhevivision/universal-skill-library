@@ -162,7 +162,8 @@ class Tests(unittest.TestCase):
    "notes":[]
   }
   self._add_material_with_license(license_record,include_evidence=False)
-  self.assertTrue(any("prova non trovata" in e.lower() for e in validate_repository(self.root)))
+  errors=validate_repository(self.root)
+  self.assertTrue(any("prova non trovata" in e.lower() for e in errors),repr(errors))
 
  def test_rejects_identified_material_license_without_identifier(self):
   license_record={
