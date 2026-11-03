@@ -108,7 +108,6 @@ def _semantic_output_schema() -> dict:
     if any(field not in properties for field in SEMANTIC_FIELDS):
         raise ValueError("Lo schema della proposta non contiene tutti i campi semantici richiesti.")
 
-    definitions = full_schema.get("$defs", {})
     output_properties = {
         field: copy.deepcopy(properties[field]) for field in SEMANTIC_FIELDS
     }
@@ -156,9 +155,10 @@ def _semantic_output_schema() -> dict:
             for child in value:
                 model_citation_contract(child)
 
-    working = {"properties": output_properties}
+    working = {"$defs": copy.deepcopy(full_schema.get("$defs", {})), "properties": output_properties}
     require_quotes(working)
     model_citation_contract(working)
+    definitions = working["$defs"]
 
     def inline_and_simplify(value, stack=()):
         if isinstance(value, list):
