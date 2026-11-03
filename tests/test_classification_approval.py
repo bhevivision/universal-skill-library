@@ -45,7 +45,7 @@ class ClassificationApprovalTests(unittest.TestCase):
             "status": "pending_approval",
             "material": {"id": "acq.example", "sha256": digest, "original_kind": "file"},
             "proposal": {"kind": "skill", "confidence": "medium", "rationale": "Metadati e istruzioni rilevati."},
-            "evidence": [{"source": "intake/acq-example/source/material.md", "type": "text_excerpt", "excerpt": "Example skill"}],
+            "evidence": [{"source": "catalog/materials.json", "type": "identity", "material_id": "acq.example", "sha256": digest}, {"source": "intake/acq-example/source/material.md", "type": "text_file", "sha256": digest, "bytes": self.original.stat().st_size}],
             "dependencies": [],
             "missing_references": [],
             "unknowns": [],
