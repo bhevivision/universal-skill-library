@@ -105,6 +105,45 @@ class SemanticEngineTests(unittest.TestCase):
         self.assertEqual(proposal["analyzer"]["input_sha256"], expected_digest)
         self.assertFalse(request["safety"]["allow_network_access"])
 
+
+    def test_schema_failure_reports_safe_field_diagnostic(self):
+        class InvalidAdapter:
+            def analyze(self, request):
+                item = request["selected_content"][0]
+                return {
+                    "status": "completed",
+                    "classification": {
+                        "kind": "invalid-kind",
+                        "confidence": "high",
+                        "rationale": "Motivazione.",
+                        "summary": "Sintesi.",
+                        "evidence_refs": ["ev.source"],
+                    },
+                    "capabilities": [],
+                    "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+                    "dependencies": [],
+                    "tools_and_platforms": [],
+                    "evidence": [{
+                        "id": "ev.source",
+                        "source": item["path"],
+                        "sha256": item["sha256"],
+                        "kind": "text_file",
+                    }],
+                    "missing_references": [],
+                    "contradictions": [],
+                    "risks": [],
+                    "unknowns": [],
+                    "limits": [],
+                }
+
+        proposal = run_semantic_engine(
+            valid_request(), analyzer=InvalidAdapter(), catalog_sha256="c" * 64
+        )
+
+        self.assertEqual(proposal["status"], "failed")
+        self.assertIn("classification.kind", proposal["limits"][0])
+        self.assertIn("enum", proposal["limits"][0])
+
     def test_missing_catalog_fingerprint_is_rejected(self):
         with self.assertRaises(ValueError):
             run_semantic_engine(valid_request())
