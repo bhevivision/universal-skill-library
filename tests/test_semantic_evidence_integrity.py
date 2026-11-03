@@ -46,12 +46,14 @@ def build_fixture(root):
         "classification": {
             "kind": "skill", "confidence": "medium",
             "rationale": "Istruzioni operative presenti.",
-            "summary": "Materiale operativo.", "evidence_refs": ["ev.instructions"]
+            "summary": "Materiale operativo.", "evidence_refs": ["ev.instructions"],
+            "evidence_quotes": [{"evidence_ref": "ev.instructions", "quote": "Use the supplied documents."}]
         },
         "capabilities": [{
             "id": "cap.example", "name": "Esecuzione istruzioni",
             "description": "Segue istruzioni documentate.", "certainty": "declared",
-            "evidence_refs": ["ev.instructions"]
+            "evidence_refs": ["ev.instructions"],
+            "evidence_quotes": [{"evidence_ref": "ev.instructions", "quote": "Use the supplied documents."}]
         }],
         "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
         "dependencies": [],
