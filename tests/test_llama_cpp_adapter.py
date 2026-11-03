@@ -327,7 +327,7 @@ class FullSemanticNormalizationRegressionTests(unittest.TestCase):
                 "certainty": "declared", "evidence_refs": ["ev.sample-001"],
             }],
             "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
-            "dependencies": [], "tools_and_platforms: [],
+            "dependencies": [], "tools_and_platforms": [],
             "evidence": [], "missing_references": [], "contradictions": [],
             "risks": [{
                 "description": "Le richieste HTTP raggiungono servizi esterni e possono esporre dati.",
