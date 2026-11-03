@@ -12,6 +12,8 @@ from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 
+from scripts.validate_library import check_evidence, check_materials
+
 CATALOGS = {
     "skills": ("catalog/skills.json", "skills", "schemas/skills-catalog.schema.json"),
     "capabilities": ("catalog/capabilities.json", "capabilities", "schemas/capabilities-catalog.schema.json"),
@@ -64,15 +66,47 @@ def _load_catalog(root: Path, kind: str):
 
 
 def _validate_links(root: Path, kind: str, entry: dict, catalogs: dict):
-    if kind == "skills":
+    if kind == "materials":
+        errors = []
+        check_materials(root, [entry], errors)
+        if errors:
+            raise CatalogError(errors[0])
+    elif kind == "skills":
         known = {item["id"] for item in catalogs["capabilities"]["capabilities"]}
         missing = set(entry.get("capability_ids", [])) - known
         if missing:
             raise CatalogError("Capacità inesistenti: " + ", ".join(sorted(missing)))
-        if entry.get("source_record_id"):
-            material_ids = {item["id"] for item in catalogs["materials"]["materials"]}
-            if entry["source_record_id"] not in material_ids:
-                raise CatalogError("Materiale sorgente inesistente: " + entry["source_record_id"])
+
+        material_map = {item["id"]: item for item in catalogs["materials"]["materials"]}
+        source_material_ids = set(entry.get("source_material_ids", []))
+        missing_sources = source_material_ids - set(material_map)
+        if missing_sources:
+            raise CatalogError("Materiale sorgente inesistente: " + ", ".join(sorted(missing_sources)))
+
+        source_record_id = entry.get("source_record_id")
+        if source_record_id:
+            source = material_map.get(source_record_id)
+            if source is None:
+                raise CatalogError("Materiale sorgente inesistente: " + source_record_id)
+            classification = source.get("classification", {})
+            if classification.get("status") != "classified" or classification.get("kind") != "skill":
+                raise CatalogError("Il materiale sorgente deve essere una skill classificata: " + source_record_id)
+
+        verification = entry.get("selection", {}).get("verification", {})
+        verification_status = verification.get("status")
+        if verification_status in {"passed", "failed", "inconclusive"}:
+            errors = []
+            check_evidence(
+                root,
+                verification.get("evidence_refs", []),
+                entry["id"],
+                verification_status,
+                f"verifica skill {entry['id']}",
+                errors,
+            )
+            if errors:
+                raise CatalogError(errors[0])
+
         skill_path = entry.get("path")
         if skill_path:
             candidate = root / skill_path
@@ -179,7 +213,11 @@ def remove_entry(root: Path, kind: str, entry_id: str):
             raise CatalogError("Impossibile eliminare: la skill ha implementazioni associate.")
     if kind == "capabilities" and any(entry_id in item.get("capability_ids", []) for item in catalogs["skills"]["skills"]):
         raise CatalogError("Impossibile eliminare: la capacità è usata da una skill.")
-    if kind == "materials" and any(item.get("source_record_id") == entry_id for item in catalogs["skills"]["skills"]):
+    if kind == "materials" and any(
+        item.get("source_record_id") == entry_id
+        or entry_id in item.get("source_material_ids", [])
+        for item in catalogs["skills"]["skills"]
+    ):
         raise CatalogError("Impossibile eliminare: il materiale è registrato come fonte di una skill.")
     catalog[collection] = [item for item in catalog[collection] if item.get("id") != entry_id]
     _atomic_write(path, catalog)
