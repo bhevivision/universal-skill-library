@@ -11,7 +11,7 @@ La prova reale del modello **Qwen2.5-3B-Instruct GGUF, quantizzazione Q4_K_M**, 
 | Copertura | **100%** |
 | Accuratezza sulle classificazioni prodotte | **100%** |
 | Macro-F1 | **1,00** |
-| Fedeltà delle prove | **100%** |
+| Integrità dei riferimenti alle fonti (generati dall'adattatore) | **100%** |
 | Astensioni | **0** |
 | Tempo medio per materiale | **26,711 s** |
 
@@ -51,6 +51,8 @@ Il valutatore ha avuto un contenitore separato, con memoria massima 1 GiB, 1 CPU
 **Il risultato è positivo, ma non è una certificazione statistica.** Dodici campioni, due per classe, sono sufficienti per una prima prova funzionale e per individuare errori grossolani; non dimostrano che il modello mantenga il 100% su materiali reali vari, ambigui, incompleti o ostili.
 
 Questa prova valuta soltanto la **classe primaria**. L'adattatore produce una proposta `partial`: non estrae ancora in questa modalità capacità, interfacce, dipendenze, strumenti e rischi. La modalità completa di analisi semantica deve essere verificata separatamente.
+
+La misura del 100% relativa alle fonti è stata rinominata **integrità dei riferimenti alle fonti**. In questa modalità è l'adattatore a costruire i riferimenti a partire dai file forniti e la valutazione controlla che percorsi e impronte corrispondano agli input. Non misura la fedeltà semantica delle affermazioni del modello, né dimostra che ogni affermazione sia supportata dal passaggio sorgente corretto. La verifica semantica puntuale richiede la modalità completa e controlli dedicati.
 
 La prova è stata eseguita su un esecutore GitHub Actions, non sul computer personale. Questo verifica il caricamento e l'inferenza reale in un ambiente remoto controllato; non dimostra ancora prestazioni o compatibilità sull'hardware locale futuro.
 
