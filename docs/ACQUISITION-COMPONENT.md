@@ -69,8 +69,8 @@ Prima della pubblicazione viene confrontata l'impronta SHA-256 con i materiali l
 - Un blocco esclusivo impedisce scritture concorrenti tramite questo componente.
 - Le copie vengono verificate rispetto alla sorgente prima della pubblicazione.
 - Collegamenti simbolici vengono rifiutati.
-- Prima della copia vengono applicati limiti: 10.000 file, 1 GiB complessivo e 64 livelli di profondità. Il superamento interrompe l'acquisizione prima della pubblicazione.
-- I limiti di pre-ispezione non eliminano ogni rischio di modifica concorrente della sorgente durante la copia; l'impronta della copia viene confrontata con quella della sorgente prima della pubblicazione.
+- Prima della copia e durante la lettura effettiva vengono applicati limiti: 10.000 file, 10.000 elementi complessivi, 1 GiB complessivo e 64 livelli di profondità. Il superamento interrompe l'acquisizione e la copia temporanea non viene pubblicata.
+- La copia usa letture limitate e controlla l'identità dei file aperti; al termine l'impronta della copia viene confrontata con quella della sorgente. Se la sorgente cresce, viene sostituita o cambia durante la copia, l'operazione viene interrotta.
 - Gli archivi non vengono estratti né eseguiti.
 - Il componente non scarica riferimenti remoti.
 - Il recupero automatico riguarda transazioni locali interrotte sullo stesso computer; blocchi di altri computer o registri corrotti richiedono controllo.
@@ -81,4 +81,4 @@ Prima della pubblicazione viene confrontata l'impronta SHA-256 con i materiali l
 
 ## Verifiche automatiche
 
-I test dedicati controllano copia fedele, immutabilità della sorgente, cartelle annidate, archivi opachi, riferimenti remoti, duplicati, collegamenti simbolici, collisioni di destinazione e pulizia dopo un errore di copia. La suite completa e il validatore vengono eseguiti tramite GitHub Actions su Ubuntu e Windows. La verifica su un esecutore Windows remoto non sostituisce una prova sul computer Windows dell'utilizzatore.
+I test dedicati controllano copia fedele, immutabilità della sorgente, cartelle annidate, archivi opachi, riferimenti remoti, duplicati, collegamenti simbolici, limiti durante la copia, collisioni di destinazione e pulizia dopo un errore di copia. La suite completa e il validatore vengono eseguiti tramite GitHub Actions su Ubuntu e Windows. La verifica su un esecutore Windows remoto non sostituisce una prova sul computer Windows dell'utilizzatore.
