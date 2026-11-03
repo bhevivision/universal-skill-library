@@ -9,6 +9,11 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
+try:
+    from scripts.semantic_claim_evidence import normalize_model_json
+except ImportError:  # Esecuzione diretta da scripts/
+    from semantic_claim_evidence import normalize_model_json
+
 
 PROPOSAL_SCHEMA = (
     Path(__file__).resolve().parents[1]
@@ -231,7 +236,7 @@ class LlamaCppServerAdapter:
         try:
             envelope = json.loads(raw.decode("utf-8"))
             content = envelope["choices"][0]["message"]["content"]
-            result = json.loads(content)
+            result = normalize_model_json(content)
         except (UnicodeError, json.JSONDecodeError, KeyError, IndexError, TypeError) as exc:
             raise ValueError("Il server locale non ha restituito una risposta JSON leggibile.") from exc
         if not isinstance(result, dict):
