@@ -76,7 +76,7 @@ def normalize_model_json(content):
 
 
 def _safe_source(root: Path, source: str) -> Path:
-    if not isinstance(source, str) or not source.startswith("intake/") or "\" in source or "\\x00" in source:
+    if not isinstance(source, str) or not source.startswith("intake/") or "\\" in source or "\x00" in source:
         raise ValueError("Sorgente della citazione non valida.")
     relative = PurePosixPath(source)
     if relative.is_absolute() or relative.as_posix() != source or any(part in {"", ".", ".."} or ":" in part for part in relative.parts):
