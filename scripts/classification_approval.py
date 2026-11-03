@@ -211,6 +211,8 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
 
         acquisition = record.get("acquisition", {})
         original = acquisition.get("original", {})
+        if original.get("kind") != material.get("original_kind"):
+            raise ValueError("Il tipo originale nella proposta non corrisponde al record del materiale.")
         if original.get("kind") == "remote_reference":
             integrity = verify_material(root, material_id, allowed_states=("received", "preserved"))
             if integrity["status"] != "not_applicable":
