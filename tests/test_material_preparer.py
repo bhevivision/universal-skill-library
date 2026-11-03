@@ -7,7 +7,7 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts.classify_material import _read_evidence
+from scripts.classify_material import analyze_material
 from scripts.material_integrity import verify_material as real_verify_material
 from scripts.material_preparer import prepare_material
 
@@ -495,14 +495,16 @@ class MaterialPreparerTests(unittest.TestCase):
         (self.source / "nested/alpha.txt").write_text("A", encoding="utf-8")
         (self.source / "image.png").write_bytes(b"PNG")
         self.register_directory()
-        expected_texts, expected_evidence, expected_skipped = _read_evidence(self.source, self.root)
         result = self.prepare()
-        self.assertEqual([(x["source"], x["content"]) for x in result["files"]], expected_texts)
+        with patch("scripts.classify_material.prepare_material", wraps=prepare_material) as shared_preparer:
+            proposal = analyze_material(self.root, "acq.sample")
+        shared_preparer.assert_called_once_with(self.root, "acq.sample")
+        self.assertEqual(proposal["analysis"]["files_examined"], len(result["files"]))
+        proposal_evidence = [item for item in proposal["evidence"] if item.get("type") == "text_file"]
         self.assertEqual(
+            [(x["source"], x["sha256"], x["bytes"]) for x in proposal_evidence],
             [(x["source"], x["sha256"], x["bytes"]) for x in result["files"]],
-            [(x["source"], x["sha256"], x["bytes"]) for x in expected_evidence],
         )
-        self.assertEqual([x["source"] for x in result["skipped"]], expected_skipped)
 
     def test_051_classifier_heuristic_remains_unchanged(self):
         from scripts.classify_material import _propose
