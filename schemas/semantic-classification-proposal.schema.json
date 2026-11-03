@@ -498,7 +498,8 @@
         "additionalProperties": false,
         "required": [
           "description",
-          "evidence_refs"
+          "evidence_refs",
+          "evidence_quotes"
         ],
         "properties": {
           "description": {
@@ -513,6 +514,28 @@
               "type": "string",
               "minLength": 1
             }
+          },
+          "evidence_quotes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "evidence_ref",
+                "quote"
+              ],
+              "properties": {
+                "evidence_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "quote": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
           }
         }
       }
@@ -525,7 +548,8 @@
         "required": [
           "description",
           "certainty",
-          "evidence_refs"
+          "evidence_refs",
+          "evidence_quotes"
         ],
         "properties": {
           "description": {
@@ -545,6 +569,28 @@
             "items": {
               "type": "string",
               "minLength": 1
+            }
+          },
+          "evidence_quotes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "evidence_ref",
+                "quote"
+              ],
+              "properties": {
+                "evidence_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "quote": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
             }
           }
         }
