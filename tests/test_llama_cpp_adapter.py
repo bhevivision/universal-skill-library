@@ -114,8 +114,8 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertEqual(_Handler.received["model"], "fixture-local-model")
         self.assertFalse(_Handler.received["stream"])
         self.assertEqual(_Handler.received["response_format"]["type"], "json_schema")
-        self.assertNotIn("$defs", _Handler.received["response_format"]["schema"])
-        model_schema = _Handler.received["response_format"]["schema"]
+        model_schema = _Handler.received["response_format"]["json_schema"]["schema"]
+        self.assertNotIn("schema", _Handler.received["response_format"])
         classification_schema = model_schema["properties"]["classification"]
         self.assertIn("evidence_quotes", classification_schema["required"])
         self.assertNotIn("evidence_refs", classification_schema["required"])
@@ -169,7 +169,7 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertEqual(result["classification"]["evidence_quotes"][0]["quote"], "Istruzioni operative riutilizzabili.")
         self.assertEqual(result["evidence"][0]["source"], "intake/evaluation/skill-01.md")
         self.assertEqual(result["evidence"][0]["sha256"], "b" * 64)
-        self.assertEqual(_Handler.received["response_format"]["schema"]["required"],
+        self.assertEqual(_Handler.received["response_format"]["json_schema"]["schema"]["required"],
                          ["kind", "confidence", "rationale", "summary", "evidence_quotes"])
 
     def test_full_evidence_metadata_and_claim_references_are_normalized_from_request(self):
