@@ -9,6 +9,16 @@ import urllib.request
 from pathlib import Path
 
 
+def is_constraint_response(raw_content: object) -> bool:
+    if not isinstance(raw_content, str):
+        return False
+    try:
+        parsed = json.loads(raw_content)
+    except json.JSONDecodeError:
+        return False
+    return isinstance(parsed, dict) and set(parsed) == {"result"} and parsed.get("result") == "CONSTRAINT_APPLIED"
+
+
 def main(base_url: str, output_path: str) -> int:
     schema = {
         "type": "object",
@@ -66,11 +76,7 @@ def main(base_url: str, output_path: str) -> int:
         report["raw_content"] = raw
         parsed = json.loads(raw) if isinstance(raw, str) else None
         report["parsed_content"] = parsed
-        report["passed"] = (
-            isinstance(parsed, dict)
-            and set(parsed) == {"result"}
-            and parsed.get("result") == "CONSTRAINT_APPLIED"
-        )
+        report["passed"] = is_constraint_response(raw)
         if not report["passed"]:
             report["failure"] = "Il server ha restituito un valore fuori dallo schema o una risposta non valida."
     except (urllib.error.URLError, TimeoutError, KeyError, IndexError, TypeError, ValueError) as exc:
