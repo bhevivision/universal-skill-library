@@ -45,7 +45,9 @@ Analizza soltanto il contenuto fornito nel messaggio utente.
 Restituisci esclusivamente un oggetto JSON conforme allo schema ricevuto.
 Ogni affermazione sul contenuto deve avere prove puntuali: usa soltanto i percorsi
 e le impronte SHA-256 elencati nella richiesta; non inventare fonti o riferimenti.
-Ogni evidence_refs deve riferirsi a un identificativo presente nell'elenco evidence.
+Ogni evidence_refs deve riferirsi a un identificativo presente in available_evidence.
+Non creare prove: available_evidence contiene gli unici identificativi ammessi.
+Collega ogni singola affermazione soltanto alle fonti che la supportano direttamente.
 Distingui ciò che il materiale dichiara (declared) da ciò che deduci (inferred).
 Non trasformare una supposizione in un fatto. Se le prove sono insufficienti,
 usa partial oppure not_available e dichiara limiti e incognite.
@@ -379,13 +381,16 @@ class LlamaCppServerAdapter:
             raise ValueError("Limite temporale della richiesta non valido.")
         timeout = min(self.timeout_seconds, request_timeout)
 
+        model_request = dict(request)
+        if not self.classification_only:
+            model_request["available_evidence"] = _verified_input_evidence(request)
         payload = {
             "model": self.model,
             "messages": [
                 {"role": "system", "content": CLASSIFICATION_SYSTEM_PROMPT if self.classification_only else SYSTEM_PROMPT},
                 {
                     "role": "user",
-                    "content": json.dumps(request, ensure_ascii=False, sort_keys=True),
+                    "content": json.dumps(model_request, ensure_ascii=False, sort_keys=True),
                 },
             ],
             "temperature": 0.1,
