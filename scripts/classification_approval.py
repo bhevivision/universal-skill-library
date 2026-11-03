@@ -128,6 +128,20 @@ def _validate_proposal(root, proposal, proposal_id):
     if material["original_kind"] == "remote_reference":
         if material["sha256"] is not None or evidence:
             raise ValueError("La proposta remota non deve dichiarare prove locali.")
+        remote_proposal = proposal["proposal"]
+        if (
+            remote_proposal["kind"] != "unclassified"
+            or remote_proposal["confidence"] != "low"
+            or proposal["dependencies"]
+            or proposal["missing_references"]
+            or proposal["analysis"]["files_examined"] != 0
+            or not proposal["unknowns"]
+            or not proposal["limits"]
+        ):
+            raise ValueError(
+                "Un riferimento remoto non esaminato deve restare non classificato, "
+                "con confidenza bassa e senza affermazioni sul contenuto."
+            )
         return
     identities = [
         item for item in evidence
