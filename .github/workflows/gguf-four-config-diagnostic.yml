@@ -3,7 +3,7 @@ name: Diagnostica GGUF - quattro configurazioni con risposte progressive
 on:
   pull_request:
     branches:
-      - main
+      - fix/gguf-constrained-decoding-probe-v1
   push:
     branches:
       - diagnostics/gguf-streaming-four-configs-v1
