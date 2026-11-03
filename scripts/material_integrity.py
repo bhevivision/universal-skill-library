@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 import stat
+from os import close as _close_fd, open as _open_fd, read as _read_fd
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlparse
 
@@ -45,7 +46,7 @@ def _sha256_file(path: Path) -> str:
         flags |= os.O_BINARY
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
-    descriptor = os.open(path, flags)
+    descriptor = _open_fd(path, flags)
     try:
         opened = os.fstat(descriptor)
         identity_before = (before.st_dev, before.st_ino)
@@ -54,7 +55,7 @@ def _sha256_file(path: Path) -> str:
             raise MaterialIntegrityError("PATH_CHANGED_DURING_READ", "Il file è cambiato durante l'apertura.")
         digest = hashlib.sha256()
         while True:
-            chunk = os.read(descriptor, CHUNK_SIZE)
+            chunk = _read_fd(descriptor, CHUNK_SIZE)
             if not chunk:
                 break
             digest.update(chunk)
@@ -66,7 +67,7 @@ def _sha256_file(path: Path) -> str:
             raise MaterialIntegrityError("PATH_CHANGED_DURING_READ", "Il percorso è stato sostituito durante la lettura.")
         return digest.hexdigest()
     finally:
-        os.close(descriptor)
+        _close_fd(descriptor)
 
 
 def _sha256_tree(path: Path, *, legacy: bool = False) -> str:
