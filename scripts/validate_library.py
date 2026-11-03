@@ -307,7 +307,7 @@ def validate_repository(root):
                 classification = material.get("classification", {})
                 if classification.get("kind") != "skill" or classification.get("status") != "classified":
                     errors.append(f"skill {sid}: il materiale collegato non è classificato come skill")
-        elif rel:
+        if rel:
             package = safe_path(root, rel)
             if package is None or not package.is_file():
                 errors.append(f"skill {sid}: SKILL.md non trovato o percorso non sicuro ({rel})")
