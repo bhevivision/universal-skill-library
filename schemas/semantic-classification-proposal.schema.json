@@ -145,27 +145,7 @@
           }
         }
       },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "not": {
-                  "const": "unclassified"
-                }
-              }
-            },
-            "required": [
-              "kind"
-            ]
-          },
-          "then": {
-            "required": [
-              "evidence_quotes"
-            ]
-          }
-        }
-      ]
+      "allOf": []
     },
     "capabilities": {
       "type": "array",
@@ -177,8 +157,7 @@
           "name",
           "description",
           "certainty",
-          "evidence_refs",
-          "evidence_quotes"
+          "evidence_refs"
         ],
         "properties": {
           "id": {
@@ -339,26 +318,6 @@
                 }
               }
             }
-          },
-          {
-            "if": {
-              "properties": {
-                "certainty": {
-                  "enum": [
-                    "declared",
-                    "inferred"
-                  ]
-                }
-              },
-              "required": [
-                "certainty"
-              ]
-            },
-            "then": {
-              "required": [
-                "evidence_quotes"
-              ]
-            }
           }
         ]
       }
@@ -372,8 +331,7 @@
           "name",
           "kind",
           "compatibility",
-          "evidence_refs",
-          "evidence_quotes"
+          "evidence_refs"
         ],
         "properties": {
           "name": {
@@ -498,8 +456,7 @@
         "additionalProperties": false,
         "required": [
           "description",
-          "evidence_refs",
-          "evidence_quotes"
+          "evidence_refs"
         ],
         "properties": {
           "description": {
@@ -548,8 +505,7 @@
         "required": [
           "description",
           "certainty",
-          "evidence_refs",
-          "evidence_quotes"
+          "evidence_refs"
         ],
         "properties": {
           "description": {
@@ -711,8 +667,7 @@
         "required": [
           "value",
           "certainty",
-          "evidence_refs",
-          "evidence_quotes"
+          "evidence_refs"
         ],
         "properties": {
           "value": {
