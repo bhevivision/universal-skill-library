@@ -163,18 +163,16 @@ class ClassificationApprovalTests(unittest.TestCase):
 
     def test_rejects_proposal_changed_between_review_and_commit(self):
         from scripts import classification_approval as approval
-        original_reader = approval._read_proposal_snapshot
-        calls = {"count": 0}
+        original_catalog_reader = approval._read_catalog
 
-        def change_before_final_check(path):
-            if path.name == "class.example.json":
-                calls["count"] += 1
-                if calls["count"] == 2:
-                    path.write_text(path.read_text(encoding="utf-8") + " ", encoding="utf-8")
-            return original_reader(path)
+        def change_after_catalog_snapshot(root):
+            result = original_catalog_reader(root)
+            path = self.root / "proposals/class.example.json"
+            path.write_text(path.read_text(encoding="utf-8") + " ", encoding="utf-8")
+            return result
 
-        with patch("scripts.classification_approval._read_proposal_snapshot", side_effect=change_before_final_check):
-            with self.assertRaisesRegex(ValueError, "è cambiata"):
+        with patch("scripts.classification_approval._read_catalog", side_effect=change_after_catalog_snapshot):
+            with self.assertRaisesRegex(ValueError, "proposta è cambiata"):
                 approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
         self.assertEqual(self._material()["classification"]["status"], "not_examined")
 
