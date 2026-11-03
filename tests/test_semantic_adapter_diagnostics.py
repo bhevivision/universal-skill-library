@@ -18,10 +18,10 @@ class SemanticAdapterDiagnosticsTests(unittest.TestCase):
     def test_writes_each_stage_as_json_when_explicitly_enabled(self):
         with tempfile.TemporaryDirectory() as temp:
             with patch.dict(os.environ, {"SEMANTIC_ADAPTER_DIAGNOSTICS_DIR": temp}, clear=True):
-                path = write_diagnostic("normalized", "eval:sample-01", {"evidence_refs": ["ev.sample-001"]})
+                path = write_diagnostic("normalized_output", "eval:sample-01", {"evidence_refs": ["ev.sample-001"]})
             self.assertIsNotNone(path)
             saved = json.loads(Path(path).read_text(encoding="utf-8"))
-            self.assertEqual(saved["stage"], "normalized")
+            self.assertEqual(saved["stage"], "normalized_output")
             self.assertEqual(saved["request_id"], "eval:sample-01")
             self.assertEqual(saved["payload"]["evidence_refs"], ["ev.sample-001"])
 
