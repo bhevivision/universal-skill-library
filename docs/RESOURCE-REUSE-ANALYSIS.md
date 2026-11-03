@@ -331,7 +331,7 @@ La versione del gestore sviluppata nella linea di lavoro PR #16 è stata portata
 - controlla i collegamenti esistenti prima di leggere o modificare i cataloghi;
 - normalizza i percorsi radice per Windows e Linux.
 
-Limiti espliciti: nessun blocco per scritture concorrenti, nessuna transazione multi-catalogo, ricerca testuale e non semantica; la validazione completa del frontmatter resta nel validatore generale. Le scritture devono essere serializzate dal coordinatore.
+Limiti espliciti: nessun blocco per scritture concorrenti, nessuna transazione multi-catalogo, ricerca testuale e non semantica; collegamenti reciproci, manifesti e prove delle implementazioni e frontmatter completo restano nel validatore generale. Le scritture devono essere serializzate dal coordinatore e il validatore completo va eseguito prima di usare i cataloghi per pianificare.
 
 Questa integrazione è separata dalla linea PR #16 per evitare di modificare la verifica del motore semantico mentre si riallinea il gestore. La duplicazione temporanea del file catalog_manager.py tra le due linee dovrà essere consolidata prima della fusione finale.
 
