@@ -97,7 +97,7 @@ def run_evaluation(adapter, dataset: dict) -> dict:
 def main() -> int:
     base_url = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8080"
     dataset = json.loads(DATASET.read_text(encoding="utf-8"))
-    adapter = LlamaCppServerAdapter(base_url=base_url, model="Qwen2.5-0.5B-Instruct-GGUF-Q4_K_M", timeout_seconds=120, max_response_bytes=2 * 1024 * 1024)
+    adapter = LlamaCppServerAdapter(base_url=base_url, model="Qwen2.5-0.5B-Instruct-GGUF-Q4_K_M", timeout_seconds=120, max_response_bytes=2 * 1024 * 1024, max_tokens=1024)
     report = run_evaluation(adapter, dataset)
     report.update({
         "dataset_version": dataset["dataset_version"],
