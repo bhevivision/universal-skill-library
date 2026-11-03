@@ -99,11 +99,19 @@ def _failed_result(result: dict, status: str, problems: list[dict]) -> dict:
     return result
 
 
+def _is_reparse_point(info) -> bool:
+    flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return bool(getattr(info, "st_file_attributes", 0) & flag)
+
+
 def _inventory(path: Path) -> list[Path]:
-    if path.is_symlink():
-        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico.")
-    if path.is_file():
+    root_info = path.lstat()
+    if stat.S_ISLNK(root_info.st_mode) or _is_reparse_point(root_info):
+        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento o punto di reindirizzamento.")
+    if stat.S_ISREG(root_info.st_mode):
         return [path]
+    if not stat.S_ISDIR(root_info.st_mode):
+        raise MaterialIntegrityError("NON_REGULAR_ENTRY", "Il materiale non è un file o una cartella regolare.")
     entries = []
     pending = [(path, 0)]
     while pending:
@@ -122,7 +130,7 @@ def _inventory(path: Path) -> list[Path]:
         for entry in children:
             child = Path(entry.path)
             info = entry.stat(follow_symlinks=False)
-            if stat.S_ISLNK(info.st_mode):
+            if stat.S_ISLNK(info.st_mode) or _is_reparse_point(info):
                 raise MaterialIntegrityError(
                     "SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico."
                 )
