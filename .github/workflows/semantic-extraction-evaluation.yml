@@ -58,6 +58,7 @@ jobs:
             --threads 2 --threads-batch 2 --parallel 1 --n-predict 2048
           docker inspect semantic-llama-server --format '{{json .HostConfig}}' > docker-security-config.json
           docker image inspect ghcr.io/ggml-org/llama.cpp:server --format '{{json .RepoDigests}}' > llama-image-digests.json
+          docker image inspect ghcr.io/ggml-org/llama.cpp:server --format '{{json .Config.Labels}}' > llama-image-labels.json
       - name: Wait for model and evaluate in shared isolated network namespace
         run: |
           set -euo pipefail
@@ -113,6 +114,7 @@ jobs:
             model-sha256.txt
             docker-security-config.json
             llama-image-digests.json
+            llama-image-labels.json
             llama-server.log
           if-no-files-found: warn
           retention-days: 30
