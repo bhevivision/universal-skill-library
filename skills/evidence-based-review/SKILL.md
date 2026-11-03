@@ -1,6 +1,6 @@
 ---
 name: evidence-based-review
-description: Verifica basata su prove: usa quando devi dimostrare che una skill, un'implementazione o un risultato rispetta criteri di accettazione, oppure diagnosticare un esito fallito.
+description: "Verifica basata su prove: usa quando devi dimostrare che una skill, un'implementazione o un risultato rispetta criteri di accettazione, oppure diagnosticare un esito fallito."
 metadata:
   library_id: "verification.evidence-based-review"
   version: "0.1.0"

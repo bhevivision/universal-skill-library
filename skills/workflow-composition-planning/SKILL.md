@@ -1,6 +1,6 @@
 ---
 name: workflow-composition-planning
-description: Pianificazione e composizione dei flussi: usa quando un obiettivo richiede più attività, dipendenze, parallelismo, strumenti, autorizzazioni, verifiche intermedie o recupero dagli errori.
+description: "Pianificazione e composizione dei flussi: usa quando un obiettivo richiede più attività, dipendenze, parallelismo, strumenti, autorizzazioni, verifiche intermedie o recupero dagli errori."
 metadata:
   library_id: "workflow.composition-planning"
   version: "0.1.0"

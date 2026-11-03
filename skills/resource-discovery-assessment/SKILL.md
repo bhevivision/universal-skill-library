@@ -1,6 +1,6 @@
 ---
 name: resource-discovery-assessment
-description: Ricerca e valutazione delle risorse: usa quando devi trovare, confrontare o registrare skill, strumenti, standard o raccolte esterne prima di riutilizzarli.
+description: "Ricerca e valutazione delle risorse: usa quando devi trovare, confrontare o registrare skill, strumenti, standard o raccolte esterne prima di riutilizzarli."
 metadata:
   library_id: "library.resource-discovery-assessment"
   version: "0.1.0"

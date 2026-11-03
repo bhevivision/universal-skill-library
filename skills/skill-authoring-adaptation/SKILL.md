@@ -1,6 +1,6 @@
 ---
 name: skill-authoring-adaptation
-description: Adattamento delle skill: usa quando devi trasformare una procedura, una raccolta o un flusso in una skill Agent Skills riutilizzabile e indipendente dalla piattaforma.
+description: "Adattamento delle skill: usa quando devi trasformare una procedura, una raccolta o un flusso in una skill Agent Skills riutilizzabile e indipendente dalla piattaforma."
 metadata:
   library_id: "library.skill-authoring-adaptation"
   version: "0.1.0"
