@@ -3,6 +3,9 @@ name: Diagnostica GGUF - configurazioni isolate
 run-name: Diagnostica GGUF - quattro configurazioni isolate
 
 on:
+  push:
+    branches:
+      - diagnostics/gguf-streaming-four-configs-v1
   workflow_dispatch:
     inputs:
       timeout_seconds:
