@@ -289,7 +289,7 @@ La sintesi non è importare sei raccolte. È riutilizzare procedure e principi c
 
 ## 10. Lacune rilevate nel repository della libreria
 
-1. I quattro cataloghi principali sono vuoti: `materials.json`, `capabilities.json`, `skills.json`, `implementations.json`. La base dispone già del componente `scripts/acquire_material.py`, che conserva file, cartelle e archivi e registra riferimenti remoti senza eseguirli; non va ricostruito. La base dispone già del componente `scripts/acquire_material.py`, che conserva file/cartelle/archivi e registra riferimenti remoti senza eseguirli; non va ricostruito.
+1. Il catalogo materiali contiene ora 7 schede di riferimento remoto: le sei risorse concettuali, con ORCA separato in registro e motore. I cataloghi capacità, skill e implementazioni sono ancora vuoti. Le schede dichiarano esplicitamente che non è stata acquisita una copia locale e che il funzionamento non è verificato. La base dispone già del componente `scripts/acquire_material.py`; non va ricostruito. La base dispone già del componente `scripts/acquire_material.py`, che conserva file/cartelle/archivi e registra riferimenti remoti senza eseguirli; non va ricostruito.
 2. Il modello e le schede già distinguono materiale, skill e implementazione; non bisogna duplicare tali oggetti importando i modelli delle fonti.
 3. Il campo strutturato `license` è stato aggiunto a `schemas/material-record.schema.json` in questo ramo. Registra dichiarazione, fonte, revisione, obblighi sintetizzati e prove; non determina automaticamente i diritti di redistribuzione.
 4. `schemas/skill-entry.schema.json` richiede capacità collegate, ambito, versione, ciclo di vita, ingressi, risultati, prerequisiti, vincoli, rischio e verifica. Ogni skill adattata dovrà rispettare questo contratto.
@@ -299,22 +299,22 @@ La sintesi non è importare sei raccolte. È riutilizzare procedure e principi c
 ## 11. Sequenza operativa successiva
 
 1. Chiudere l'inventario delle fonti, comprese le dipendenze mancanti e i limiti delle prove.
-2. Definire come registrare licenza, provenienza, obblighi di attribuzione e riferimenti di prova nelle schede materiali.
-3. Acquisire o registrare le sei fonti con versioni e impronte disponibili, senza eseguire il contenuto ricevuto.
-4. Separare procedure universali, procedure dipendenti da una piattaforma e materiali di sola consultazione.
-5. Preparare un primo gruppo ridotto di skill Agent Skills, senza duplicare componenti già presenti.
-6. Aggiungere le voci ai cataloghi soltanto dopo aver superato i controlli strutturali.
-7. Eseguire prove isolate e poi prove di composizione.
-8. Solo dopo queste prove scegliere e integrare il motore del coordinatore.
+2. Completare la revisione dei termini di licenza dei derivati, senza trasformare il controllo della dichiarazione in un parere legale.
+3. Separare procedure universali, procedure dipendenti da una piattaforma e materiali di sola consultazione.
+4. Preparare un primo gruppo ridotto di skill Agent Skills, senza duplicare componenti già presenti.
+5. Aggiungere i contratti delle capacità e le skill ai cataloghi, mantenendoli non verificati finché non esistono prove funzionali.
+6. Eseguire prove isolate e poi prove di composizione.
+7. Solo dopo queste prove scegliere e integrare il motore del coordinatore.
 
 ## 12. Stato delle attività
 
-- Analisi statica delle sei fonti: **avviata e documentata**.
+- Analisi statica delle sei fonti: **completata a livello documentale**; restano esplicite le lacune dei tre riferimenti UNLAZY e delle due verifiche ORCA non dettagliate.
 - Licenze delle fonti pubbliche: **identificate a livello di repository/pacchetto; obblighi di distribuzione da applicare ai singoli derivati**.
 - Campo strutturato per licenza del materiale: **implementato nel ramo di analisi**; la revisione richiede prove e non produce un giudizio legale automatico.
-- Verifica della licenza con prova collegata: **199 test superati su Ubuntu e Windows** nei run `41710014977` e `41710022948`.
+- Verifica della licenza con prova collegata: **7 prove registrate**; il validatore controlla esistenza, soggetto ed esito. I run `41711115849` e `41711127483` hanno superato 199 test e validazione cataloghi su Ubuntu e Windows.
 - Recupero del riferimento completo Archivista: **eseguito dall'archivio personale**.
 - Recupero dei tre riferimenti operativi UNLAZY: **non riuscito; lacuna dichiarata**.
+- Registrazione dei materiali: **completata come riferimenti remoti**, non equivale a verifica funzionale o approvazione all'uso.
 - Verifica del funzionamento delle skill adattate: **non eseguita**.
-- Acquisizione ufficiale delle sei fonti nei cataloghi: **non eseguita**. Il componente di acquisizione esistente sarà riutilizzato; la registrazione dei materiali è il prossimo passaggio.
+- Registrazione delle fonti nel catalogo materiali: **7 riferimenti remoti creati e validati** (ORCA separato in runtime e registro); nessuna copia locale è stata dichiarata o acquisita. Il componente di acquisizione esistente è stato riutilizzato come modello dati, senza eseguire i contenuti.
 - Coordinatore universale: **non ancora scelto né integrato**.
