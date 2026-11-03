@@ -12,8 +12,10 @@ from pathlib import Path
 
 if __package__ in {None, ""}:
     from material_integrity import load_material_record, verify_material
+    from material_preparer import prepare_material
 else:
     from scripts.material_integrity import load_material_record, verify_material
+    from scripts.material_preparer import prepare_material
 
 
 def _digest_file(path):
@@ -141,7 +143,18 @@ def analyze_material(root, material_id):
             raise ValueError(problem)
         path = root / integrity["path"]
         digest = integrity["actual_digest"]
-        texts, evidence, skipped = _read_evidence(path, root)
+        prepared = prepare_material(root, material_id)
+        if prepared.get("status") not in {"completed", "partial", "not_available"}:
+            details = prepared.get("problems", [])
+            raise ValueError("Preparazione condivisa non completata: " + ", ".join(
+                item.get("code", "UNKNOWN") for item in details if isinstance(item, dict)
+            ))
+        texts = [(item["source"], item["content"]) for item in prepared.get("files", [])]
+        evidence = [{
+            "source": item["source"], "type": "text_file",
+            "sha256": item["sha256"], "bytes": item["bytes"]
+        } for item in prepared.get("files", [])]
+        skipped = [item.get("source") for item in prepared.get("skipped", [])]
 
     proposed_kind, confidence, rationale = _propose(texts, kind)
     if evidence:
