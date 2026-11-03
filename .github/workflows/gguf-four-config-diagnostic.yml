@@ -1,6 +1,9 @@
 name: Diagnostica GGUF - quattro configurazioni con risposte progressive
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - diagnostics/gguf-streaming-four-configs-v1
