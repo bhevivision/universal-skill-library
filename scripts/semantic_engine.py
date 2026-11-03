@@ -17,6 +17,11 @@ except ImportError:  # Esecuzione diretta da scripts/
     from semantic_evidence_integrity import validate_semantic_request
     from semantic_claim_evidence import validate_claim_evidence
 
+try:
+    from scripts.semantic_adapter_diagnostics import write_diagnostic
+except ImportError:  # Esecuzione diretta da scripts/
+    from semantic_adapter_diagnostics import write_diagnostic
+
 
 PROPOSAL_SCHEMA = (
     Path(__file__).resolve().parents[1]
@@ -265,6 +270,13 @@ def run_semantic_engine(
     except ProposalEvidenceError:
         raise
     except Exception as exc:
+        write_diagnostic("validation_error", request_snapshot.get("request_id", "request-unknown"), {
+            "stage": "semantic_engine_validation",
+            "error_type": type(exc).__name__,
+            "location": getattr(exc, "location", None),
+            "rule": getattr(exc, "rule", None),
+            "message": str(exc)[:1000],
+        })
         # Non conservare un risultato parziale o potenzialmente malformato.
         # Per gli errori di schema registra solo il percorso e la regola, mai il valore grezzo.
         diagnostic = type(exc).__name__
