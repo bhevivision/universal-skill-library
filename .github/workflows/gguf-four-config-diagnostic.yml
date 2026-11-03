@@ -103,8 +103,8 @@ jobs:
               "python", "/workspace/scripts/gguf_four_config_diagnostic.py",
               "--base-url", "http://127.0.0.1:8080",
               "--output-dir", "/output/gguf-four-configs",
-              "--timeout-seconds", "${{ inputs.timeout_seconds }}",
-              "--max-tokens", "${{ inputs.max_tokens }}"
+              "--timeout-seconds", "${{ inputs.timeout_seconds || '180' }}",
+              "--max-tokens", "${{ inputs.max_tokens || '2048' }}"
           ], check=True, timeout=6600)'
 
       - name: Collect logs and stop isolated containers
