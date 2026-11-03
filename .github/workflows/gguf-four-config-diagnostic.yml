@@ -1,6 +1,9 @@
 name: Diagnostica GGUF - quattro configurazioni con risposte progressive
 
 on:
+  push:
+    branches:
+      - diagnostics/gguf-streaming-four-configs-v1
   workflow_dispatch:
     inputs:
       timeout_seconds:
