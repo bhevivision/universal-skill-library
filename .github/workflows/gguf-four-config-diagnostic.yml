@@ -1,16 +1,17 @@
-name: Diagnostica GGUF - quattro configurazioni con risposte progressive
+name: Diagnostica GGUF - configurazioni isolate
+
+run-name: Diagnostica GGUF \${{ inputs.configuration }}
 
 on:
-  pull_request:
-    branches:
-      - fix/gguf-constrained-decoding-probe-v1
-  push:
-    branches:
-      - diagnostics/gguf-streaming-four-configs-v1
   workflow_dispatch:
     inputs:
+      configuration:
+        description: Configurazione da eseguire
+        required: true
+        type: choice
+        options: [A, B, C, D]
       timeout_seconds:
-        description: Limite massimo per singola richiesta (secondi)
+        description: Limite di inattività per singola richiesta (secondi)
         required: true
         default: "120"
         type: string
@@ -24,13 +25,14 @@ permissions:
   contents: read
 
 jobs:
-  compare-four-configurations:
+  compare-one-configuration:
+    name: Configurazione \${{ inputs.configuration }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: diagnostics/gguf-streaming-four-configs-v1
+          ref: \${{ github.sha }}
 
       - uses: actions/setup-python@v5
         with:
@@ -77,7 +79,11 @@ jobs:
           docker image inspect ghcr.io/ggml-org/llama.cpp:server --format '{{json .RepoDigests}}' > llama-image-digests.json
           docker image inspect ghcr.io/ggml-org/llama.cpp:server --format '{{json .Config.Labels}}' > llama-image-labels.json
 
-      - name: Wait for model and execute 16 isolated requests
+      - name: Execute four samples for selected configuration
+        env:
+          CONFIGURATION: \${{ inputs.configuration }}
+          REQUEST_TIMEOUT: \${{ inputs.timeout_seconds }}
+          MAX_TOKENS: \${{ inputs.max_tokens }}
         run: |
           set -euo pipefail
           mkdir -p output/gguf-four-configs
@@ -90,13 +96,10 @@ jobs:
             --mount type=bind,src="$GITHUB_WORKSPACE",dst=/workspace,readonly \
             --mount type=bind,src="$GITHUB_WORKSPACE/output",dst=/output \
             --workdir /workspace --env PYTHONPATH=/workspace \
-            gguf-four-config-client python -c 'import time, urllib.request, subprocess
-          from pathlib import Path
-          out=Path("/output/gguf-four-configs")
-          out.mkdir(parents=True, exist_ok=True)
-          probe=out/".write-test"
-          probe.write_text("ok", encoding="utf-8")
-          probe.unlink()
+            --env CONFIGURATION="$CONFIGURATION" \
+            --env REQUEST_TIMEOUT="$REQUEST_TIMEOUT" \
+            --env MAX_TOKENS="$MAX_TOKENS" \
+            gguf-four-config-client python -c 'import os, time, urllib.request, subprocess
           ready=False
           for attempt in range(120):
               try:
@@ -110,8 +113,9 @@ jobs:
               "python", "/workspace/scripts/gguf_four_config_diagnostic.py",
               "--base-url", "http://127.0.0.1:8080",
               "--output-dir", "/output/gguf-four-configs",
-              "--timeout-seconds", "${{ inputs.timeout_seconds || '120' }}",
-              "--max-tokens", "${{ inputs.max_tokens || '2048' }}"
+              "--timeout-seconds", os.environ["REQUEST_TIMEOUT"],
+              "--max-tokens", os.environ["MAX_TOKENS"],
+              "--configuration", os.environ["CONFIGURATION"]
           ], check=True, timeout=6600)'
 
       - name: Collect logs and stop isolated containers
@@ -125,10 +129,11 @@ jobs:
           fi
           docker network rm gguf-diagnostic-network || true
 
-      - uses: actions/upload-artifact@v4
+      - name: Publish this configuration's evidence
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: gguf-four-config-progressive-diagnostic
+          name: gguf-diagnostic-\${{ inputs.configuration }}-\${{ github.run_id }}
           path: |
             output/gguf-four-configs/
             model-sha256.txt
