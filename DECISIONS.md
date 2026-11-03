@@ -22,6 +22,7 @@ Questo documento distingue decisioni confermate, proposte e questioni aperte. Le
 | D-015 | Acquisizione, classificazione, documentazione, verifica e utilizzabilità sono dimensioni indipendenti. | Un elemento conservato non è automaticamente skill, verificato o utilizzabile. |
 | D-016 | Anche il materiale non interpretabile può essere conservato e registrato come non classificato. | L'incertezza viene dichiarata; non si inventano struttura, funzione o dipendenze. |
 | D-017 | Ogni verifica si riferisce alla precisa versione/contenuto, ambiente e procedura controllati. | Una verifica non si trasferisce automaticamente a versioni o piattaforme differenti. |
+| D-018 | La dichiarazione e la revisione della licenza sono metadati strutturati del materiale e restano distinte dall'idoneità all'uso. | La revisione richiede prove collegate; non è un parere legale e non concede automaticamente diritti di redistribuzione. |
 
 ## Proposte architetturali e tecniche
 | ID | Proposta | Stato |
