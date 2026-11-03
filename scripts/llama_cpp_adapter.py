@@ -142,6 +142,9 @@ def _semantic_output_schema() -> dict:
                 model_citation_contract(child)
 
     model_citation_contract(output_definitions)
+    evidence_schema = output_definitions["properties"].get("evidence")
+    if isinstance(evidence_schema, dict):
+        evidence_schema["maxItems"] = 0
     return {
         "$schema": full_schema.get("$schema"),
         "title": "Campi semantici della proposta",
