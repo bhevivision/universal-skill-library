@@ -189,6 +189,14 @@ class MaterialIntegrityTests(unittest.TestCase):
         except (OSError, NotImplementedError):
             self.skipTest("Collegamenti simbolici non disponibili in questo ambiente")
 
+    def test_directory_hash_stops_when_tree_budget_is_exceeded(self):
+        folder = self.root / "intake/acq-example/source"
+        (folder / "second.txt").write_text("second", encoding="utf-8")
+        with patch.object(material_integrity, "MAX_TREE_ENTRIES", 1):
+            with self.assertRaises(MaterialIntegrityError) as caught:
+                material_integrity._sha256_tree(folder)
+        self.assertEqual(caught.exception.code, "TREE_LIMIT_EXCEEDED")
+
     def test_catalog_symlink_is_rejected(self):
         catalog = self.root / "catalog/materials.json"
         backup = self.root / "catalog/materials.backup"
