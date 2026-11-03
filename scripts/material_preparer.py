@@ -23,6 +23,8 @@ TEXT_EXTENSIONS = {
 MAX_FILE_BYTES = 256 * 1024
 MAX_TOTAL_BYTES = 1024 * 1024
 MAX_FILES = 100
+MAX_INVENTORY_ENTRIES = 10000
+MAX_INVENTORY_DEPTH = 64
 
 _BLOCKING_CODES = {
     "MATERIAL_NOT_FOUND", "DUPLICATE_MATERIAL_ID", "INVALID_RECORD",
@@ -102,8 +104,25 @@ def _inventory(path: Path) -> list[Path]:
         raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico.")
     if path.is_file():
         return [path]
-    # Materializza l'inventario: un errore esplicito non deve produrre un elenco parziale.
-    return sorted(path.rglob("*"))
+    # Inventario limitato per evitare di caricare alberi arbitrariamente grandi.
+    entries = []
+    for current, directories, filenames in os.walk(path, followlinks=False):
+        current_path = Path(current)
+        if len(current_path.relative_to(path).parts) > MAX_INVENTORY_DEPTH:
+            raise MaterialIntegrityError("INVENTORY_LIMIT_EXCEEDED", "Profondità massima dell'inventario superata.")
+        for name in list(directories):
+            child = current_path / name
+            if child.is_symlink():
+                raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico.")
+            entries.append(child)
+        for name in filenames:
+            child = current_path / name
+            if child.is_symlink():
+                raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico.")
+            entries.append(child)
+        if len(entries) > MAX_INVENTORY_ENTRIES:
+            raise MaterialIntegrityError("INVENTORY_LIMIT_EXCEEDED", "Numero massimo di elementi nell'inventario superato.")
+    return sorted(entries)
 
 
 def _relative_source(item: Path, root: Path) -> str:
