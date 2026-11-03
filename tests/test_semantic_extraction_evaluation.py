@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from scripts.semantic_extraction_evaluation import (
+    _claim_evidence_counts,
     match_expected_facts,
     run_extraction_evaluation,
     score_extraction,
@@ -34,6 +35,22 @@ class SemanticExtractionEvaluationTests(unittest.TestCase):
         self.assertEqual(metrics["evidence_verification_rate"], 0.5)
         self.assertEqual(metrics["claim_evidence_coverage"], round(5 / 6, 4))
         self.assertEqual(metrics["failed_samples"], 1)
+
+    def test_claim_evidence_coverage_requires_literal_quotes(self):
+        proposal = {
+            "classification": {"kind": "skill", "evidence_refs": ["ev.source"]},
+            "capabilities": [{"evidence_refs": ["ev.source"], "evidence_quotes": []}],
+            "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": [],
+        }
+        self.assertEqual(_claim_evidence_counts(proposal), (2, 0))
+        proposal["classification"]["evidence_quotes"] = [
+            {"evidence_ref": "ev.source", "quote": "Literal source line"}
+        ]
+        proposal["capabilities"][0]["evidence_quotes"] = [
+            {"evidence_ref": "ev.source", "quote": "Literal source line"}
+        ]
+        self.assertEqual(_claim_evidence_counts(proposal), (2, 2))
 
     def test_expected_facts_are_matched_against_the_correct_semantic_fields(self):
         proposal = {
