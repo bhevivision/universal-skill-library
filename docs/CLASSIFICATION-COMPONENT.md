@@ -18,7 +18,8 @@ La proposta viene salvata in `proposals/class.nome-proposta.json`. Gli identific
 
 - Controlla che il materiale esista, sia in stato `preserved` e mantenga l'impronta SHA-256 registrata.
 - Rifiuta collegamenti simbolici.
-- Legge soltanto file testuali con estensioni ammesse, codifica UTF-8 e limiti massimi di dimensione e numero di file.
+- Usa `material_preparer.py` come percorso comune di preparazione e lettura, con estensioni ammesse, UTF-8, limiti per file e complessivi e controllo d'integrità finale.
+- L'inventario è limitato a 10.000 elementi e 64 livelli; il superamento blocca la preparazione senza restituire contenuti parziali.
 - Non estrae archivi, non visita riferimenti remoti e non esegue codice o comandi.
 - Applica indicatori dichiarati e ripetibili per proporre una categoria: `skill`, `tool`, `agent`, `workflow`, `resource`, `composite` oppure `unclassified`.
 - Registra percorsi e impronte dei file esaminati, senza copiare estratti del contenuto nella proposta; registra motivazione, confidenza, elementi non analizzati e limiti.
