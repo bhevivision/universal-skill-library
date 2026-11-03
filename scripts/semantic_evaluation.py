@@ -3,6 +3,7 @@
 from __future__ import annotations
 import hashlib
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -105,7 +106,7 @@ def main() -> int:
         "adapter": adapter.version,
         "evaluation_note": "Campione iniziale esplorativo, non una certificazione statistica. Le etichette attese non sono incluse nelle richieste inviate al modello.",
     })
-    output = ROOT / "semantic-evaluation-report.json"
+    output = Path(os.environ.get("SEMANTIC_EVALUATION_REPORT", ROOT / "semantic-evaluation-report.json"))
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report["metrics"], ensure_ascii=False, indent=2))
     print(f"Rapporto completo: {output}")
