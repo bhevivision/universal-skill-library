@@ -66,8 +66,8 @@ jobs:
             --read-only --cap-drop ALL --security-opt no-new-privileges:true \
             --pids-limit 32 --memory 1g --memory-swap 1g --cpus 1 \
             --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+            --tmpfs /diagnostics:rw,noexec,nosuid,nodev,size=64m \
             --mount type=bind,src="$GITHUB_WORKSPACE",dst=/workspace,readonly \
-            --mount type=bind,src="$GITHUB_WORKSPACE/output/adapter-diagnostics",dst=/diagnostics \
             --workdir /workspace --env PYTHONPATH=/workspace \
             --env SEMANTIC_EXTRACTION_REPORT=/tmp/semantic-extraction-evaluation-report.json \
             --env SEMANTIC_ADAPTER_DIAGNOSTICS_DIR=/diagnostics \
@@ -86,6 +86,7 @@ jobs:
           set -e
           grep '^SEMANTIC_EXTRACTION_REPORT_B64=' evaluator-output.log | tail -n 1 | cut -d= -f2- | base64 --decode > "$GITHUB_WORKSPACE/output/semantic-extraction-evaluation-report.json"
           python -m json.tool "$GITHUB_WORKSPACE/output/semantic-extraction-evaluation-report.json" >/dev/null
+          docker cp semantic-evaluator:/diagnostics/. "$GITHUB_WORKSPACE/output/adapter-diagnostics/" || true
           docker rm --force semantic-evaluator || true
           exit "$client_exit"
       - name: Collect runtime status and stop containers
