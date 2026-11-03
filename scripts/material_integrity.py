@@ -36,8 +36,8 @@ def _check(name: str, status: str, detail: str) -> dict:
     return {"name": name, "status": status, "detail": detail}
 
 
-def _sha256_file(path: Path) -> str:
-    """Calcola l'impronta da un descrittore stabile, rifiutando sostituzioni del percorso."""
+def _update_digest_from_file(digest, path: Path) -> None:
+    """Aggiorna un'impronta leggendo da un descrittore stabile."""
     before = path.lstat()
     if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
         raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il percorso non identifica un file regolare.")
@@ -49,11 +49,10 @@ def _sha256_file(path: Path) -> str:
     descriptor = _open_fd(path, flags)
     try:
         opened = os.fstat(descriptor)
-        identity_before = (before.st_dev, before.st_ino)
-        identity_opened = (opened.st_dev, opened.st_ino)
-        if not stat.S_ISREG(opened.st_mode) or identity_before != identity_opened:
+        identity = (before.st_dev, before.st_ino)
+        opened_identity = (opened.st_dev, opened.st_ino)
+        if not stat.S_ISREG(opened.st_mode) or identity != opened_identity:
             raise MaterialIntegrityError("PATH_CHANGED_DURING_READ", "Il file è cambiato durante l'apertura.")
-        digest = hashlib.sha256()
         while True:
             chunk = _read_fd(descriptor, CHUNK_SIZE)
             if not chunk:
@@ -61,13 +60,18 @@ def _sha256_file(path: Path) -> str:
             digest.update(chunk)
         after_fd = os.fstat(descriptor)
         after_path = path.lstat()
-        if (after_fd.st_dev, after_fd.st_ino) != identity_opened:
+        if (after_fd.st_dev, after_fd.st_ino) != opened_identity:
             raise MaterialIntegrityError("FILE_CHANGED_DURING_READ", "Il file è cambiato durante la lettura.")
-        if (after_path.st_dev, after_path.st_ino) != identity_opened or stat.S_ISLNK(after_path.st_mode):
+        if (after_path.st_dev, after_path.st_ino) != opened_identity or stat.S_ISLNK(after_path.st_mode):
             raise MaterialIntegrityError("PATH_CHANGED_DURING_READ", "Il percorso è stato sostituito durante la lettura.")
-        return digest.hexdigest()
     finally:
         _close_fd(descriptor)
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    _update_digest_from_file(digest, path)
+    return digest.hexdigest()
 
 
 def _sha256_tree(path: Path, *, legacy: bool = False) -> str:
@@ -88,7 +92,7 @@ def _sha256_tree(path: Path, *, legacy: bool = False) -> str:
                 digest.update(relative + b"\0")
             else:
                 digest.update(b"F\0" + relative + b"\0")
-            digest.update(bytes.fromhex(_sha256_file(item)))
+            _update_digest_from_file(digest, item)
             digest.update(b"\0")
     return digest.hexdigest()
 
