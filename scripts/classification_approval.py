@@ -98,6 +98,10 @@ def _read_evidence_snapshot(root, source):
 
 
 def _validate_proposal(root, proposal, proposal_id):
+    schema_directory = root / "schemas"
+    directory_info = schema_directory.lstat()
+    if stat.S_ISLNK(directory_info.st_mode) or _is_reparse_point(directory_info) or not stat.S_ISDIR(directory_info.st_mode):
+        raise ValueError("Cartella degli schemi assente o non sicura.")
     schema_path = root / PROPOSAL_SCHEMA
     schema_info = schema_path.lstat()
     if stat.S_ISLNK(schema_info.st_mode) or _is_reparse_point(schema_info) or not stat.S_ISREG(schema_info.st_mode):
