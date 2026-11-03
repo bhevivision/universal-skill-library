@@ -378,7 +378,12 @@ class LlamaCppServerAdapter:
             "stream": False,
             "response_format": {
                 "type": "json_schema",
-                "schema": _classification_output_schema() if self.classification_only else _semantic_output_schema(),
+                # llama.cpp b12063 legge lo schema soltanto dal wrapper
+                # response_format.json_schema.schema; response_format.schema
+                # viene ignorato e la generazione resta libera.
+                "json_schema": {
+                    "schema": _classification_output_schema() if self.classification_only else _semantic_output_schema(),
+                },
             },
         }
         diagnostic_id = request.get("request_id", "request-unknown")
