@@ -84,6 +84,10 @@ class ExactClaimEvidenceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_claim_evidence(self.root, self.proposal)
 
+    def test_rejects_claim_when_request_has_no_selected_sources(self):
+        with self.assertRaisesRegex(ValueError, "file selezionato"):
+            validate_claim_evidence(self.root, self.proposal, allowed_sources={})
+
     def test_rejects_source_fingerprint_mismatch(self):
         self.source.write_text("File modificato.\n", encoding="utf-8")
         with self.assertRaises(ValueError):
