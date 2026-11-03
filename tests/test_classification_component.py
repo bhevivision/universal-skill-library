@@ -45,6 +45,25 @@ class ClassificationComponentTests(unittest.TestCase):
         self.assertTrue(result["evidence"])
         self.assertEqual(result["material"]["sha256"], self._digest())
 
+    def test_local_proposal_keeps_identity_evidence_when_no_text_is_readable(self):
+        self.material.unlink()
+        (self.material.parent / "payload.bin").write_bytes(b"\x00\xff")
+        catalog_path = self.root / "catalog/materials.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        catalog["materials"][0]["acquisition"]["original"]["sha256"] = self._digest()
+        catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+
+        result = analyze_material(self.root, "acq.skill")
+
+        self.assertEqual(result["proposal"]["kind"], "unclassified")
+        self.assertEqual(result["analysis"]["files_examined"], 0)
+        self.assertEqual(result["evidence"], [{
+            "source": "catalog/materials.json",
+            "type": "identity",
+            "material_id": "acq.skill",
+            "sha256": self._digest(),
+        }])
+
     def test_does_not_modify_material_or_material_catalog(self):
         before = self.material.read_bytes()
         catalog_before = (self.root / "catalog/materials.json").read_bytes()
