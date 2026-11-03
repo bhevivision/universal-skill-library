@@ -215,9 +215,18 @@ def main() -> int:
     )
     report = run_extraction_evaluation(adapter, dataset, work_root=Path(os.environ.get("TMPDIR", "/tmp")))
     report.update({
+        "report_version": "1.0",
+        "protocol_version": "1.0",
+        "mode": "full_semantic_extraction",
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "model": "Qwen/Qwen2.5-3B-Instruct-GGUF:Q4_K_M",
         "adapter": adapter.version,
+        "dataset_sha256": hashlib.sha256(args.dataset.read_bytes()).hexdigest(),
+        "runtime_limits": {
+            "context_tokens": 4096,
+            "max_generated_tokens": 1024,
+            "request_timeout_seconds": 120,
+        },
         "evaluation_note": "Valutazione esplorativa dell'estrazione semantica completa; le etichette e i fatti attesi restano nel valutatore e non vengono inviati al modello.",
     })
     output = Path(os.environ.get("SEMANTIC_EXTRACTION_REPORT", "/tmp/semantic-extraction-evaluation-report.json"))
