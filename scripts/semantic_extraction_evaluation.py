@@ -157,6 +157,7 @@ def run_extraction_evaluation(adapter, dataset: dict, work_root: Path | None = N
             "claims_total": 0,
             "claims_with_evidence": 0,
             "fact_details": [],
+            "diagnostics": [],
             "error": None,
         }
         try:
@@ -173,6 +174,7 @@ def run_extraction_evaluation(adapter, dataset: dict, work_root: Path | None = N
                 row["status"] = result.get("status", "failed")
                 row["predicted_kind"] = proposal.get("classification", {}).get("kind", "unclassified")
                 row["evidence_verified"] = bool(result.get("evidence_verified"))
+                row["diagnostics"] = list(proposal.get("limits", [])) + list(proposal.get("unknowns", []))
                 matched, total, details = match_expected_facts(sample.get("expected_facts", {}), proposal)
                 row["expected_facts"] = total
                 row["matched_facts"] = matched
