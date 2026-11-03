@@ -294,6 +294,10 @@ def validate_repository(root):
             continue
         sid = skill.get("id", "<senza-id>")
         source_record_id = skill.get("source_record_id")
+        source_material_ids = skill.get("source_material_ids", [])
+        for source_material_id in source_material_ids:
+            if source_material_id not in materialmap:
+                errors.append(f"skill {sid}: materiale di origine inesistente {source_material_id}")
         rel = skill.get("path")
         if source_record_id:
             material = materialmap.get(source_record_id)
