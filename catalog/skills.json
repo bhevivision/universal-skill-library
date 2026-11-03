@@ -1,4 +1,297 @@
 {
   "catalog_version": "1.0",
-  "skills": []
+  "skills": [
+    {
+      "id": "library.resource-discovery-assessment",
+      "path": "skills/resource-discovery-assessment/SKILL.md",
+      "capability_ids": [
+        "library.resource.discover-assess"
+      ],
+      "scope": "universal",
+      "version": "0.1.0",
+      "lifecycle": "experimental",
+      "tags": [
+        "ricerca",
+        "valutazione",
+        "licenza",
+        "acquisizione"
+      ],
+      "source_material_ids": [
+        "source.find-skills-discovery",
+        "source.agent-skills-format",
+        "source.unlazy-evidence-control",
+        "source.archivista-document-control"
+      ],
+      "selection": {
+        "task_signals": [
+          "cercare una skill esterna",
+          "valutare una risorsa prima di installarla",
+          "registrare provenienza e licenza",
+          "confrontare skill candidate"
+        ],
+        "inputs": [
+          {
+            "name": "obiettivo",
+            "description": "Risultato che la risorsa deve aiutare a ottenere.",
+            "required": true,
+            "format": "testo"
+          },
+          {
+            "name": "candidati",
+            "description": "Fonti o risorse già individuate.",
+            "required": false,
+            "format": "elenco di fonti"
+          },
+          {
+            "name": "vincoli",
+            "description": "Vincoli di licenza, piattaforma, sicurezza e autorizzazione.",
+            "required": false,
+            "format": "testo strutturato"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "valutazione",
+            "description": "Scheda della risorsa con prove, lacune e decisione.",
+            "format": "scheda materiale + rapporto"
+          }
+        ],
+        "prerequisites": [
+          "Accesso alla fonte primaria o possibilità di registrare che non è disponibile."
+        ],
+        "constraints": [
+          "Non installare o eseguire il materiale durante la ricerca.",
+          "Non dedurre una licenza quando non è dichiarata."
+        ],
+        "risk_level": "medium",
+        "verification": {
+          "status": "inconclusive",
+          "last_checked": "2026-11-03T20:29:21Z",
+          "evidence_refs": [
+            "tests/evidence/skill-library.resource-discovery-assessment.json"
+          ]
+        }
+      }
+    },
+    {
+      "id": "library.skill-authoring-adaptation",
+      "path": "skills/skill-authoring-adaptation/SKILL.md",
+      "capability_ids": [
+        "library.skill.adapt-author"
+      ],
+      "scope": "universal",
+      "version": "0.1.0",
+      "lifecycle": "experimental",
+      "tags": [
+        "creazione-skill",
+        "adattamento",
+        "agent-skills",
+        "provenienza"
+      ],
+      "source_material_ids": [
+        "source.agent-skills-format",
+        "source.matt-pocock-skills",
+        "source.unlazy-evidence-control",
+        "source.archivista-document-control",
+        "source.orca-registry"
+      ],
+      "selection": {
+        "task_signals": [
+          "creare una nuova skill",
+          "adattare una procedura esterna",
+          "convertire una raccolta in skill riutilizzabili",
+          "aggiornare una skill mantenendo provenienza"
+        ],
+        "inputs": [
+          {
+            "name": "obiettivo",
+            "description": "Comportamento riutilizzabile che la skill deve fornire.",
+            "required": true,
+            "format": "testo"
+          },
+          {
+            "name": "fonti",
+            "description": "Schede dei materiali che contribuiscono alla skill.",
+            "required": true,
+            "format": "elenco di identificativi materiali"
+          },
+          {
+            "name": "vincoli",
+            "description": "Ambito, piattaforme, permessi e limiti.",
+            "required": false,
+            "format": "testo strutturato"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "skill",
+            "description": "Cartella con SKILL.md, voce di catalogo e piano di prova.",
+            "format": "Agent Skills + catalogo"
+          }
+        ],
+        "prerequisites": [
+          "Materiali sorgente registrati.",
+          "Licenze e limiti delle fonti esaminati."
+        ],
+        "constraints": [
+          "Non sovrascrivere gli originali.",
+          "Non dichiarare stable senza prove funzionali."
+        ],
+        "risk_level": "medium",
+        "verification": {
+          "status": "inconclusive",
+          "last_checked": "2026-11-03T20:29:21Z",
+          "evidence_refs": [
+            "tests/evidence/skill-library.skill-authoring-adaptation.json"
+          ]
+        }
+      }
+    },
+    {
+      "id": "verification.evidence-based-review",
+      "path": "skills/evidence-based-review/SKILL.md",
+      "capability_ids": [
+        "verification.evidence.assess"
+      ],
+      "scope": "universal",
+      "version": "0.1.0",
+      "lifecycle": "experimental",
+      "tags": [
+        "verifica",
+        "prove",
+        "accettazione",
+        "diagnosi"
+      ],
+      "source_material_ids": [
+        "source.unlazy-evidence-control",
+        "source.matt-pocock-skills",
+        "source.orca-runtime"
+      ],
+      "selection": {
+        "task_signals": [
+          "verificare un risultato",
+          "dimostrare che una skill funziona",
+          "indagare un test fallito",
+          "decidere se un'attività è completata"
+        ],
+        "inputs": [
+          {
+            "name": "oggetto",
+            "description": "Skill, implementazione o risultato da verificare.",
+            "required": true,
+            "format": "identificativo e revisione"
+          },
+          {
+            "name": "criteri",
+            "description": "Criteri di accettazione e prove attese.",
+            "required": true,
+            "format": "elenco di criteri"
+          },
+          {
+            "name": "ambiente",
+            "description": "Ambiente e dipendenze della prova.",
+            "required": false,
+            "format": "descrizione"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "esito",
+            "description": "Esito e rapporto delle prove con decisione.",
+            "format": "rapporto di verifica + riferimenti alle prove"
+          }
+        ],
+        "prerequisites": [
+          "Criteri di accettazione definiti.",
+          "Accesso ai dati o all'ambiente necessari, oppure dichiarazione del blocco."
+        ],
+        "constraints": [
+          "Non modificare i criteri per far passare la prova.",
+          "Non cancellare esiti negativi o parziali."
+        ],
+        "risk_level": "medium",
+        "verification": {
+          "status": "inconclusive",
+          "last_checked": "2026-11-03T20:29:21Z",
+          "evidence_refs": [
+            "tests/evidence/skill-verification.evidence-based-review.json"
+          ]
+        }
+      }
+    },
+    {
+      "id": "workflow.composition-planning",
+      "path": "skills/workflow-composition-planning/SKILL.md",
+      "capability_ids": [
+        "workflow.plan.compose"
+      ],
+      "scope": "universal",
+      "version": "0.1.0",
+      "lifecycle": "experimental",
+      "tags": [
+        "pianificazione",
+        "coordinamento",
+        "dipendenze",
+        "permessi"
+      ],
+      "source_material_ids": [
+        "source.orca-runtime",
+        "source.orca-registry",
+        "source.agent-skills-format",
+        "source.matt-pocock-skills",
+        "source.unlazy-evidence-control"
+      ],
+      "selection": {
+        "task_signals": [
+          "pianificare un obiettivo complesso",
+          "suddividere attività con dipendenze",
+          "decidere quali skill comporre",
+          "preparare un piano di esecuzione verificabile"
+        ],
+        "inputs": [
+          {
+            "name": "obiettivo",
+            "description": "Risultato richiesto dall'utente.",
+            "required": true,
+            "format": "testo"
+          },
+          {
+            "name": "cataloghi",
+            "description": "Capacità, skill, implementazioni e strumenti disponibili.",
+            "required": true,
+            "format": "cataloghi della libreria"
+          },
+          {
+            "name": "permessi",
+            "description": "Autorizzazioni effettivamente concesse.",
+            "required": false,
+            "format": "mappa dei permessi"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "piano",
+            "description": "Piano indipendente dalla piattaforma, senza esecuzione.",
+            "format": "JSON, YAML o tabella strutturata"
+          }
+        ],
+        "prerequisites": [
+          "Cataloghi leggibili o possibilità di indicare le lacune."
+        ],
+        "constraints": [
+          "Non eseguire il piano.",
+          "Non selezionare skill non verificate come esecutori ordinari.",
+          "Non assegnare permessi non concessi."
+        ],
+        "risk_level": "high",
+        "verification": {
+          "status": "inconclusive",
+          "last_checked": "2026-11-03T20:29:21Z",
+          "evidence_refs": [
+            "tests/evidence/skill-workflow.composition-planning.json"
+          ]
+        }
+      }
+    }
+  ]
 }

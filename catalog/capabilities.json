@@ -1,4 +1,93 @@
 {
   "catalog_version": "1.0",
-  "capabilities": []
+  "capabilities": [
+    {
+      "id": "library.resource.discover-assess",
+      "name": "Ricerca e valutazione delle risorse",
+      "description": "Individuare, fissare, classificare e valutare fonti esterne prima del riutilizzo.",
+      "category": "library_management",
+      "expected_result": "Scheda materiale tracciabile con fonte, revisione, licenza, dipendenze, permessi, rischi, compatibilità e decisione motivata.",
+      "verification_criteria": [
+        "La fonte primaria e la revisione sono identificate.",
+        "La licenza è registrata come identificata, non dichiarata, ambigua, in conflitto o non disponibile.",
+        "Dipendenze, permessi, rischi e limiti sono espliciti.",
+        "La ricerca non ha installato né eseguito il materiale.",
+        "La decisione distingue riutilizzo, adattamento, riferimento, esclusione e blocco."
+      ],
+      "skill_ids": [
+        "library.resource-discovery-assessment"
+      ],
+      "limitations": [
+        "La valutazione documentale non dimostra da sola il funzionamento.",
+        "La registrazione di una licenza non è un parere legale."
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "library.skill.adapt-author",
+      "name": "Adattamento e creazione di skill",
+      "description": "Trasformare procedure selezionate in skill compatibili con Agent Skills, mantenendo contratti e provenienza.",
+      "category": "skill_management",
+      "expected_result": "Cartella SKILL.md conforme, voce di catalogo, collegamenti a tutte le fonti e piano di verifica.",
+      "verification_criteria": [
+        "Il frontmatter e il nome della cartella sono conformi.",
+        "Ingressi, risultati, prerequisiti, limiti, rischio e verifica sono definiti.",
+        "Tutte le fonti sono collegate tramite source_material_ids.",
+        "Originale, skill, implementazione e strumento restano distinti.",
+        "La skill resta unverified finché non supera prove funzionali."
+      ],
+      "skill_ids": [
+        "library.skill-authoring-adaptation"
+      ],
+      "limitations": [
+        "La conformità del formato non garantisce compatibilità con ogni agente.",
+        "La licenza della skill derivata deve essere decisa separatamente."
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "verification.evidence.assess",
+      "name": "Verifica basata su prove",
+      "description": "Valutare criteri di accettazione tramite prove tracciabili e diagnosticare gli esiti negativi.",
+      "category": "verification",
+      "expected_result": "Esito passed, failed, inconclusive o not_run con prove, versione, ambiente e decisione.",
+      "verification_criteria": [
+        "Ogni criterio è definito prima della prova.",
+        "Le prove sono collegate alla versione e all'ambiente controllati.",
+        "Gli esiti negativi e parziali sono conservati.",
+        "Le cause dei fallimenti sono sostenute da prove, non da ipotesi.",
+        "Il completamento è dichiarato solo se tutti i criteri applicabili sono soddisfatti."
+      ],
+      "skill_ids": [
+        "verification.evidence-based-review"
+      ],
+      "limitations": [
+        "Prove B o C non dimostrano da sole il funzionamento operativo.",
+        "Alcune verifiche richiedono accesso o approvazione umana."
+      ],
+      "status": "draft"
+    },
+    {
+      "id": "workflow.plan.compose",
+      "name": "Pianificazione e composizione dei flussi",
+      "description": "Comporre capacità e skill in un piano con dipendenze, permessi, verifiche e recupero.",
+      "category": "coordination",
+      "expected_result": "Piano indipendente dalla piattaforma con attività, contratti, dipendenze, parallelismo, autorizzazioni, verifiche e gestione degli errori.",
+      "verification_criteria": [
+        "Obiettivo e criteri di accettazione sono espliciti.",
+        "Le attività sono collegate a capacità e skill disponibili.",
+        "Dipendenze e gruppi paralleli sono corretti e senza cicli.",
+        "Strumenti e permessi sono disponibili o classificati come lacune.",
+        "Ogni attività ha verifica e recupero; il piano non viene eseguito dal pianificatore."
+      ],
+      "skill_ids": [
+        "workflow.composition-planning"
+      ],
+      "limitations": [
+        "Non esegue il piano e non sostituisce il motore di coordinamento.",
+        "Skill non verificate non sono selezionate come esecutori ordinari."
+      ],
+      "status": "draft"
+    }
+  ]
 }

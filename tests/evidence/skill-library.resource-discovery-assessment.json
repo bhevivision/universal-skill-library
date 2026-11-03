@@ -1,0 +1,8 @@
+{
+  "id": "proof.skill.library.resource-discovery-assessment.manual-01",
+  "subject": "library.resource-discovery-assessment",
+  "result": "inconclusive",
+  "tested_at": "2026-11-03T20:29:21Z",
+  "command": "Applicazione manuale delle istruzioni SKILL.md in ChatGPT GPT-6 al caso controllato documentato in tests/cases/skills/initial-skill-behavior-tests.md; nessuna installazione o invocazione di runtime esterno.",
+  "summary": "Il caso manuale ha rispettato i criteri di sicurezza e di classificazione. La verifica complessiva resta inconclusiva perché non è stata invocata la skill tramite un runtime Agent Skills esterno."
+}
