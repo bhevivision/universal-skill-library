@@ -2,10 +2,7 @@ name: Prova isolata GGUF per richiesta di integrazione
 on:
   pull_request:
     branches:
-      - model/structural-model-v1
-  push:
-    branches:
-      - semantic-evaluation-isolation-v1
+      - semantic-engine-v1
     paths:
       - scripts/semantic_extraction_evaluation.py
       - tests/test_semantic_extraction_evaluation.py
