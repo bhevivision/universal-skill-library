@@ -1,7 +1,9 @@
 import json
+import tempfile
 import unittest
+from pathlib import Path
 
-from scripts.gguf_four_config_diagnostic import CONFIGURATIONS, _apply_configuration, consume_sse, select_configuration
+from scripts.gguf_four_config_diagnostic import CONFIGURATIONS, _apply_configuration, consume_sse, select_configuration, StreamingDiagnosticAdapter
 from scripts.llama_cpp_adapter import _semantic_output_schema
 
 
@@ -10,6 +12,23 @@ class StreamingDiagnosticTests(unittest.TestCase):
         self.assertEqual(select_configuration("C")["id"], "C")
         with self.assertRaises(ValueError):
             select_configuration("E")
+
+    def test_writes_a_readable_progress_record_for_each_sample_event(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            adapter = StreamingDiagnosticAdapter(
+                "http://127.0.0.1:1", CONFIGURATIONS[0], temp_dir
+            )
+            metrics = {
+                "request_id": "eval:sample-1",
+                "status": "started",
+                "generated_characters": 0,
+                "error": None,
+            }
+            adapter._write_progress(metrics, "started")
+            progress = Path(temp_dir, "progress.jsonl").read_text(encoding="utf-8")
+            event = json.loads(progress.splitlines()[0])
+            self.assertEqual(event["request_id"], "eval:sample-1")
+            self.assertEqual(event["event"], "started")
 
     def test_preserves_each_content_delta_before_stream_finishes(self):
         events = [
