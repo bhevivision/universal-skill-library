@@ -195,5 +195,31 @@ class ClassificationApprovalTests(unittest.TestCase):
         self.assertEqual((self.root / "catalog/materials.json").read_bytes(), before)
 
 
+    def test_remote_reference_cannot_be_approved_as_a_skill_without_content_evidence(self):
+        path = self.root / "catalog/materials.json"
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+        catalog["materials"][0]["acquisition"] = {
+            "status": "received",
+            "original": {"kind": "remote_reference", "uri": "https://example.org/skill"}
+        }
+        path.write_text(json.dumps(catalog), encoding="utf-8")
+        self.proposal["material"] = {
+            "id": "acq.example", "sha256": None, "original_kind": "remote_reference"
+        }
+        self.proposal["proposal"] = {
+            "kind": "skill", "confidence": "high",
+            "rationale": "Il contenuto remoto è una skill."
+        }
+        self.proposal["evidence"] = []
+        self.proposal["analysis"]["files_examined"] = 0
+        (self.root / "proposals/class.example.json").write_text(
+            json.dumps(self.proposal), encoding="utf-8"
+        )
+
+        with self.assertRaisesRegex(ValueError, "riferimento remoto"):
+            approve_proposal(self.root, "class.example", actor="human:reviewer", rationale="Ok")
+
+        self.assertEqual(self._material()["classification"]["status"], "not_examined")
+
 if __name__ == "__main__":
     unittest.main()
