@@ -46,13 +46,19 @@ def _validate_id(material_id):
         raise ValueError("Identificativo non valido: usare lettere minuscole, numeri, punti o trattini.")
 
 
+def _is_reparse_point(info):
+    flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return bool(getattr(info, "st_file_attributes", 0) & flag)
+
+
 def _bounded_entries(path):
     """Elenca un albero entro limiti rigidi di elementi e profondità."""
     path = Path(path)
-    if path.is_symlink():
-        raise ValueError(f"Collegamento simbolico non ammesso: {path}")
-    if path.is_file():
-        info = path.lstat()
+    root_info = path.lstat()
+    if stat.S_ISLNK(root_info.st_mode) or _is_reparse_point(root_info):
+        raise ValueError(f"Collegamento o punto di reindirizzamento non ammesso: {path}")
+    if stat.S_ISREG(root_info.st_mode):
+        info = root_info
         if not stat.S_ISREG(info.st_mode):
             raise ValueError(f"Elemento non regolare non ammesso: {path}")
         return [(path, "file", info)]
@@ -76,8 +82,8 @@ def _bounded_entries(path):
         for entry in children:
             child = Path(entry.path)
             info = entry.stat(follow_symlinks=False)
-            if stat.S_ISLNK(info.st_mode):
-                raise ValueError(f"Collegamento simbolico non ammesso: {child}")
+            if stat.S_ISLNK(info.st_mode) or _is_reparse_point(info):
+                raise ValueError(f"Collegamento o punto di reindirizzamento non ammesso: {child}")
             if stat.S_ISDIR(info.st_mode):
                 if depth + 1 > MAX_ACQUISITION_DEPTH:
                     raise ValueError("Il materiale supera la profondità massima consentita.")
@@ -194,7 +200,9 @@ def _copy_directory_bounded(source, destination):
             if stat.S_ISLNK(after.st_mode) or (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
                 raise ValueError(f"La cartella sorgente è stata sostituita durante la copia: {item}")
     source_after = source.lstat()
-    if stat.S_ISLNK(source_after.st_mode) or (source_after.st_dev, source_after.st_ino) != (source_info.st_dev, source_info.st_ino):
+    if stat.S_ISLNK(source_after.st_mode) or _is_reparse_point(source_after) or not stat.S_ISDIR(source_after.st_mode):
+        raise ValueError("La cartella sorgente è stata sostituita durante la copia.")
+    if os.name != "nt" and (source_after.st_dev, source_after.st_ino) != (source_info.st_dev, source_info.st_ino):
         raise ValueError("La cartella sorgente è stata sostituita durante la copia.")
     return counters["files"], counters["bytes"]
 
