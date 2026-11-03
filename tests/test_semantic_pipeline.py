@@ -185,7 +185,7 @@ class SemanticPipelineTests(unittest.TestCase):
                         "kind": "skill", "confidence": "high",
                         "rationale": "Claim without a valid source.",
                         "summary": "Unverified claim.",
-                        "evidence_refs": ["ev.fake"],
+                        "evidence_refs": ["ev.fake"], "evidence_quotes": [{"evidence_ref": "ev.fake", "quote": "Use the supplied documents and return a concise summary."}],
                     },
                     "capabilities": [],
                     "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
