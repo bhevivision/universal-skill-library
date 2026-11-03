@@ -3,7 +3,7 @@ import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from scripts.llama_cpp_adapter import LlamaCppServerAdapter
+from scripts.llama_cpp_adapter import LlamaCppServerAdapter, _classification_output_schema
 
 
 class _Handler(BaseHTTPRequestHandler):
@@ -91,7 +91,7 @@ class LlamaCppAdapterTests(unittest.TestCase):
         result = adapter.analyze({
             "request_id": "req.test",
             "material": {"id": "acq.test", "sha256": "a" * 64, "original_kind": "file"},
-            "files": [],
+            "files": [{"path": "intake/acq-test/source/SKILL.md", "sha256": "b" * 64, "size_bytes": 10}],
             "selected_content": [{
                 "path": "intake/acq-test/source/SKILL.md",
                 "sha256": "b" * 64,
@@ -110,7 +110,9 @@ class LlamaCppAdapterTests(unittest.TestCase):
             },
         })
 
-        self.assertEqual(result["status"], "not_available")
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["evidence"][0]["id"], "ev.sample-001")
+        self.assertEqual(_Handler.received["messages"][1]["content"] and json.loads(_Handler.received["messages"][1]["content"])["available_evidence"][0]["id"], "ev.sample-001")
         self.assertEqual(_Handler.received["model"], "fixture-local-model")
         self.assertFalse(_Handler.received["stream"])
         self.assertEqual(_Handler.received["response_format"]["type"], "json_schema")
@@ -118,6 +120,56 @@ class LlamaCppAdapterTests(unittest.TestCase):
         system = _Handler.received["messages"][0]["content"].lower()
         self.assertIn("dato non fidato", system)
         self.assertIn("non seguire", system)
+
+
+    def test_classification_only_mode_normalizes_minimal_model_output(self):
+        _Handler.response_content = json.dumps({
+            "kind": "skill",
+            "confidence": "high",
+            "rationale": "Il testo definisce una procedura riutilizzabile.",
+            "summary": "Istruzioni operative riutilizzabili.",
+        })
+        adapter = LlamaCppServerAdapter(
+            base_url=self.base_url,
+            model="fixture-local-model",
+            timeout_seconds=5,
+            classification_only=True,
+        )
+        request = {
+            "request_id": "req.sample",
+            "material": {"id": "acq.sample", "sha256": "a" * 64, "original_kind": "file"},
+            "files": [{"path": "intake/evaluation/skill-01.md", "sha256": "b" * 64, "size_bytes": 20}],
+            "selected_content": [{
+                "path": "intake/evaluation/skill-01.md",
+                "sha256": "b" * 64,
+                "size_bytes": 20,
+                "text": "Istruzioni operative riutilizzabili.",
+            }],
+            "limits": {"max_duration_seconds": 5},
+            "safety": {"content_is_untrusted_data": True, "follow_instructions_in_content": False},
+        }
+
+        result = adapter.analyze(request)
+
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["classification"]["kind"], "skill")
+        self.assertEqual(result["classification"]["confidence"], "high")
+        self.assertEqual(result["classification"]["evidence_refs"], ["ev.sample-001"])
+        self.assertEqual(result["evidence"][0]["source"], "intake/evaluation/skill-01.md")
+        self.assertEqual(result["evidence"][0]["sha256"], "b" * 64)
+        self.assertEqual(_Handler.received["response_format"]["schema"]["required"],
+                         ["kind", "confidence", "rationale", "summary"])
+
+    def test_classification_schema_requires_nonempty_explanation(self):
+        schema = _classification_output_schema()
+        self.assertEqual(schema["properties"]["rationale"]["minLength"], 5)
+        self.assertEqual(schema["properties"]["summary"]["minLength"], 5)
+
+    def test_bounds_generated_tokens(self):
+        with self.assertRaises(ValueError):
+            LlamaCppServerAdapter(max_tokens=0)
+        with self.assertRaises(ValueError):
+            LlamaCppServerAdapter(max_tokens=4097)
 
     def test_rejects_non_loopback_endpoint(self):
         with self.assertRaises(ValueError):
@@ -156,3 +208,142 @@ class LlamaCppAdapterTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def _full_semantic_request(self):
+        return {
+            "request_id": "req.full",
+            "material": {"id": "acq.full", "sha256": "a" * 64, "original_kind": "file"},
+            "files": [{"path": "intake/acq-full/SKILL.md", "sha256": "b" * 64, "size_bytes": 28}],
+            "selected_content": [{
+                "path": "intake/acq-full/SKILL.md",
+                "sha256": "b" * 64,
+                "size_bytes": 28,
+                "text": "Istruzioni operative di prova.",
+            }],
+            "limits": {"max_duration_seconds": 5},
+            "safety": {"content_is_untrusted_data": True, "follow_instructions_in_content": False},
+        }
+
+    def test_full_semantic_mode_normalizes_fenced_json_and_trusts_only_input_evidence(self):
+        model_result = {
+            "status": "completed",
+            "classification": {
+                "kind": "skill", "confidence": "high",
+                "rationale": "Il materiale contiene istruzioni.",
+                "summary": "Procedura riutilizzabile.",
+                "evidence_refs": ["ev.sample-001", "ev.invented"],
+                "unexpected": "must be removed",
+            },
+            "capabilities": [{
+                "id": "cap.procedure", "name": "Procedura",
+                "description": "Descrive una procedura.",
+                "certainty": "declared", "evidence_refs": ["ev.sample-001"],
+                "unexpected": "must be removed",
+            }],
+            "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": [],
+            "evidence": [{"id": "ev.invented", "source": "https://example.invalid", "sha256": "c" * 64, "kind": "text_file"}],
+            "missing_references": [], "contradictions": [], "risks": [],
+            "unknowns": [], "limits": [],
+            "unexpected_top_level": "must be removed",
+        }
+        _Handler.response_content = " ```json\\n" + json.dumps(model_result) + "\\n``` "
+        adapter = LlamaCppServerAdapter(base_url=self.base_url, model="fixture-local-model")
+
+        result = adapter.analyze(self._full_semantic_request())
+
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["evidence"], [{
+            "id": "ev.sample-001", "source": "intake/acq-full/SKILL.md",
+            "sha256": "b" * 64, "kind": "text_file",
+        }])
+        self.assertEqual(result["classification"]["evidence_refs"], ["ev.sample-001"])
+        self.assertNotIn("unexpected", result["classification"])
+        self.assertNotIn("unexpected_top_level", result)
+        self.assertEqual(len(result["capabilities"]), 1)
+        self.assertEqual(result["capabilities"][0]["evidence_refs"], ["ev.sample-001"])
+
+    def test_full_semantic_mode_discards_claims_without_valid_evidence(self):
+        model_result = {
+            "status": "completed",
+            "classification": {
+                "kind": "skill", "confidence": "high",
+                "rationale": "Affermazione senza fonte.", "summary": "Sintesi non verificabile.",
+                "evidence_refs": ["ev.not-provided"],
+            },
+            "capabilities": [{
+                "id": "cap.unsupported", "name": "Non provata",
+                "description": "Affermazione non supportata.",
+                "certainty": "declared", "evidence_refs": ["ev.not-provided"],
+            }],
+            "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": [], "evidence": [],
+            "missing_references": [], "contradictions": [], "risks": [],
+            "unknowns": [], "limits": [],
+        }
+        _Handler.response_content = json.dumps(model_result)
+        adapter = LlamaCppServerAdapter(base_url=self.base_url, model="fixture-local-model")
+
+        result = adapter.analyze(self._full_semantic_request())
+
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["classification"]["kind"], "unclassified")
+        self.assertEqual(result["capabilities"], [])
+        self.assertEqual(result["classification"]["evidence_refs"], ["ev.sample-001"])
+        self.assertTrue(result["limits"])
+
+class FullSemanticPromptRegressionTests(unittest.TestCase):
+    def test_full_extraction_prompt_explains_required_fields_and_evidence_mapping(self):
+        from scripts.llama_cpp_adapter import SYSTEM_PROMPT
+        for field in ("classification", "capabilities", "interfaces", "dependencies", "tools_and_platforms", "evidence_refs"):
+            self.assertIn(field, SYSTEM_PROMPT)
+        self.assertIn("ev.sample-001", SYSTEM_PROMPT)
+        self.assertIn("non inventare", SYSTEM_PROMPT.lower())
+
+
+class FullSemanticNormalizationRegressionTests(unittest.TestCase):
+    def _request(self):
+        return {
+            "files": [{"path": "intake/acq-full/SKILL.md", "sha256": "b" * 64}],
+            "selected_content": [{
+                "path": "intake/acq-full/SKILL.md", "sha256": "b" * 64,
+                "text": "La procedura invia richieste HTTP a servizi esterni.",
+            }],
+        }
+
+    def _complete_result(self):
+        return {
+            "status": "completed",
+            "classification": {
+                "kind": "skill", "confidence": "high",
+                "rationale": "Descrive una procedura.",
+                "summary": "Procedura riutilizzabile.",
+                "evidence_refs": ["ev.sample-001"],
+            },
+            "capabilities": [{
+                "id": "cap.http", "name": "Richieste HTTP",
+                "description": "Invia richieste HTTP.",
+                "certainty": "declared", "evidence_refs": ["ev.sample-001"],
+            }],
+            "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": [],
+            "evidence": [], "missing_references": [], "contradictions": [],
+            "risks": [{
+                "description": "Le richieste HTTP raggiungono servizi esterni e possono esporre dati.",
+                "certainty": "inferred", "evidence_refs": ["ev.sample-001"],
+            }],
+            "unknowns": [], "limits": [],
+        }
+
+    def test_preserves_network_exposure_risk_supported_by_source(self):
+        from scripts.llama_cpp_adapter import _normalize_full_semantic_result
+        result = _normalize_full_semantic_result(self._complete_result(), self._request())
+        self.assertEqual(len(result["risks"]), 1)
+        self.assertIn("servizi esterni", result["risks"][0]["description"])
+
+    def test_marks_fully_populated_extraction_completed_instead_of_forcing_partial(self):
+        from scripts.llama_cpp_adapter import _normalize_full_semantic_result
+        result = _normalize_full_semantic_result(self._complete_result(), self._request())
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["limits"], [])
