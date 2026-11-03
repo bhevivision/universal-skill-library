@@ -143,7 +143,7 @@ class LlamaCppServerAdapter:
                 },
             ],
             "temperature": 0.1,
-            "max_tokens": 4096,
+            "max_tokens": self.max_tokens,
             "stream": False,
             "response_format": {
                 "type": "json_schema",
