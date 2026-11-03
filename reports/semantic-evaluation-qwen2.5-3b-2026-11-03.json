@@ -1,5 +1,5 @@
 {
-  "report_version": "1.0",
+  "report_version": "1.1",
   "generated_at": "2026-11-03",
   "dataset_version": "1.0",
   "purpose": "Valutazione esplorativa della classificazione primaria, non certificazione statistica.",
@@ -60,7 +60,6 @@
     "coverage": 1,
     "selective_accuracy": 1,
     "macro_f1": 1,
-    "evidence_fidelity": 1,
     "abstention_count": 0,
     "mean_elapsed_seconds": 26.711,
     "per_class": {
@@ -100,7 +99,8 @@
         "recall": 1,
         "f1": 1
       }
-    }
+    },
+    "evidence_reference_integrity": 1
   },
   "predictions": [
     {
@@ -108,96 +108,96 @@
       "expected": "skill",
       "predicted": "skill",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "skill-02",
       "expected": "skill",
       "predicted": "skill",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "tool-01",
       "expected": "tool",
       "predicted": "tool",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "tool-02",
       "expected": "tool",
       "predicted": "tool",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "agent-01",
       "expected": "agent",
       "predicted": "agent",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "agent-02",
       "expected": "agent",
       "predicted": "agent",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "workflow-01",
       "expected": "workflow",
       "predicted": "workflow",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "workflow-02",
       "expected": "workflow",
       "predicted": "workflow",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "resource-01",
       "expected": "resource",
       "predicted": "resource",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "resource-02",
       "expected": "resource",
       "predicted": "resource",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "composite-01",
       "expected": "composite",
       "predicted": "composite",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     },
     {
       "id": "composite-02",
       "expected": "composite",
       "predicted": "composite",
       "correct": true,
-      "evidence_valid": true,
-      "confidence": "high"
+      "confidence": "high",
+      "source_references_valid": true
     }
   ],
   "interpretation": [
@@ -205,5 +205,6 @@
     "La modalità classificazione primaria ha classificato correttamente tutti i 12 campioni iniziali.",
     "Il rapporto misura soltanto la classificazione primaria; non certifica l'estrazione completa di capacità, interfacce, dipendenze o rischi.",
     "Due esempi per classe sono insufficienti per stimare l'accuratezza su materiali reali eterogenei. Ampliare il campione prima di considerare il classificatore affidabile."
-  ]
+  ],
+  "metric_definition": "evidence_reference_integrity misura soltanto la corrispondenza tecnica dei riferimenti alle fonti che l'adattatore costruisce a partire dagli input; non misura la fedeltà semantica delle affermazioni del modello né il collegamento di ogni affermazione a un passaggio sorgente."
 }
