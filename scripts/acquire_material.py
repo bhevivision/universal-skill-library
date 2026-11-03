@@ -122,7 +122,7 @@ def _copy_file_bounded(source, destination, counters):
     source = Path(source)
     destination = Path(destination)
     before = source.lstat()
-    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+    if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISREG(before.st_mode):
         raise ValueError(f"Elemento non regolare non ammesso: {source}")
     if counters["files"] + 1 > MAX_ACQUISITION_FILES:
         raise ValueError("Il materiale supera il numero massimo di file acquisibili.")
@@ -140,7 +140,7 @@ def _copy_file_bounded(source, destination, counters):
     try:
         opened = os.fstat(descriptor)
         identity = (before.st_dev, before.st_ino)
-        if not stat.S_ISREG(opened.st_mode) or (opened.st_dev, opened.st_ino) != identity:
+        if not stat.S_ISREG(opened.st_mode) or _is_reparse_point(opened) or (opened.st_dev, opened.st_ino) != identity:
             raise ValueError("Il file sorgente è cambiato durante l'apertura.")
         destination.parent.mkdir(parents=True, exist_ok=True)
         with destination.open("xb") as output:
@@ -159,7 +159,7 @@ def _copy_file_bounded(source, destination, counters):
         after_path = source.lstat()
         if (after_fd.st_dev, after_fd.st_ino) != identity:
             raise ValueError("Il file sorgente è cambiato durante la copia.")
-        if (after_path.st_dev, after_path.st_ino) != identity or stat.S_ISLNK(after_path.st_mode):
+        if (after_path.st_dev, after_path.st_ino) != identity or stat.S_ISLNK(after_path.st_mode) or _is_reparse_point(after_path):
             raise ValueError("Il percorso sorgente è stato sostituito durante la copia.")
         if after_fd.st_size != copied or before.st_size != copied:
             raise ValueError("La dimensione del file sorgente è cambiata durante la copia.")
@@ -179,7 +179,7 @@ def _copy_directory_bounded(source, destination):
     source = Path(source)
     destination = Path(destination)
     source_info = source.lstat()
-    if stat.S_ISLNK(source_info.st_mode) or not stat.S_ISDIR(source_info.st_mode):
+    if stat.S_ISLNK(source_info.st_mode) or _is_reparse_point(source_info) or not stat.S_ISDIR(source_info.st_mode):
         raise ValueError("La cartella sorgente è cambiata o non è sicura.")
     entries = _bounded_entries(source)
     destination.mkdir(parents=True, exist_ok=False)
