@@ -104,25 +104,49 @@ def _inventory(path: Path) -> list[Path]:
         raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico.")
     if path.is_file():
         return [path]
-    # Inventario limitato per evitare di caricare alberi arbitrariamente grandi.
     entries = []
-    for current, directories, filenames in os.walk(path, followlinks=False):
-        current_path = Path(current)
-        if len(current_path.relative_to(path).parts) > MAX_INVENTORY_DEPTH:
-            raise MaterialIntegrityError("INVENTORY_LIMIT_EXCEEDED", "Profondità massima dell'inventario superata.")
-        for name in list(directories):
-            child = current_path / name
-            if child.is_symlink():
-                raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico.")
-            entries.append(child)
-        for name in filenames:
-            child = current_path / name
-            if child.is_symlink():
-                raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico.")
-            entries.append(child)
-        if len(entries) > MAX_INVENTORY_ENTRIES:
-            raise MaterialIntegrityError("INVENTORY_LIMIT_EXCEEDED", "Numero massimo di elementi nell'inventario superato.")
-    return sorted(entries)
+    pending = [(path, 0)]
+    while pending:
+        current, depth = pending.pop()
+        children = []
+        with os.scandir(current) as iterator:
+            for entry in iterator:
+                children.append(entry)
+                if len(entries) + len(children) > MAX_INVENTORY_ENTRIES:
+                    raise MaterialIntegrityError(
+                        "INVENTORY_LIMIT_EXCEEDED",
+                        "Numero massimo di elementi nell'inventario superato."
+                    )
+        children.sort(key=lambda item: item.name)
+        subdirectories = []
+        for entry in children:
+            child = Path(entry.path)
+            info = entry.stat(follow_symlinks=False)
+            if stat.S_ISLNK(info.st_mode):
+                raise MaterialIntegrityError(
+                    "SYMLINK_NOT_ALLOWED", "Il materiale contiene un collegamento simbolico."
+                )
+            if stat.S_ISDIR(info.st_mode):
+                if depth + 1 > MAX_INVENTORY_DEPTH:
+                    raise MaterialIntegrityError(
+                        "INVENTORY_LIMIT_EXCEEDED",
+                        "Profondità massima dell'inventario superata."
+                    )
+                entries.append(child)
+                subdirectories.append((child, depth + 1))
+            elif stat.S_ISREG(info.st_mode):
+                entries.append(child)
+            else:
+                raise MaterialIntegrityError(
+                    "NON_REGULAR_ENTRY", "L'inventario contiene un elemento non regolare."
+                )
+            if len(entries) > MAX_INVENTORY_ENTRIES:
+                raise MaterialIntegrityError(
+                    "INVENTORY_LIMIT_EXCEEDED",
+                    "Numero massimo di elementi nell'inventario superato."
+                )
+        pending.extend(reversed(subdirectories))
+    return sorted(entries, key=lambda item: item.relative_to(path).as_posix())
 
 
 def _relative_source(item: Path, root: Path) -> str:
