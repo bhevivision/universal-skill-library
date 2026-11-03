@@ -158,6 +158,27 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertEqual(_Handler.received["response_format"]["schema"]["required"],
                          ["kind", "confidence", "rationale", "summary"])
 
+    def test_accepts_json_fenced_response_with_surrounding_text(self):
+        _Handler.response_content = 'Risultato modello:\\n```json\\n' + json.dumps({
+            "status": "not_available",
+            "classification": {"kind": "unclassified", "confidence": "low",
+                               "rationale": "No analysis.", "summary": "No classification.",
+                               "evidence_refs": ["ev.catalog"]},
+            "capabilities": [], "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": [], "evidence": [],
+            "missing_references": [], "contradictions": [], "risks": [],
+            "unknowns": ["No analysis."], "limits": ["No evidence."],
+        }) + '\\n```\\nFine.'
+        adapter = LlamaCppServerAdapter(base_url=self.base_url, model="fixture-local-model")
+        result = adapter.analyze({"limits": {"max_duration_seconds": 5}})
+        self.assertEqual(result["status"], "not_available")
+
+    def test_rejects_duplicate_json_keys_from_model(self):
+        _Handler.response_content = '{"status":"partial","status":"completed"}'
+        adapter = LlamaCppServerAdapter(base_url=self.base_url, model="fixture-local-model")
+        with self.assertRaises(ValueError):
+            adapter.analyze({"limits": {"max_duration_seconds": 5}})
+
     def test_classification_schema_requires_nonempty_explanation(self):
         schema = _classification_output_schema()
         self.assertEqual(schema["properties"]["rationale"]["minLength"], 5)
