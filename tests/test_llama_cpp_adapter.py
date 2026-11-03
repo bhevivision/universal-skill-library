@@ -3,7 +3,7 @@ import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from scripts.llama_cpp_adapter import LlamaCppServerAdapter
+from scripts.llama_cpp_adapter import LlamaCppServerAdapter, _classification_output_schema
 
 
 class _Handler(BaseHTTPRequestHandler):
@@ -157,6 +157,11 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertEqual(result["evidence"][0]["sha256"], "b" * 64)
         self.assertEqual(_Handler.received["response_format"]["schema"]["required"],
                          ["kind", "confidence", "rationale", "summary"])
+
+    def test_classification_schema_requires_nonempty_explanation(self):
+        schema = _classification_output_schema()
+        self.assertEqual(schema["properties"]["rationale"]["minLength"], 5)
+        self.assertEqual(schema["properties"]["summary"]["minLength"], 5)
 
     def test_bounds_generated_tokens(self):
         with self.assertRaises(ValueError):
