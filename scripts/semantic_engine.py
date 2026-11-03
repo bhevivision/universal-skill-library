@@ -123,6 +123,52 @@ def _validate_proposal_schema(proposal: dict) -> None:
         raise ProposalValidationError(location, str(error.validator))
 
 
+def _normalize_semantic_fields(result: dict) -> dict:
+    """Completa soltanto i campi omessi, rendendo esplicito che la proposta è parziale."""
+    fields = (
+        "status", "classification", "capabilities", "interfaces",
+        "dependencies", "tools_and_platforms", "evidence",
+        "missing_references", "contradictions", "risks", "unknowns", "limits",
+    )
+    missing = [field for field in fields if field not in result]
+    if not missing:
+        return result
+
+    normalized = dict(result)
+    defaults = {
+        "status": "partial",
+        "classification": {
+            "kind": "unclassified",
+            "confidence": "low",
+            "rationale": "La risposta dell'analizzatore non contiene una classificazione completa.",
+            "summary": "Proposta semantica incompleta.",
+            "evidence_refs": [],
+        },
+        "capabilities": [],
+        "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+        "dependencies": [],
+        "tools_and_platforms": [],
+        "evidence": [],
+        "missing_references": [],
+        "contradictions": [],
+        "risks": [],
+        "unknowns": [],
+        "limits": [],
+    }
+    for field, default in defaults.items():
+        normalized.setdefault(field, default)
+
+    if normalized["status"] == "completed":
+        normalized["status"] = "partial"
+    normalized["unknowns"] = list(normalized["unknowns"]) + [
+        "Campi semantici mancanti nella risposta dell'analizzatore: " + ", ".join(missing) + "."
+    ]
+    normalized["limits"] = list(normalized["limits"]) + [
+        "Output incompleto: i campi mancanti sono stati lasciati non disponibili."
+    ]
+    return normalized
+
+
 def run_semantic_engine(
     request: dict,
     analyzer=None,
@@ -167,6 +213,7 @@ def run_semantic_engine(
             "dependencies", "tools_and_platforms", "evidence",
             "missing_references", "contradictions", "risks", "unknowns", "limits",
         )
+        result = _normalize_semantic_fields(result)
         proposal = {
             "schema_version": "1.0",
             "proposal_id": _proposal_id(request_snapshot["request_id"]),
