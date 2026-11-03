@@ -1,7 +1,7 @@
 # Analisi delle sei risorse per il completamento della libreria
 
 **Data dell'analisi:** 2026-11-03  
-**Stato:** analisi documentale e statica avviata; nessuna skill delle sei risorse è ancora approvata come utilizzabile.  
+**Stato:** analisi documentale delle sei risorse registrata; adattamenti e prove funzionali delle skill restano da eseguire.  
 **Ramo:** `research/resource-reuse-analysis-v1`
 
 ## 1. Scopo e metodo
@@ -289,7 +289,7 @@ La sintesi non è importare sei raccolte. È riutilizzare procedure e principi c
 
 ## 10. Lacune rilevate nel repository della libreria
 
-1. I quattro cataloghi principali sono vuoti: `materials.json`, `capabilities.json`, `skills.json`, `implementations.json`. La base dispone già del componente `scripts/acquire_material.py`, che conserva file/cartelle/archivi e registra riferimenti remoti senza eseguirli; non va ricostruito.
+1. I quattro cataloghi principali sono vuoti: `materials.json`, `capabilities.json`, `skills.json`, `implementations.json`. La base dispone già del componente `scripts/acquire_material.py`, che conserva file, cartelle e archivi e registra riferimenti remoti senza eseguirli; non va ricostruito. La base dispone già del componente `scripts/acquire_material.py`, che conserva file/cartelle/archivi e registra riferimenti remoti senza eseguirli; non va ricostruito.
 2. Il modello e le schede già distinguono materiale, skill e implementazione; non bisogna duplicare tali oggetti importando i modelli delle fonti.
 3. Il campo strutturato `license` è stato aggiunto a `schemas/material-record.schema.json` in questo ramo. Registra dichiarazione, fonte, revisione, obblighi sintetizzati e prove; non determina automaticamente i diritti di redistribuzione.
 4. `schemas/skill-entry.schema.json` richiede capacità collegate, ambito, versione, ciclo di vita, ingressi, risultati, prerequisiti, vincoli, rischio e verifica. Ogni skill adattata dovrà rispettare questo contratto.
@@ -312,9 +312,9 @@ La sintesi non è importare sei raccolte. È riutilizzare procedure e principi c
 - Analisi statica delle sei fonti: **avviata e documentata**.
 - Licenze delle fonti pubbliche: **identificate a livello di repository/pacchetto; obblighi di distribuzione da applicare ai singoli derivati**.
 - Campo strutturato per licenza del materiale: **implementato nel ramo di analisi**; la revisione richiede prove e non produce un giudizio legale automatico.
-- Verifica della licenza con prova collegata: **testata su Ubuntu e Windows** nei run `41710014977` e `41710022948` (da confermare a chiusura completa dei run).
+- Verifica della licenza con prova collegata: **199 test superati su Ubuntu e Windows** nei run `41710014977` e `41710022948`.
 - Recupero del riferimento completo Archivista: **eseguito dall'archivio personale**.
 - Recupero dei tre riferimenti operativi UNLAZY: **non riuscito; lacuna dichiarata**.
 - Verifica del funzionamento delle skill adattate: **non eseguita**.
-- Acquisizione ufficiale nei cataloghi: **non eseguita**.
+- Acquisizione ufficiale delle sei fonti nei cataloghi: **non eseguita**. Il componente di acquisizione esistente sarà riutilizzato; la registrazione dei materiali è il prossimo passaggio.
 - Coordinatore universale: **non ancora scelto né integrato**.
