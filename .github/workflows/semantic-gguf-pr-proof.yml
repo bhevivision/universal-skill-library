@@ -3,6 +3,14 @@ on:
   pull_request:
     branches:
       - model/structural-model-v1
+  push:
+    branches:
+      - semantic-evaluation-isolation-v1
+    paths:
+      - scripts/semantic_extraction_evaluation.py
+      - tests/test_semantic_extraction_evaluation.py
+      - evaluation/semantic-extraction-samples.json
+      - scripts/llama_cpp_adapter.py
   workflow_dispatch:
 permissions:
   contents: read
@@ -42,8 +50,8 @@ jobs:
             --mount type=bind,src="$GITHUB_WORKSPACE/models",dst=/models,readonly \
             ghcr.io/ggml-org/llama.cpp:server \
             -m /models/qwen2.5-3b-instruct-q4_k_m.gguf \
-            --host 127.0.0.1 --port 8080 --ctx-size 2048 \
-            --threads 2 --threads-batch 2 --parallel 1 --n-predict 256
+            --host 127.0.0.1 --port 8080 --ctx-size 4096 \
+            --threads 2 --threads-batch 2 --parallel 1 --n-predict 1024
           docker inspect semantic-llama-server --format '{{json .HostConfig}}' > docker-security-config.json
           docker image inspect ghcr.io/ggml-org/llama.cpp:server --format '{{json .RepoDigests}}' > llama-image-digests.json
       - name: Wait for model and evaluate in shared isolated network namespace
@@ -58,6 +66,7 @@ jobs:
             --mount type=bind,src="$GITHUB_WORKSPACE",dst=/workspace,readonly \
             --workdir /workspace --env PYTHONPATH=/workspace \
             --env SEMANTIC_EVALUATION_REPORT=/tmp/semantic-evaluation-report.json \
+            --env SEMANTIC_EXTRACTION_REPORT=/tmp/semantic-extraction-evaluation-report.json \
             semantic-evaluation-client python -c 'import time, urllib.request, subprocess
           ready=False
           for attempt in range(90):
@@ -68,11 +77,14 @@ jobs:
               except Exception:
                   time.sleep(2)
           if not ready: raise SystemExit("Il modello GGUF non è diventato disponibile entro 180 secondi.")
-          subprocess.run(["python", "/workspace/scripts/semantic_evaluation.py", "http://127.0.0.1:8080"], check=True, timeout=1800)' | tee evaluator-output.log
+          subprocess.run(["python", "/workspace/scripts/semantic_evaluation.py", "http://127.0.0.1:8080"], check=True, timeout=1800)
+          subprocess.run(["python", "/workspace/scripts/semantic_extraction_evaluation.py", "http://127.0.0.1:8080"], check=True, timeout=1800)' | tee evaluator-output.log
           client_exit=${PIPESTATUS[0]}
           set -e
           grep '^SEMANTIC_EVALUATION_REPORT_B64=' evaluator-output.log | tail -n 1 | cut -d= -f2- | base64 --decode > "$GITHUB_WORKSPACE/output/semantic-evaluation-report.json"
           python -m json.tool "$GITHUB_WORKSPACE/output/semantic-evaluation-report.json" >/dev/null
+          grep '^SEMANTIC_EXTRACTION_REPORT_B64=' evaluator-output.log | tail -n 1 | cut -d= -f2- | base64 --decode > "$GITHUB_WORKSPACE/output/semantic-extraction-evaluation-report.json"
+          python -m json.tool "$GITHUB_WORKSPACE/output/semantic-extraction-evaluation-report.json" >/dev/null
           docker rm --force semantic-evaluator || true
           exit "$client_exit"
       - name: Collect runtime status and stop containers
@@ -92,6 +104,7 @@ jobs:
           name: semantic-gguf-evaluation-isolated
           path: |
             output/semantic-evaluation-report.json
+            output/semantic-extraction-evaluation-report.json
             model-sha256.txt
             docker-security-config.json
             llama-image-digests.json
