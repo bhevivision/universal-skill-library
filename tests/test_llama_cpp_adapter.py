@@ -115,6 +115,9 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertFalse(_Handler.received["stream"])
         self.assertEqual(_Handler.received["response_format"]["type"], "json_schema")
         self.assertIn("claims", _Handler.received["response_format"]["schema"]["$defs"])
+        model_schema = _Handler.received["response_format"]["schema"]
+        self.assertIn("evidence_quotes", model_schema["properties"]["classification"]["required"])
+        self.assertIn("evidence_quotes", model_schema["$defs"]["claims"]["items"]["required"])
         model_request = json.loads(_Handler.received["messages"][1]["content"])
         self.assertEqual(model_request["evidence_sources"][0]["id"], "ev.sample-001")
         self.assertEqual(model_request["evidence_sources"][0]["path"], "intake/acq-test/source/SKILL.md")
