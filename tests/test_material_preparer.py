@@ -530,7 +530,7 @@ class MaterialPreparerTests(unittest.TestCase):
         (self.source / "one.txt").write_text("uno", encoding="utf-8")
         (self.source / "two.txt").write_text("due", encoding="utf-8")
         self.register_directory()
-        with patch("scripts.material_preparer.MAX_INVENTORY_ENTRIES", 1):
+        with patch.object(material_preparer, "MAX_INVENTORY_ENTRIES", 1):
             result = self.prepare()
         self.assertEqual(result["status"], "blocked")
         self.assertEqual(result["files"], [])
