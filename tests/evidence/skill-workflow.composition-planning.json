@@ -1,0 +1,8 @@
+{
+  "id": "proof.skill.workflow.composition-planning.manual-01",
+  "subject": "skill.workflow.composition-planning",
+  "result": "inconclusive",
+  "tested_at": "2026-11-03T20:29:21Z",
+  "command": "Applicazione manuale delle istruzioni SKILL.md in ChatGPT GPT-6 al caso controllato documentato in tests/cases/skills/initial-skill-behavior-tests.md; nessuna installazione o invocazione di runtime esterno.",
+  "summary": "Il caso manuale ha prodotto dipendenze coerenti, parallelismo limitato alle attività indipendenti e blocco corretto per permesso mancante. La verifica complessiva resta inconclusiva perché non è stata invocata la skill tramite un runtime Agent Skills esterno."
+}

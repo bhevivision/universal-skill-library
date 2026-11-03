@@ -9,7 +9,7 @@
       ],
       "scope": "universal",
       "version": "0.1.0",
-      "lifecycle": "unverified",
+      "lifecycle": "experimental",
       "tags": [
         "ricerca",
         "valutazione",
@@ -65,8 +65,11 @@
         ],
         "risk_level": "medium",
         "verification": {
-          "status": "not_run",
-          "evidence_refs": []
+          "status": "inconclusive",
+          "last_checked": "2026-11-03T20:29:21Z",
+          "evidence_refs": [
+            "tests/evidence/skill-library.resource-discovery-assessment.json"
+          ]
         }
       }
     },
@@ -78,7 +81,7 @@
       ],
       "scope": "universal",
       "version": "0.1.0",
-      "lifecycle": "unverified",
+      "lifecycle": "experimental",
       "tags": [
         "creazione-skill",
         "adattamento",
@@ -136,8 +139,11 @@
         ],
         "risk_level": "medium",
         "verification": {
-          "status": "not_run",
-          "evidence_refs": []
+          "status": "inconclusive",
+          "last_checked": "2026-11-03T20:29:21Z",
+          "evidence_refs": [
+            "tests/evidence/skill-library.skill-authoring-adaptation.json"
+          ]
         }
       }
     },
@@ -149,7 +155,7 @@
       ],
       "scope": "universal",
       "version": "0.1.0",
-      "lifecycle": "unverified",
+      "lifecycle": "experimental",
       "tags": [
         "verifica",
         "prove",
@@ -205,8 +211,11 @@
         ],
         "risk_level": "medium",
         "verification": {
-          "status": "not_run",
-          "evidence_refs": []
+          "status": "inconclusive",
+          "last_checked": "2026-11-03T20:29:21Z",
+          "evidence_refs": [
+            "tests/evidence/skill-verification.evidence-based-review.json"
+          ]
         }
       }
     },
@@ -218,7 +227,7 @@
       ],
       "scope": "universal",
       "version": "0.1.0",
-      "lifecycle": "unverified",
+      "lifecycle": "experimental",
       "tags": [
         "pianificazione",
         "coordinamento",
@@ -276,8 +285,11 @@
         ],
         "risk_level": "high",
         "verification": {
-          "status": "not_run",
-          "evidence_refs": []
+          "status": "inconclusive",
+          "last_checked": "2026-11-03T20:29:21Z",
+          "evidence_refs": [
+            "tests/evidence/skill-workflow.composition-planning.json"
+          ]
         }
       }
     }
