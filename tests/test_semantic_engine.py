@@ -176,7 +176,8 @@ class SemanticEngineTests(unittest.TestCase):
             valid_request(), analyzer=IncompleteAdapter(), catalog_sha256="c" * 64
         )
 
-        self.assertEqual(proposal["status"], "partial")
+        self.assertEqual(proposal["status"], "failed")
+        self.assertIn("ValueError", proposal["unknowns"][0])
         self.assertEqual(proposal["capabilities"], [])
         self.assertEqual(proposal["interfaces"], {"inputs": [], "outputs": [], "usage_conditions": []})
         self.assertTrue(any("capabilities" in item for item in proposal["unknowns"]))
