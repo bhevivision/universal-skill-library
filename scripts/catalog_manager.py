@@ -179,6 +179,8 @@ def remove_entry(root: Path, kind: str, entry_id: str):
             raise CatalogError("Impossibile eliminare: la skill ha implementazioni associate.")
     if kind == "capabilities" and any(entry_id in item.get("capability_ids", []) for item in catalogs["skills"]["skills"]):
         raise CatalogError("Impossibile eliminare: la capacità è usata da una skill.")
+    if kind == "materials" and any(item.get("source_record_id") == entry_id for item in catalogs["skills"]["skills"]):
+        raise CatalogError("Impossibile eliminare: il materiale è registrato come fonte di una skill.")
     catalog[collection] = [item for item in catalog[collection] if item.get("id") != entry_id]
     _atomic_write(path, catalog)
 
