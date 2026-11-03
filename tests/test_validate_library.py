@@ -101,4 +101,173 @@ class Tests(unittest.TestCase):
   errors=validate_repository(self.root)
   self.assertTrue(errors, "La verifica not_run ha accettato prove: " + repr(errors))
 
+
+ def _add_material_with_license(self, license_record, include_evidence=True, evidence_result="passed"):
+  evidence={
+   "id":"proof.material.license.001",
+   "subject":"material.source.matt.license",
+   "result":evidence_result,
+   "tested_at":"2026-11-03T20:00:00Z",
+   "command":"Inspect LICENSE at the pinned source revision",
+   "summary":"The declared license text was located and its obligations recorded. This is not a legal opinion."
+  }
+  if include_evidence:
+   write_json(self.root,"tests/evidence/material-license.json",evidence)
+  material={
+   "id":"source.matt",
+   "acquisition":{
+    "status":"received",
+    "acquired_at":"2026-11-03T20:00:00Z",
+    "method":"remote reference registration",
+    "original":{"kind":"remote_reference","uri":"https://github.com/mattpocock/skills"}
+   },
+   "classification":{"status":"classified","kind":"resource"},
+   "documentation":{"status":"partial"},
+   "verification":{"status":"not_verified"},
+   "usability":{"status":"not_assessed"},
+   "license":license_record
+  }
+  catalog=self.root/"catalog/materials.json"
+  data=json.loads(catalog.read_text(encoding="utf-8"))
+  data["materials"].append(material)
+  catalog.write_text(json.dumps(data),encoding="utf-8")
+
+ def test_accepts_reviewed_material_license_with_matching_evidence(self):
+  license_record={
+   "status":"identified",
+   "identifier":"MIT",
+   "source_uri":"https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/LICENSE",
+   "source_revision":"4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+   "file_path":"LICENSE",
+   "review_status":"reviewed",
+   "reviewed_at":"2026-11-03T20:00:00Z",
+   "evidence_refs":["tests/evidence/material-license.json"],
+   "obligations":["Preserve the copyright notice and include the MIT license text."],
+   "notes":["Review of the declared license text; not a legal opinion."]
+  }
+  self._add_material_with_license(license_record)
+  self.assertEqual(validate_repository(self.root),[])
+
+ def test_rejects_reviewed_material_license_without_evidence_file(self):
+  license_record={
+   "status":"identified",
+   "identifier":"MIT",
+   "source_uri":"https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/LICENSE",
+   "source_revision":"4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+   "file_path":"LICENSE",
+   "review_status":"reviewed",
+   "reviewed_at":"2026-11-03T20:00:00Z",
+   "evidence_refs":["tests/evidence/missing-license.json"],
+   "obligations":[],
+   "notes":[]
+  }
+  self._add_material_with_license(license_record,include_evidence=False)
+  errors=validate_repository(self.root)
+  self.assertTrue(any("prova non trovata" in e.lower() for e in errors),repr(errors))
+
+ def test_rejects_identified_material_license_without_identifier(self):
+  license_record={
+   "status":"identified",
+   "source_uri":"https://github.com/mattpocock/skills",
+   "review_status":"not_reviewed",
+   "evidence_refs":[]
+  }
+  self._add_material_with_license(license_record,include_evidence=False)
+  self.assertTrue(any("identifier" in e.lower() for e in validate_repository(self.root)))
+
+ 
+ def test_accepts_not_declared_license_after_review(self):
+  license_record={
+   "status":"not_declared",
+   "source_uri":"https://github.com/example/project/tree/0123456789abcdef",
+   "source_revision":"0123456789abcdef",
+   "review_status":"reviewed",
+   "reviewed_at":"2026-11-03T20:00:00Z",
+   "evidence_refs":["tests/evidence/material-license.json"],
+   "obligations":[],
+   "notes":["La revisione della revisione esaminata non ha individuato una dichiarazione di licenza."]
+  }
+  self._add_material_with_license(license_record)
+  self.assertEqual(validate_repository(self.root),[])
+
+ def test_ambiguous_license_requires_inconclusive_evidence(self):
+  license_record={
+   "status":"ambiguous",
+   "source_uri":"https://github.com/example/project/tree/0123456789abcdef",
+   "source_revision":"0123456789abcdef",
+   "review_status":"needs_human_review",
+   "reviewed_at":"2026-11-03T20:00:00Z",
+   "evidence_refs":["tests/evidence/material-license.json"],
+   "obligations":[],
+   "notes":["Le fonti presentano dichiarazioni discordanti; serve valutazione umana."]
+  }
+  self._add_material_with_license(license_record,evidence_result="passed")
+  errors=validate_repository(self.root)
+  self.assertTrue(any("inconclusive" in e.lower() for e in errors),repr(errors))
+
+ def test_accepts_ambiguous_license_with_inconclusive_evidence(self):
+  license_record={
+   "status":"ambiguous",
+   "source_uri":"https://github.com/example/project/tree/0123456789abcdef",
+   "source_revision":"0123456789abcdef",
+   "review_status":"needs_human_review",
+   "reviewed_at":"2026-11-03T20:00:00Z",
+   "evidence_refs":["tests/evidence/material-license.json"],
+   "obligations":[],
+   "notes":["Le fonti presentano dichiarazioni discordanti; serve valutazione umana."]
+  }
+  self._add_material_with_license(license_record,evidence_result="inconclusive")
+  self.assertEqual(validate_repository(self.root),[])
+
+
+ def test_accepts_skill_with_multiple_source_materials(self):
+  materials=[
+   {
+    "id":"source.agent-skills-format",
+    "acquisition":{"status":"received","acquired_at":"2026-11-03T20:00:00Z","method":"remote_reference","original":{"kind":"remote_reference","uri":"https://example.org/agent-skills"}},
+    "classification":{"status":"classified","kind":"resource"},
+    "documentation":{"status":"partial"},
+    "verification":{"status":"not_verified"},
+    "usability":{"status":"not_assessed"}
+   },
+   {
+    "id":"source.unlazy-evidence-control",
+    "acquisition":{"status":"received","acquired_at":"2026-11-03T20:00:00Z","method":"remote_reference","original":{"kind":"remote_reference","uri":"https://example.org/unlazy"}},
+    "classification":{"status":"provisional","kind":"skill"},
+    "documentation":{"status":"partial"},
+    "verification":{"status":"not_verified"},
+    "usability":{"status":"requires_adapter"}
+   }
+  ]
+  write_json(self.root,"catalog/materials.json",{"catalog_version":"1.0","materials":materials})
+  self.change("catalog/skills.json",lambda d:d["skills"][0].update(source_material_ids=["source.agent-skills-format","source.unlazy-evidence-control"]))
+  self.assertEqual(validate_repository(self.root),[])
+
+ def test_rejects_skill_with_missing_source_material(self):
+  self.change("catalog/skills.json",lambda d:d["skills"][0].update(source_material_ids=["source.missing"]))
+  errors=validate_repository(self.root)
+  self.assertTrue(any("materiale di origine inesistente" in e.lower() for e in errors),repr(errors))
+
+ def test_validates_skill_path_even_when_source_record_id_is_present(self):
+  material={
+   "id":"source.original-skill",
+   "acquisition":{
+    "status":"received",
+    "acquired_at":"2026-11-03T20:00:00Z",
+    "method":"remote_reference",
+    "original":{"kind":"remote_reference","uri":"https://example.org/original-skill"}
+   },
+   "classification":{"status":"classified","kind":"skill"},
+   "documentation":{"status":"partial"},
+   "verification":{"status":"not_verified"},
+   "usability":{"status":"not_assessed"}
+  }
+  self.change("catalog/materials.json",lambda d:d["materials"].append(material))
+  def edit(d):
+   d["skills"][0]["source_record_id"]="source.original-skill"
+   d["skills"][0]["path"]="skills/missing-skill/SKILL.md"
+  self.change("catalog/skills.json",edit)
+  errors=validate_repository(self.root)
+  self.assertTrue(any("SKILL.md non trovato" in e for e in errors),repr(errors))
+
 if __name__=="__main__":unittest.main()

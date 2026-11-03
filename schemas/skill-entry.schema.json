@@ -253,6 +253,16 @@
       "type": "string",
       "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$",
       "description": "Scheda del materiale originale conservato."
+    },
+    "source_material_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
+      },
+      "description": "Schede di tutti i materiali che hanno contribuito alla skill adattata; possono essere skill, standard, strumenti o raccolte."
     }
   },
   "allOf": [

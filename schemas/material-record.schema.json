@@ -318,6 +318,186 @@
           }
         }
       }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "review_status",
+        "evidence_refs"
+      ],
+      "description": "Dichiarazione di licenza della fonte e registrazione della sua revisione. Non costituisce un parere legale né autorizza da sola la redistribuzione.",
+      "properties": {
+        "status": {
+          "enum": [
+            "identified",
+            "not_declared",
+            "ambiguous",
+            "conflicting",
+            "unavailable"
+          ],
+          "description": "Esito della ricerca della dichiarazione di licenza nella fonte."
+        },
+        "identifier": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identificativo o nome della licenza così come dichiarato dalla fonte; non viene normalizzato automaticamente."
+        },
+        "source_uri": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI della fonte che dichiara la licenza."
+        },
+        "source_revision": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Commit, tag o versione esaminata."
+        },
+        "file_path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Percorso del file di licenza o del documento esaminato nella fonte."
+        },
+        "review_status": {
+          "enum": [
+            "not_reviewed",
+            "reviewed",
+            "needs_human_review"
+          ]
+        },
+        "reviewed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "obligations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Sintesi degli obblighi individuati; non sostituisce il testo della licenza."
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "identified"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "identifier"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "source_uri"
+                ]
+              },
+              {
+                "required": [
+                  "file_path"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "not_declared",
+                  "ambiguous",
+                  "conflicting"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "source_uri"
+                ]
+              },
+              {
+                "required": [
+                  "file_path"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "review_status": {
+                "enum": [
+                  "reviewed",
+                  "needs_human_review"
+                ]
+              }
+            },
+            "required": [
+              "review_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "reviewed_at"
+            ],
+            "properties": {
+              "evidence_refs": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "unavailable"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "review_status": {
+                "const": "not_reviewed"
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -129,6 +129,18 @@ def check_materials(root, materials, errors):
         if mid in material_map:
             errors.append(f"materiali: identificativo duplicato {mid}")
         material_map[mid] = material
+        license_record = material.get("license")
+        if isinstance(license_record, dict) and license_record.get("review_status") in {"reviewed", "needs_human_review"}:
+            license_status = license_record.get("status")
+            expected_license_result = "passed" if license_status in {"identified", "not_declared"} else "inconclusive"
+            check_evidence(
+                root,
+                license_record.get("evidence_refs", []),
+                f"material.{mid}.license",
+                expected_license_result,
+                f"licenza materiale {mid}",
+                errors,
+            )
         acquisition = material.get("acquisition", {})
         original = acquisition.get("original", {}) if isinstance(acquisition, dict) else {}
         kind, rel = original.get("kind"), original.get("path")
@@ -282,6 +294,10 @@ def validate_repository(root):
             continue
         sid = skill.get("id", "<senza-id>")
         source_record_id = skill.get("source_record_id")
+        source_material_ids = skill.get("source_material_ids", [])
+        for source_material_id in source_material_ids:
+            if source_material_id not in materialmap:
+                errors.append(f"skill {sid}: materiale di origine inesistente {source_material_id}")
         rel = skill.get("path")
         if source_record_id:
             material = materialmap.get(source_record_id)
@@ -291,7 +307,7 @@ def validate_repository(root):
                 classification = material.get("classification", {})
                 if classification.get("kind") != "skill" or classification.get("status") != "classified":
                     errors.append(f"skill {sid}: il materiale collegato non è classificato come skill")
-        elif rel:
+        if rel:
             package = safe_path(root, rel)
             if package is None or not package.is_file():
                 errors.append(f"skill {sid}: SKILL.md non trovato o percorso non sicuro ({rel})")

@@ -1,0 +1,8 @@
+{
+  "id": "proof.source.find-skills-discovery.license",
+  "subject": "material.source.find-skills-discovery.license",
+  "result": "passed",
+  "tested_at": "2026-11-03T20:14:05Z",
+  "command": "Inspect license declaration at pinned source revision for source.find-skills-discovery",
+  "summary": "Verified the declared MIT license file at the pinned source revision. Obligations summarized in the material record; not a legal opinion."
+}
