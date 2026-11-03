@@ -292,7 +292,7 @@ La sintesi non è importare sei raccolte. È riutilizzare procedure e principi c
 1. Il catalogo materiali contiene ora 7 schede di riferimento remoto: le sei risorse concettuali, con ORCA separato in registro e motore. I cataloghi capacità, skill e implementazioni sono ancora vuoti. Le schede dichiarano esplicitamente che non è stata acquisita una copia locale e che il funzionamento non è verificato. La base dispone già del componente `scripts/acquire_material.py`; non va ricostruito. La base dispone già del componente `scripts/acquire_material.py`, che conserva file/cartelle/archivi e registra riferimenti remoti senza eseguirli; non va ricostruito.
 2. Il modello e le schede già distinguono materiale, skill e implementazione; non bisogna duplicare tali oggetti importando i modelli delle fonti.
 3. Il campo strutturato `license` è stato aggiunto a `schemas/material-record.schema.json` in questo ramo. Registra dichiarazione, fonte, revisione, obblighi sintetizzati e prove; non determina automaticamente i diritti di redistribuzione.
-4. `schemas/skill-entry.schema.json` richiede capacità collegate, ambito, versione, ciclo di vita, ingressi, risultati, prerequisiti, vincoli, rischio e verifica. Ogni skill adattata dovrà rispettare questo contratto.
+4. `schemas/skill-entry.schema.json` richiede capacità collegate, ambito, versione, ciclo di vita, ingressi, risultati, prerequisiti, vincoli, rischio e verifica. È stato aggiunto `source_material_ids` per collegare più fonti a una skill adattata; il validatore controlla che ogni scheda esista.
 5. La skill locale Find Skills e la skill locale Archivista non hanno frontmatter Agent Skills; non sono pacchetti conformi già pronti.
 6. Il validatore Agent Skills già presente controlla frontmatter YAML, chiavi duplicate, `name`, `description` e corrispondenza tra nome e cartella. La conformità completa a tutti i campi facoltativi della specifica e l'interoperabilità su agenti reali restano da provare.
 
@@ -312,6 +312,7 @@ La sintesi non è importare sei raccolte. È riutilizzare procedure e principi c
 - Licenze delle fonti pubbliche: **identificate a livello di repository/pacchetto; obblighi di distribuzione da applicare ai singoli derivati**.
 - Campo strutturato per licenza del materiale: **implementato nel ramo di analisi**; la revisione richiede prove e non produce un giudizio legale automatico.
 - Verifica della licenza con prova collegata: **7 prove registrate**; il validatore controlla esistenza, soggetto ed esito. I run `41711115849` e `41711127483` hanno superato 199 test e validazione cataloghi su Ubuntu e Windows.
+- Provenienza multipla delle skill: **campo `source_material_ids` e controllo dei riferimenti implementati**; i run `41711560135` e `41711570317` hanno superato 201 test e validazione su Ubuntu e Windows.
 - Recupero del riferimento completo Archivista: **eseguito dall'archivio personale**.
 - Recupero dei tre riferimenti operativi UNLAZY: **non riuscito; lacuna dichiarata**.
 - Registrazione dei materiali: **completata come riferimenti remoti**, non equivale a verifica funzionale o approvazione all'uso.
