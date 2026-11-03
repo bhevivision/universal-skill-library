@@ -262,7 +262,7 @@ def main():
     parser.add_argument("--base-url", default="http://127.0.0.1:8080")
     parser.add_argument("--dataset", type=Path, default=Path(__file__).resolve().parents[1] / "evaluation" / "semantic-extraction-samples.json")
     parser.add_argument("--output-dir", type=Path, default=Path("output/gguf-four-configs"))
-    parser.add_argument("--timeout-seconds", type=int, default=180)
+    parser.add_argument("--timeout-seconds", type=int, default=120)
     parser.add_argument("--max-tokens", type=int, default=2048)
     args = parser.parse_args()
     report = run_comparison(args.base_url, args.dataset, args.output_dir, args.timeout_seconds, args.max_tokens)
