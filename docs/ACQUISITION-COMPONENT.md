@@ -22,7 +22,7 @@ Esempi:
 ## Sequenza di acquisizione locale
 
 1. Controlla identificativo, sorgente e tipo di elemento.
-2. Rifiuta collegamenti simbolici nella sorgente.
+2. Ispeziona la sorgente senza seguire collegamenti simbolici e applica i limiti massimi prima della copia.
 3. Acquisisce un blocco esclusivo per evitare due aggiornamenti simultanei del catalogo.
 4. Rifiuta identificativi già registrati e cartelle di destinazione già esistenti.
 5. Copia il materiale in una cartella temporanea sotto `intake/`.
@@ -69,6 +69,8 @@ Prima della pubblicazione viene confrontata l'impronta SHA-256 con i materiali l
 - Un blocco esclusivo impedisce scritture concorrenti tramite questo componente.
 - Le copie vengono verificate rispetto alla sorgente prima della pubblicazione.
 - Collegamenti simbolici vengono rifiutati.
+- Prima della copia vengono applicati limiti: 10.000 file, 1 GiB complessivo e 64 livelli di profondità. Il superamento interrompe l'acquisizione prima della pubblicazione.
+- I limiti di pre-ispezione non eliminano ogni rischio di modifica concorrente della sorgente durante la copia; l'impronta della copia viene confrontata con quella della sorgente prima della pubblicazione.
 - Gli archivi non vengono estratti né eseguiti.
 - Il componente non scarica riferimenti remoti.
 - Il recupero automatico riguarda transazioni locali interrotte sullo stesso computer; blocchi di altri computer o registri corrotti richiedono controllo.
