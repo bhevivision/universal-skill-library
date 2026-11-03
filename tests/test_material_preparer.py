@@ -525,6 +525,18 @@ class MaterialPreparerTests(unittest.TestCase):
 
 
 
+    def test_inventory_limit_returns_blocked_without_partial_content(self):
+        from scripts import material_preparer
+        (self.source / "one.txt").write_text("uno", encoding="utf-8")
+        (self.source / "two.txt").write_text("due", encoding="utf-8")
+        self.register_directory()
+        with patch("scripts.material_preparer.MAX_INVENTORY_ENTRIES", 1):
+            result = self.prepare()
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(result["files"], [])
+        self.assertEqual(result["summary"]["files_examined"], 0)
+        self.assertIn("INVENTORY_LIMIT_EXCEEDED", [item["code"] for item in result["problems"]])
+
     def test_053_growth_after_size_selection_never_returns_oversized_content(self):
         from scripts import material_preparer
         path = self.source / "growing.txt"
