@@ -219,4 +219,33 @@ class Tests(unittest.TestCase):
   self._add_material_with_license(license_record,evidence_result="inconclusive")
   self.assertEqual(validate_repository(self.root),[])
 
+
+ def test_accepts_skill_with_multiple_source_materials(self):
+  materials=[
+   {
+    "id":"source.agent-skills-format",
+    "acquisition":{"status":"received","acquired_at":"2026-11-03T20:00:00Z","method":"remote_reference","original":{"kind":"remote_reference","uri":"https://example.org/agent-skills"}},
+    "classification":{"status":"classified","kind":"resource"},
+    "documentation":{"status":"partial"},
+    "verification":{"status":"not_verified"},
+    "usability":{"status":"not_assessed"}
+   },
+   {
+    "id":"source.unlazy-evidence-control",
+    "acquisition":{"status":"received","acquired_at":"2026-11-03T20:00:00Z","method":"remote_reference","original":{"kind":"remote_reference","uri":"https://example.org/unlazy"}},
+    "classification":{"status":"provisional","kind":"skill"},
+    "documentation":{"status":"partial"},
+    "verification":{"status":"not_verified"},
+    "usability":{"status":"requires_adapter"}
+   }
+  ]
+  write_json(self.root,"catalog/materials.json",{"catalog_version":"1.0","materials":materials})
+  self.change("catalog/skills.json",lambda d:d["skills"][0].update(source_material_ids=["source.agent-skills-format","source.unlazy-evidence-control"]))
+  self.assertEqual(validate_repository(self.root),[])
+
+ def test_rejects_skill_with_missing_source_material(self):
+  self.change("catalog/skills.json",lambda d:d["skills"][0].update(source_material_ids=["source.missing"]))
+  errors=validate_repository(self.root)
+  self.assertTrue(any("materiale di origine inesistente" in e.lower() for e in errors),repr(errors))
+
 if __name__=="__main__":unittest.main()
