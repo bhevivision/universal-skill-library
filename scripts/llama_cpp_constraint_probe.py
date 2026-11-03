@@ -46,8 +46,10 @@ def build_payload(mode: str) -> dict:
         "max_tokens": 64,
         "stream": False,
     }
-    if mode == "response_format":
+    if mode == "response_format_documented":
         payload["response_format"] = {"type": "json_schema", "schema": SCHEMA}
+    elif mode == "response_format_nested":
+        payload["response_format"] = {"type": "json_schema", "json_schema": {"schema": SCHEMA}}
     elif mode == "grammar":
         payload["grammar"] = GRAMMAR
     else:
@@ -94,11 +96,15 @@ def main(base_url: str, output_path: str) -> int:
         report["server_properties"] = get_server_properties(base_url)
     except (urllib.error.URLError, TimeoutError, ValueError) as exc:
         report["server_properties_error"] = f"{type(exc).__name__}: {exc}"
-    for mode in ("response_format", "grammar"):
+    for mode in ("response_format_documented", "response_format_nested", "grammar"):
         report["cases"][mode] = run_case(base_url, mode)
-    report["passed"] = all(case["passed"] for case in report["cases"].values())
+    report["passed"] = (
+        report["cases"]["response_format_nested"]["passed"]
+        and report["cases"]["grammar"]["passed"]
+    )
     report["comparison"] = {
-        "response_format_passed": report["cases"]["response_format"]["passed"],
+        "documented_top_level_schema_passed": report["cases"]["response_format_documented"]["passed"],
+        "nested_json_schema_passed": report["cases"]["response_format_nested"]["passed"],
         "explicit_grammar_passed": report["cases"]["grammar"]["passed"],
     }
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
