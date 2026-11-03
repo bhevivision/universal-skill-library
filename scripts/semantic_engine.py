@@ -102,6 +102,10 @@ def _base_proposal(request: dict, catalog_sha256: str, status: str, reason: str)
     return proposal
 
 
+class ProposalEvidenceError(ValueError):
+    """Una proposta contiene affermazioni non supportate da prove verificabili."""
+
+
 class ProposalValidationError(ValueError):
     """Errore di schema con diagnostica sicura, senza esporre valori del modello."""
 
@@ -175,6 +179,7 @@ def run_semantic_engine(
     request: dict,
     analyzer=None,
     catalog_sha256: str | None = None,
+    evidence_root: Path | None = None,
 ) -> dict:
     """Esegue un adattatore locale oppure restituisce una proposta not_available.
 
@@ -242,11 +247,14 @@ def run_semantic_engine(
         digest_payload["analyzer"].pop("output_sha256")
         proposal["analyzer"]["output_sha256"] = _sha256(_canonical_bytes(digest_payload))
         _validate_proposal_schema(proposal)
-        validate_claim_evidence(
-            Path(__file__).resolve().parents[1],
-            proposal,
-            {item["path"]: item["sha256"] for item in request_snapshot["selected_content"]},
-        )
+        try:
+            validate_claim_evidence(
+                evidence_root or Path(__file__).resolve().parents[1],
+                proposal,
+                {item["path"]: item["sha256"] for item in request_snapshot["selected_content"]},
+            )
+        except ValueError as exc:
+            raise ProposalEvidenceError(str(exc)) from exc
         if proposal["material"] != {
             "id": request_snapshot["material"]["id"],
             "sha256": request_snapshot["material"]["sha256"],
@@ -254,6 +262,8 @@ def run_semantic_engine(
         }:
             raise ValueError("L'analizzatore ha restituito un'identità del materiale diversa dalla richiesta.")
         return proposal
+    except ProposalEvidenceError:
+        raise
     except Exception as exc:
         # Non conservare un risultato parziale o potenzialmente malformato.
         # Per gli errori di schema registra solo il percorso e la regola, mai il valore grezzo.
