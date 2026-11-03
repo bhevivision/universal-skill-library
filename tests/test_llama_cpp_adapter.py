@@ -292,3 +292,11 @@ if __name__ == "__main__":
         self.assertEqual(result["capabilities"], [])
         self.assertEqual(result["classification"]["evidence_refs"], ["ev.sample-001"])
         self.assertTrue(result["limits"])
+
+class FullSemanticPromptRegressionTests(unittest.TestCase):
+    def test_full_extraction_prompt_explains_required_fields_and_evidence_mapping(self):
+        from scripts.llama_cpp_adapter import SYSTEM_PROMPT
+        for field in ("classification", "capabilities", "interfaces", "dependencies", "tools_and_platforms", "evidence_refs"):
+            self.assertIn(field, SYSTEM_PROMPT)
+        self.assertIn("ev.sample-001", SYSTEM_PROMPT)
+        self.assertIn("non inventare", SYSTEM_PROMPT.lower())
