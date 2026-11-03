@@ -5,10 +5,10 @@ from scripts.semantic_evaluation import build_request, run_evaluation, score_pre
 class SemanticEvaluationTests(unittest.TestCase):
     def test_metrics_name_source_reference_integrity_without_claiming_semantic_fidelity(self):
         rows = [
-            {"expected": "skill", "predicted": "skill", "evidence_valid": True},
-            {"expected": "skill", "predicted": "tool", "evidence_valid": True},
-            {"expected": "tool", "predicted": "tool", "evidence_valid": False},
-            {"expected": "tool", "predicted": "tool", "evidence_valid": True},
+            {"expected": "skill", "predicted": "skill", "source_references_valid": True},
+            {"expected": "skill", "predicted": "tool", "source_references_valid": True},
+            {"expected": "tool", "predicted": "tool", "source_references_valid": False},
+            {"expected": "tool", "predicted": "tool", "source_references_valid": True},
         ]
         metrics = score_predictions(rows)
         self.assertEqual(metrics["sample_count"], 4)
@@ -52,7 +52,7 @@ class SemanticEvaluationTests(unittest.TestCase):
         self.assertEqual(row["model_status"], "completed")
         self.assertEqual(row["classification"]["confidence"], "medium")
         self.assertEqual(row["classification"]["rationale"], "Contiene istruzioni operative riutilizzabili.")
-        self.assertTrue(row["evidence_valid"])
+        self.assertTrue(row["source_references_valid"])
 
     def test_expected_label_is_not_sent_to_model(self):
         request = build_request({"id": "skill-01", "expected_kind": "skill", "text": "A skill description."})
