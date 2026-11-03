@@ -91,7 +91,7 @@ class LlamaCppAdapterTests(unittest.TestCase):
         result = adapter.analyze({
             "request_id": "req.test",
             "material": {"id": "acq.test", "sha256": "a" * 64, "original_kind": "file"},
-            "files": [],
+            "files": [{"path": "intake/acq-test/source/SKILL.md", "sha256": "b" * 64, "size_bytes": 10}],
             "selected_content": [{
                 "path": "intake/acq-test/source/SKILL.md",
                 "sha256": "b" * 64,
