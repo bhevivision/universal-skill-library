@@ -198,7 +198,7 @@ class SemanticPipelineTests(unittest.TestCase):
                     "unknowns": [], "limits": [],
                 }
 
-        with self.assertRaisesRegex(ValueError, "impronta"):
+        with self.assertRaisesRegex(ValueError, "file selezionato"):
             classify_material(self.root, "acq.example", analyzer=Adapter())
 
         self.assertFalse((self.root / "proposals").exists())
