@@ -289,12 +289,12 @@ La sintesi non è importare sei raccolte. È riutilizzare procedure e principi c
 
 ## 10. Lacune rilevate nel repository della libreria
 
-1. I quattro cataloghi principali sono vuoti: `materials.json`, `capabilities.json`, `skills.json`, `implementations.json`.
+1. I quattro cataloghi principali sono vuoti: `materials.json`, `capabilities.json`, `skills.json`, `implementations.json`. La base dispone già del componente `scripts/acquire_material.py`, che conserva file/cartelle/archivi e registra riferimenti remoti senza eseguirli; non va ricostruito.
 2. Il modello e le schede già distinguono materiale, skill e implementazione; non bisogna duplicare tali oggetti importando i modelli delle fonti.
-3. `schemas/material-record.schema.json` non contiene un campo strutturato per la licenza. La verifica della licenza è uno dei passaggi richiesti, quindi non è sufficiente lasciarla soltanto in note testuali.
+3. Il campo strutturato `license` è stato aggiunto a `schemas/material-record.schema.json` in questo ramo. Registra dichiarazione, fonte, revisione, obblighi sintetizzati e prove; non determina automaticamente i diritti di redistribuzione.
 4. `schemas/skill-entry.schema.json` richiede capacità collegate, ambito, versione, ciclo di vita, ingressi, risultati, prerequisiti, vincoli, rischio e verifica. Ogni skill adattata dovrà rispettare questo contratto.
 5. La skill locale Find Skills e la skill locale Archivista non hanno frontmatter Agent Skills; non sono pacchetti conformi già pronti.
-6. La verifica del profilo Agent Skills nel validatore e l'esecuzione reale delle skill adattate devono ancora essere provate.
+6. Il validatore Agent Skills già presente controlla frontmatter YAML, chiavi duplicate, `name`, `description` e corrispondenza tra nome e cartella. La conformità completa a tutti i campi facoltativi della specifica e l'interoperabilità su agenti reali restano da provare.
 
 ## 11. Sequenza operativa successiva
 
@@ -311,6 +311,8 @@ La sintesi non è importare sei raccolte. È riutilizzare procedure e principi c
 
 - Analisi statica delle sei fonti: **avviata e documentata**.
 - Licenze delle fonti pubbliche: **identificate a livello di repository/pacchetto; obblighi di distribuzione da applicare ai singoli derivati**.
+- Campo strutturato per licenza del materiale: **implementato nel ramo di analisi**; la revisione richiede prove e non produce un giudizio legale automatico.
+- Verifica della licenza con prova collegata: **testata su Ubuntu e Windows** nei run `41710014977` e `41710022948` (da confermare a chiusura completa dei run).
 - Recupero del riferimento completo Archivista: **eseguito dall'archivio personale**.
 - Recupero dei tre riferimenti operativi UNLAZY: **non riuscito; lacuna dichiarata**.
 - Verifica del funzionamento delle skill adattate: **non eseguita**.
