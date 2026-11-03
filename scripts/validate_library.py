@@ -129,6 +129,18 @@ def check_materials(root, materials, errors):
         if mid in material_map:
             errors.append(f"materiali: identificativo duplicato {mid}")
         material_map[mid] = material
+        license_record = material.get("license")
+        if isinstance(license_record, dict) and license_record.get("review_status") in {"reviewed", "needs_human_review"}:
+            license_status = license_record.get("status")
+            expected_license_result = "passed" if license_status in {"identified", "not_declared"} else "inconclusive"
+            check_evidence(
+                root,
+                license_record.get("evidence_refs", []),
+                f"material.{mid}.license",
+                expected_license_result,
+                f"licenza materiale {mid}",
+                errors,
+            )
         acquisition = material.get("acquisition", {})
         original = acquisition.get("original", {}) if isinstance(acquisition, dict) else {}
         kind, rel = original.get("kind"), original.get("path")
