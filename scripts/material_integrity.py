@@ -87,9 +87,18 @@ def _bounded_tree_entries(path: Path):
     if stat.S_ISLNK(root_info.st_mode) or _is_reparse_point(root_info) or not stat.S_ISDIR(root_info.st_mode):
         raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "La radice dell'albero non è una cartella sicura.")
     entries = []
-    pending = [(path, 0)]
+    pending = [(path, 0, root_info)]
     while pending:
-        current, depth = pending.pop()
+        current, depth, expected_info = pending.pop()
+        before = current.lstat()
+        if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISDIR(before.st_mode):
+            raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Una cartella dell'albero non è sicura.")
+        if os.name != "nt" and (before.st_dev, before.st_ino) != (expected_info.st_dev, expected_info.st_ino):
+            raise MaterialIntegrityError("TREE_CHANGED_DURING_CHECK", "Una cartella è stata sostituita durante il controllo.")
+        if os.name == "nt" and (
+            before.st_mtime_ns != expected_info.st_mtime_ns or before.st_ctime_ns != expected_info.st_ctime_ns
+        ):
+            raise MaterialIntegrityError("TREE_CHANGED_DURING_CHECK", "Una cartella è cambiata durante il controllo.")
         children = []
         with os.scandir(current) as iterator:
             for entry in iterator:
@@ -98,6 +107,15 @@ def _bounded_tree_entries(path: Path):
                     raise MaterialIntegrityError(
                         "TREE_LIMIT_EXCEEDED", "Numero massimo di elementi dell'albero superato."
                     )
+        after = current.lstat()
+        if stat.S_ISLNK(after.st_mode) or _is_reparse_point(after) or not stat.S_ISDIR(after.st_mode):
+            raise MaterialIntegrityError("TREE_CHANGED_DURING_CHECK", "Una cartella è cambiata durante il controllo.")
+        if os.name != "nt" and (after.st_dev, after.st_ino) != (before.st_dev, before.st_ino):
+            raise MaterialIntegrityError("TREE_CHANGED_DURING_CHECK", "Una cartella è stata sostituita durante il controllo.")
+        if os.name == "nt" and (
+            after.st_mtime_ns != before.st_mtime_ns or after.st_ctime_ns != before.st_ctime_ns
+        ):
+            raise MaterialIntegrityError("TREE_CHANGED_DURING_CHECK", "Una cartella è cambiata durante il controllo.")
         children.sort(key=lambda item: item.name)
         subdirectories = []
         for entry in children:
@@ -113,7 +131,7 @@ def _bounded_tree_entries(path: Path):
                         "TREE_LIMIT_EXCEEDED", "Profondità massima dell'albero superata."
                     )
                 entries.append((child, "directory"))
-                subdirectories.append((child, depth + 1))
+                subdirectories.append((child, depth + 1, info))
             elif stat.S_ISREG(info.st_mode):
                 entries.append((child, "file"))
             else:
