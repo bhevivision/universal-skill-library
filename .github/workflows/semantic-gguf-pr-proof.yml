@@ -22,9 +22,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p models output
-          curl --fail --location --retry 3 --connect-timeout 20 --max-time 600 "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf" --output models/qwen2.5-1.5b-instruct-q4_k_m.gguf
-          test "$(stat -c%s models/qwen2.5-1.5b-instruct-q4_k_m.gguf)" -gt 900000000
-          sha256sum models/qwen2.5-1.5b-instruct-q4_k_m.gguf | tee model-sha256.txt
+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 600 "https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf" --output models/qwen2.5-3b-instruct-q4_k_m.gguf
+          test "$(stat -c%s models/qwen2.5-3b-instruct-q4_k_m.gguf)" -gt 1800000000
+          sha256sum models/qwen2.5-3b-instruct-q4_k_m.gguf | tee model-sha256.txt
       - name: Build evaluation client
         run: |
           docker build -t semantic-evaluation-client -f- /tmp <<'EOF'
@@ -44,8 +44,8 @@ jobs:
             --tmpfs /tmp:rw,noexec,nosuid,nodev,size=256m \
             --mount type=bind,src="$GITHUB_WORKSPACE/models",dst=/models,readonly \
             ghcr.io/ggml-org/llama.cpp:server \
-            -m /models/qwen2.5-1.5b-instruct-q4_k_m.gguf \
-            --host 127.0.0.1 --port 8080 --ctx-size 4096 \
+            -m /models/qwen2.5-3b-instruct-q4_k_m.gguf \
+            --host 127.0.0.1 --port 8080 --ctx-size 2048 \
             --threads 2 --threads-batch 2 --parallel 1 --n-predict 256
           docker inspect semantic-llama-server --format '{{json .HostConfig}}' > docker-security-config.json
           docker image inspect ghcr.io/ggml-org/llama.cpp:server --format '{{json .RepoDigests}}' > llama-image-digests.json
