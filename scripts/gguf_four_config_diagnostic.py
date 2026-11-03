@@ -31,6 +31,14 @@ CONFIGURATIONS = (
 )
 
 
+def select_configuration(configuration_id):
+    """Restituisce una sola configurazione, rifiutando identificativi sconosciuti."""
+    for config in CONFIGURATIONS:
+        if config["id"] == configuration_id:
+            return config
+    raise ValueError(f"Configurazione sconosciuta: {configuration_id}. Valori ammessi: A, B, C, D.")
+
+
 def consume_sse(lines, on_chunk, on_event=None):
     """Consuma eventi SSE e salva ogni frammento appena arriva."""
     pieces = []
@@ -98,6 +106,21 @@ class StreamingDiagnosticAdapter:
         self.model = "Qwen2.5-3B-Instruct-GGUF-Q4_K_M"
         self.observations = []
 
+    def _write_progress(self, metrics, event):
+        progress_path = self.output_dir / "progress.jsonl"
+        with progress_path.open("a", encoding="utf-8") as progress_file:
+            progress_file.write(json.dumps({
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "configuration": self.config["id"],
+                "request_id": metrics["request_id"],
+                "event": event,
+                "status": metrics["status"],
+                "generated_characters": metrics["generated_characters"],
+                "error": metrics["error"],
+            }, ensure_ascii=False) + "\n")
+            progress_file.flush()
+            os.fsync(progress_file.fileno())
+
     def analyze(self, request):
         request_id = str(request.get("request_id", "request-unknown"))
         safe_id = re.sub(r"[^A-Za-z0-9._-]", "-", request_id)
@@ -120,6 +143,8 @@ class StreamingDiagnosticAdapter:
             "error": None,
         }
         self.observations.append(metrics)
+        self._write_progress(metrics, "started")
+        print(f"[{self.config['id']}] CAMPIONE {request_id}: AVVIATO", flush=True)
         started = time.monotonic()
         first_text = [None]
         raw_path.write_text("", encoding="utf-8")
@@ -206,9 +231,11 @@ class StreamingDiagnosticAdapter:
             (self.output_dir / (stem + ".metrics.json")).write_text(
                 json.dumps(metrics, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
             )
+            self._write_progress(metrics, "finished")
+            print(f"[{self.config['id']}] CAMPIONE {request_id}: {metrics['status']} — {metrics['generated_characters']} caratteri in {metrics['generation_elapsed_seconds']} s", flush=True)
 
 
-def run_comparison(base_url, dataset_path, output_dir, timeout_seconds=180, max_tokens=2048):
+def run_comparison(base_url, dataset_path, output_dir, timeout_seconds=120, max_tokens=2048, configuration_id=None):
     import hashlib
 
     dataset_path = Path(dataset_path)
@@ -236,7 +263,9 @@ def run_comparison(base_url, dataset_path, output_dir, timeout_seconds=180, max_
             "La copertura dei fatti e le citazioni sono misure automatiche e richiedono revisione semantica.",
         ],
     }
-    for config in CONFIGURATIONS:
+    selected_configurations = [select_configuration(configuration_id)] if configuration_id else list(CONFIGURATIONS)
+    comparison["protocol"]["selected_configurations"] = [item["id"] for item in selected_configurations]
+    for config in selected_configurations:
         config_dir = output_dir / config["id"]
         adapter = StreamingDiagnosticAdapter(base_url, config, config_dir, timeout_seconds, max_tokens)
         report = run_extraction_evaluation(adapter, dataset, work_root=output_dir / "work")
@@ -264,8 +293,9 @@ def main():
     parser.add_argument("--output-dir", type=Path, default=Path("output/gguf-four-configs"))
     parser.add_argument("--timeout-seconds", type=int, default=120)
     parser.add_argument("--max-tokens", type=int, default=2048)
+    parser.add_argument("--configuration", choices=["A", "B", "C", "D"], required=True, help="Esegue soltanto la configurazione assegnata al processo CI.")
     args = parser.parse_args()
-    report = run_comparison(args.base_url, args.dataset, args.output_dir, args.timeout_seconds, args.max_tokens)
+    report = run_comparison(args.base_url, args.dataset, args.output_dir, args.timeout_seconds, args.max_tokens, args.configuration)
     print(json.dumps([
         {"configuration": item["id"], "metrics": item["metrics"]}
         for item in report["configurations"]
