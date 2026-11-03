@@ -11,7 +11,7 @@ import re
 import sys
 import tempfile
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 try:
     from acquire_material import _acquisition_lock
@@ -22,6 +22,7 @@ except ImportError:
 
 
 MAX_PROPOSAL_BYTES = 2 * 1024 * 1024
+MAX_EVIDENCE_BYTES = 256 * 1024
 PROPOSAL_SCHEMA = "schemas/classification-proposal.schema.json"
 
 
@@ -67,6 +68,30 @@ def _read_proposal_snapshot(path):
         os.close(descriptor)
 
 
+def _read_evidence_snapshot(root, source):
+    relative = PurePosixPath(source)
+    if (
+        not isinstance(source, str) or "\\" in source or "\x00" in source
+        or relative.is_absolute() or not relative.parts or relative.parts[0] != "intake"
+        or any(part in {"", ".", ".."} or ":" in part for part in relative.parts)
+    ):
+        raise ValueError("Percorso della prova non valido.")
+    path = root.joinpath(*relative.parts)
+    current = root
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError("La prova contiene un collegamento simbolico.")
+    try:
+        path.resolve(strict=True).relative_to((root / "intake").resolve(strict=True))
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise ValueError("La prova non è contenuta in intake/.") from exc
+    raw, digest = _read_proposal_snapshot(path)
+    if len(raw) > MAX_EVIDENCE_BYTES:
+        raise ValueError("La prova testuale supera il limite massimo consentito.")
+    return raw, digest
+
+
 def _validate_proposal(root, proposal, proposal_id):
     schema_path = root / PROPOSAL_SCHEMA
     if schema_path.is_symlink() or not schema_path.is_file():
@@ -109,6 +134,10 @@ def _validate_proposal(root, proposal, proposal_id):
     sources = [item["source"] for item in file_evidence]
     if len(sources) != len(set(sources)):
         raise ValueError("La proposta contiene prove duplicate per lo stesso file.")
+    for item in file_evidence:
+        raw, actual_digest = _read_evidence_snapshot(root, item["source"])
+        if item["sha256"] != actual_digest or item["bytes"] != len(raw):
+            raise ValueError("Una prova testuale non corrisponde più al file originale.")
 
 
 ALLOWED_KINDS = {"skill", "tool", "agent", "workflow", "resource", "composite", "unclassified"}
