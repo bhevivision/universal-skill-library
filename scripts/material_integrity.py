@@ -38,10 +38,15 @@ def _check(name: str, status: str, detail: str) -> dict:
     return {"name": name, "status": status, "detail": detail}
 
 
+def _is_reparse_point(info) -> bool:
+    flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return bool(getattr(info, "st_file_attributes", 0) & flag)
+
+
 def _update_digest_from_file(digest, path: Path) -> None:
     """Aggiorna un'impronta leggendo da un descrittore stabile."""
     before = path.lstat()
-    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+    if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISREG(before.st_mode):
         raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il percorso non identifica un file regolare.")
     flags = os.O_RDONLY
     if hasattr(os, "O_BINARY"):
@@ -53,7 +58,7 @@ def _update_digest_from_file(digest, path: Path) -> None:
         opened = os.fstat(descriptor)
         identity = (before.st_dev, before.st_ino)
         opened_identity = (opened.st_dev, opened.st_ino)
-        if not stat.S_ISREG(opened.st_mode) or identity != opened_identity:
+        if not stat.S_ISREG(opened.st_mode) or _is_reparse_point(opened) or identity != opened_identity:
             raise MaterialIntegrityError("PATH_CHANGED_DURING_READ", "Il file è cambiato durante l'apertura.")
         while True:
             chunk = _read_fd(descriptor, CHUNK_SIZE)
@@ -64,7 +69,7 @@ def _update_digest_from_file(digest, path: Path) -> None:
         after_path = path.lstat()
         if (after_fd.st_dev, after_fd.st_ino) != opened_identity:
             raise MaterialIntegrityError("FILE_CHANGED_DURING_READ", "Il file è cambiato durante la lettura.")
-        if (after_path.st_dev, after_path.st_ino) != opened_identity or stat.S_ISLNK(after_path.st_mode):
+        if (after_path.st_dev, after_path.st_ino) != opened_identity or stat.S_ISLNK(after_path.st_mode) or _is_reparse_point(after_path):
             raise MaterialIntegrityError("PATH_CHANGED_DURING_READ", "Il percorso è stato sostituito durante la lettura.")
     finally:
         _close_fd(descriptor)
@@ -78,6 +83,9 @@ def _sha256_file(path: Path) -> str:
 
 def _bounded_tree_entries(path: Path):
     """Restituisce al massimo MAX_TREE_ENTRIES voci senza seguire collegamenti."""
+    root_info = path.lstat()
+    if stat.S_ISLNK(root_info.st_mode) or _is_reparse_point(root_info) or not stat.S_ISDIR(root_info.st_mode):
+        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "La radice dell'albero non è una cartella sicura.")
     entries = []
     pending = [(path, 0)]
     while pending:
@@ -95,7 +103,7 @@ def _bounded_tree_entries(path: Path):
         for entry in children:
             child = Path(entry.path)
             info = entry.stat(follow_symlinks=False)
-            if stat.S_ISLNK(info.st_mode):
+            if stat.S_ISLNK(info.st_mode) or _is_reparse_point(info):
                 raise MaterialIntegrityError(
                     "SYMLINK_NOT_ALLOWED", f"Collegamento simbolico non ammesso nel materiale: {child}"
                 )
