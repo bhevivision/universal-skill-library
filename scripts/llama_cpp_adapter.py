@@ -5,6 +5,11 @@ from __future__ import annotations
 import ipaddress
 import json
 from pathlib import Path
+
+try:
+    from scripts.semantic_adapter_diagnostics import write_diagnostic
+except ImportError:
+    from semantic_adapter_diagnostics import write_diagnostic
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
@@ -340,6 +345,8 @@ class LlamaCppServerAdapter:
                 "schema": _classification_output_schema() if self.classification_only else _semantic_output_schema(),
             },
         }
+        diagnostic_id = request.get("request_id", "request-unknown")
+        write_diagnostic("request", diagnostic_id, payload)
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         http_request = Request(
             self.base_url + "/v1/chat/completions",
@@ -364,14 +371,21 @@ class LlamaCppServerAdapter:
             raise ValueError("La risposta del modello supera il limite massimo consentito.")
         try:
             envelope = json.loads(raw.decode("utf-8"))
+            write_diagnostic("raw_http_response", diagnostic_id, envelope)
             content = envelope["choices"][0]["message"]["content"]
+            write_diagnostic("raw_model_content", diagnostic_id, content)
             result = normalize_model_json(content)
-        except (UnicodeError, json.JSONDecodeError, KeyError, IndexError, TypeError) as exc:
+            write_diagnostic("parsed_model_json", diagnostic_id, result)
+        except (UnicodeError, json.JSONDecodeError, KeyError, IndexError, TypeError, ValueError) as exc:
+            write_diagnostic("validation_error", diagnostic_id, {"stage": "response_parsing", "error_type": type(exc).__name__, "message": str(exc)[:1000]})
             raise ValueError("Il server locale non ha restituito una risposta JSON leggibile.") from exc
         if not isinstance(result, dict):
             raise ValueError("La risposta semantica del modello deve essere un oggetto JSON.")
         if not self.classification_only:
-            return _normalize_full_evidence(result, request)
+            normalized = _normalize_full_evidence(result, request)
+            write_diagnostic("normalized_output", diagnostic_id, normalized)
+            return normalized
+        write_diagnostic("normalized_output", diagnostic_id, result)
 
         allowed_kinds = {"skill", "tool", "agent", "workflow", "resource", "composite"}
         kind = result.get("kind")
