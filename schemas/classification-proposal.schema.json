@@ -21,7 +21,7 @@
   ],
   "properties": {
     "proposal_schema_version": { "const": "1.0" },
-    "proposal_id": { "type": ["string", "null"], "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$" },
+    "proposal_id": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$" },
     "created_at": { "type": "string", "format": "date-time" },
     "status": { "const": "pending_approval" },
     "material": {
