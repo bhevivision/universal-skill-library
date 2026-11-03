@@ -144,8 +144,7 @@
             }
           }
         }
-      },
-      "allOf": []
+      }
     },
     "capabilities": {
       "type": "array",
