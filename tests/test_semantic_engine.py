@@ -182,6 +182,19 @@ class SemanticEngineTests(unittest.TestCase):
         self.assertTrue(any("capabilities" in item for item in proposal["unknowns"]))
         self.assertTrue(any("campi mancanti" in item.lower() for item in proposal["limits"]))
 
+    def test_key_error_diagnostic_identifies_missing_field_without_exposing_raw_data(self):
+        class BrokenAdapter:
+            def analyze(self, request):
+                raise KeyError("response_format")
+
+        proposal = run_semantic_engine(
+            valid_request(), analyzer=BrokenAdapter(), catalog_sha256="c" * 64
+        )
+
+        self.assertEqual(proposal["status"], "failed")
+        self.assertIn("KeyError", proposal["unknowns"][0])
+        self.assertIn("missing_key=response_format", proposal["unknowns"][0])
+
     def test_missing_catalog_fingerprint_is_rejected(self):
         with self.assertRaises(ValueError):
             run_semantic_engine(valid_request())
