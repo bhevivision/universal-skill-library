@@ -114,13 +114,13 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertEqual(_Handler.received["model"], "fixture-local-model")
         self.assertFalse(_Handler.received["stream"])
         self.assertEqual(_Handler.received["response_format"]["type"], "json_schema")
-        self.assertIn("claims", _Handler.received["response_format"]["schema"]["$defs"])
+        self.assertNotIn("$defs", _Handler.received["response_format"]["schema"])
         model_schema = _Handler.received["response_format"]["schema"]
         classification_schema = model_schema["properties"]["classification"]
         self.assertIn("evidence_quotes", classification_schema["required"])
         self.assertNotIn("evidence_refs", classification_schema["required"])
         self.assertEqual(classification_schema["properties"]["evidence_quotes"]["items"]["required"], ["source", "quote"])
-        claims_schema = model_schema["$defs"]["claims"]["items"]
+        claims_schema = model_schema["properties"]["interfaces"]["properties"]["inputs"]["items"]
         self.assertIn("evidence_quotes", claims_schema["required"])
         self.assertNotIn("evidence_refs", claims_schema["required"])
         self.assertEqual(claims_schema["properties"]["evidence_quotes"]["items"]["required"], ["source", "quote"])
