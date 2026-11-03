@@ -93,7 +93,10 @@ class CatalogManagerTests(unittest.TestCase):
         entry["id"] = "test.skill"
         entry["path"] = "skills/resource-discovery-assessment/SKILL.md"
         entry["capability_ids"] = ["cap.read"]
-        entry["source_material_ids"] = source_material_ids or []
+        if source_material_ids is not None:
+            entry["source_material_ids"] = source_material_ids
+        else:
+            entry.pop("source_material_ids", None)
         entry.pop("source_record_id", None)
         if source_record_id is not None:
             entry["source_record_id"] = source_record_id
