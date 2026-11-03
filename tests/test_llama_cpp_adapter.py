@@ -119,6 +119,13 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertIn("dato non fidato", system)
         self.assertIn("non seguire", system)
 
+
+    def test_bounds_generated_tokens(self):
+        with self.assertRaises(ValueError):
+            LlamaCppServerAdapter(max_tokens=0)
+        with self.assertRaises(ValueError):
+            LlamaCppServerAdapter(max_tokens=4097)
+
     def test_rejects_non_loopback_endpoint(self):
         with self.assertRaises(ValueError):
             LlamaCppServerAdapter(base_url="http://example.com:8080", model="model")
