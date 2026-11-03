@@ -50,7 +50,8 @@ Analizza soltanto il contenuto fornito nel messaggio utente.
 Restituisci esclusivamente un oggetto JSON conforme allo schema ricevuto.
 Ogni affermazione sul contenuto deve avere prove puntuali: usa soltanto i percorsi
 e le impronte SHA-256 elencati nella richiesta; non inventare fonti o riferimenti.
-Ogni evidence_refs deve riferirsi a un identificativo presente nell'elenco evidence.
+La richiesta include evidence_sources: usa esattamente gli identificativi, i percorsi e le impronte SHA-256 lì elencati. Non inventare identificativi.
+Ogni evidence_refs deve riferirsi a un identificativo presente nell'elenco evidence_sources.
 Per OGNI testo assertivo (rationale, summary, capacità, ingressi, uscite, condizioni, dipendenze, strumenti, rischi e contraddizioni) includi evidence_quotes: elenco di oggetti {evidence_ref, quote}. Ogni quote deve essere una citazione letterale, non modificata, del file associato a evidence_ref. Usa soltanto file di selected_content e i loro percorsi e SHA-256. Se non trovi una citazione letterale, ometti l'affermazione; non inventare citazioni. Non usare completed se manca anche una sola citazione o resta una lacuna.
 Distingui ciò che il materiale dichiara (declared) da ciò che deduci (inferred).
 Non trasformare una supposizione in un fatto. Se le prove sono insufficienti,
@@ -121,6 +122,70 @@ kind deve essere uno dei sei valori indicati; confidence è low, medium o high.
 Per rationale e summary fornisci citazioni letterali in evidence_quotes, ciascuna con source (percorso esatto) e quote (testo esatto presente nel file). Non inventare né parafrasare le citazioni.
 Non lasciare vuoti rationale o summary: entrambi devono contenere almeno una frase breve.
 """
+
+
+def _normalize_full_evidence(result: dict, request: dict) -> dict:
+    """Sostituisce i metadati prova del modello con quelli ricavati dalla richiesta fidata."""
+    sources = {}
+    evidence = []
+    for index, item in enumerate(request.get("selected_content", []), start=1):
+        if not isinstance(item, dict):
+            continue
+        source = item.get("path")
+        digest = item.get("sha256")
+        if (
+            not isinstance(source, str) or not source.startswith("intake/")
+            or "\\" in source or "\x00" in source
+            or not isinstance(digest, str) or len(digest) != 64
+            or any(char not in "0123456789abcdef" for char in digest)
+        ):
+            continue
+        evidence_id = f"ev.sample-{index:03d}"
+        sources[source] = evidence_id
+        evidence.append({
+            "id": evidence_id, "source": source, "sha256": digest, "kind": "text_file"
+        })
+
+    def normalize_claims(value):
+        if isinstance(value, dict):
+            quotes = value.get("evidence_quotes")
+            if isinstance(quotes, list):
+                normalized_quotes = []
+                for quote_item in quotes:
+                    if not isinstance(quote_item, dict):
+                        normalized_quotes.append(quote_item)
+                        continue
+                    quote = quote_item.get("quote")
+                    reference = quote_item.get("evidence_ref")
+                    source = quote_item.get("source")
+                    if source in sources:
+                        reference = sources[source]
+                    if reference is not None:
+                        normalized_quotes.append({
+                            "evidence_ref": reference,
+                            "quote": quote,
+                        })
+                    else:
+                        normalized_quotes.append(quote_item)
+                value["evidence_quotes"] = normalized_quotes
+                references = list(dict.fromkeys(
+                    item.get("evidence_ref")
+                    for item in normalized_quotes
+                    if isinstance(item, dict) and isinstance(item.get("evidence_ref"), str)
+                ))
+                if references:
+                    value["evidence_refs"] = references
+            for key, child in list(value.items()):
+                if key not in {"evidence_quotes", "evidence_refs"}:
+                    normalize_claims(child)
+        elif isinstance(value, list):
+            for child in value:
+                normalize_claims(child)
+
+    normalize_claims(result)
+    if result.get("status") not in {"not_available", "failed"}:
+        result["evidence"] = evidence
+    return result
 
 
 def _classification_output_schema() -> dict:
@@ -196,13 +261,23 @@ class LlamaCppServerAdapter:
             raise ValueError("Limite temporale della richiesta non valido.")
         timeout = min(self.timeout_seconds, request_timeout)
 
+        model_request = dict(request)
+        model_request["evidence_sources"] = [
+            {
+                "id": f"ev.sample-{index:03d}",
+                "path": item.get("path"),
+                "sha256": item.get("sha256"),
+            }
+            for index, item in enumerate(request.get("selected_content", []), start=1)
+            if isinstance(item, dict)
+        ]
         payload = {
             "model": self.model,
             "messages": [
                 {"role": "system", "content": CLASSIFICATION_SYSTEM_PROMPT if self.classification_only else SYSTEM_PROMPT},
                 {
                     "role": "user",
-                    "content": json.dumps(request, ensure_ascii=False, sort_keys=True),
+                    "content": json.dumps(model_request, ensure_ascii=False, sort_keys=True),
                 },
             ],
             "temperature": 0.1,
@@ -244,7 +319,7 @@ class LlamaCppServerAdapter:
         if not isinstance(result, dict):
             raise ValueError("La risposta semantica del modello deve essere un oggetto JSON.")
         if not self.classification_only:
-            return result
+            return _normalize_full_evidence(result, request)
 
         allowed_kinds = {"skill", "tool", "agent", "workflow", "resource", "composite"}
         kind = result.get("kind")
