@@ -3,15 +3,6 @@ on:
   pull_request:
     branches:
       - model/structural-model-v1
-  push:
-    branches:
-      - semantic-evaluation-isolation-v1
-    paths:
-      - scripts/llama_cpp_adapter.py
-      - scripts/semantic_evaluation.py
-      - tests/test_llama_cpp_adapter.py
-      - tests/test_semantic_evaluation.py
-      - evaluation/**
   workflow_dispatch:
 permissions:
   contents: read
