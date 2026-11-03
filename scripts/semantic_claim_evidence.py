@@ -187,8 +187,8 @@ def validate_claim_evidence(root, proposal, allowed_sources=None):
             if quote not in checked_files[source]:
                 raise ValueError(f"Citazione inventata o assente nel file sorgente: {source}")
             cited.add(ref)
-        if not cited:
-            raise ValueError(f"Nessuna citazione valida per l'affermazione: {field}.")
+        if not cited or set(refs) - cited:
+            raise ValueError(f"Nessuna citazione valida per tutti i riferimenti dell'affermazione: {field}.")
 
     if proposal.get("status") == "completed":
         if proposal.get("missing_references") or proposal.get("contradictions") or proposal.get("unknowns") or proposal.get("limits"):
