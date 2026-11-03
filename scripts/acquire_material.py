@@ -197,7 +197,9 @@ def _copy_directory_bounded(source, destination):
     for item, kind, info in entries:
         if kind == "directory":
             after = item.lstat()
-            if stat.S_ISLNK(after.st_mode) or (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+            if stat.S_ISLNK(after.st_mode) or _is_reparse_point(after) or not stat.S_ISDIR(after.st_mode):
+                raise ValueError(f"La cartella sorgente è stata sostituita durante la copia: {item}")
+            if os.name != "nt" and (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
                 raise ValueError(f"La cartella sorgente è stata sostituita durante la copia: {item}")
     source_after = source.lstat()
     if stat.S_ISLNK(source_after.st_mode) or _is_reparse_point(source_after) or not stat.S_ISDIR(source_after.st_mode):
@@ -210,7 +212,7 @@ def _copy_directory_bounded(source, destination):
 def _update_digest_from_file(digest, path):
     path = Path(path)
     before = path.lstat()
-    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+    if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISREG(before.st_mode):
         raise ValueError(f"Il percorso non identifica un file regolare: {path}")
     flags = os.O_RDONLY
     if hasattr(os, "O_BINARY"):
@@ -221,7 +223,7 @@ def _update_digest_from_file(digest, path):
     try:
         opened = os.fstat(descriptor)
         identity = (before.st_dev, before.st_ino)
-        if not stat.S_ISREG(opened.st_mode) or (opened.st_dev, opened.st_ino) != identity:
+        if not stat.S_ISREG(opened.st_mode) or _is_reparse_point(opened) or (opened.st_dev, opened.st_ino) != identity:
             raise ValueError(f"Il file è cambiato durante l'apertura: {path}")
         while True:
             chunk = os.read(descriptor, 1024 * 1024)
@@ -232,7 +234,7 @@ def _update_digest_from_file(digest, path):
         after_path = path.lstat()
         if (after_fd.st_dev, after_fd.st_ino) != identity:
             raise ValueError(f"Il file è cambiato durante la lettura: {path}")
-        if (after_path.st_dev, after_path.st_ino) != identity or stat.S_ISLNK(after_path.st_mode):
+        if (after_path.st_dev, after_path.st_ino) != identity or stat.S_ISLNK(after_path.st_mode) or _is_reparse_point(after_path):
             raise ValueError(f"Il percorso è stato sostituito durante la lettura: {path}")
         if after_fd.st_size != opened.st_size:
             raise ValueError(f"La dimensione del file è cambiata durante la lettura: {path}")
