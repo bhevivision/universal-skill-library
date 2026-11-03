@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema.exceptions import ValidationError
 
 try:
     from scripts.semantic_evidence_integrity import validate_semantic_request
@@ -193,11 +194,16 @@ def run_semantic_engine(
         return proposal
     except Exception as exc:
         # Non conservare un risultato parziale o potenzialmente malformato.
+        # Per gli errori di schema registra solo il percorso e la regola, mai il valore grezzo.
+        diagnostic = type(exc).__name__
+        if isinstance(exc, ValidationError):
+            location = ".".join(str(part) for part in exc.absolute_path) or "proposta"
+            diagnostic += " at " + location + " (" + str(exc.validator) + ")"
         proposal = _base_proposal(
             request_snapshot,
             catalog_sha256,
             "failed",
-            "L'analisi semantica non è stata completata: " + type(exc).__name__ + ".",
+            "L'analisi semantica non è stata completata: " + diagnostic + ".",
         )
         _validate_proposal_schema(proposal)
         return proposal
