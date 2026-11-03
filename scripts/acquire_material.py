@@ -203,11 +203,20 @@ def _copy_directory_bounded(source, destination):
                 raise ValueError(f"La cartella sorgente è stata sostituita durante la copia: {item}")
             if os.name != "nt" and (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
                 raise ValueError(f"La cartella sorgente è stata sostituita durante la copia: {item}")
+            if os.name == "nt" and (
+                after.st_mtime_ns != info.st_mtime_ns or after.st_ctime_ns != info.st_ctime_ns
+            ):
+                raise ValueError(f"La cartella sorgente è cambiata durante la copia: {item}")
     source_after = source.lstat()
     if stat.S_ISLNK(source_after.st_mode) or _is_reparse_point(source_after) or not stat.S_ISDIR(source_after.st_mode):
         raise ValueError("La cartella sorgente è stata sostituita durante la copia.")
     if os.name != "nt" and (source_after.st_dev, source_after.st_ino) != (source_info.st_dev, source_info.st_ino):
         raise ValueError("La cartella sorgente è stata sostituita durante la copia.")
+    if os.name == "nt" and (
+        source_after.st_mtime_ns != source_info.st_mtime_ns
+        or source_after.st_ctime_ns != source_info.st_ctime_ns
+    ):
+        raise ValueError("La cartella sorgente è cambiata durante la copia.")
     return counters["files"], counters["bytes"]
 
 
