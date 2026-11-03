@@ -62,6 +62,7 @@ jobs:
           mkdir -p output/adapter-diagnostics
           set +e
           docker run --name semantic-evaluator \
+            --user "$(id -u):$(id -g)" \
             --network container:semantic-llama-server \
             --read-only --cap-drop ALL --security-opt no-new-privileges:true \
             --pids-limit 32 --memory 1g --memory-swap 1g --cpus 1 \
