@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import sys
 import tempfile
 from datetime import datetime, timezone
@@ -21,6 +22,11 @@ except ImportError:
     from scripts.material_integrity import _read_catalog, load_material_record, verify_material
 
 
+def _is_reparse_point(info):
+    flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return bool(getattr(info, "st_file_attributes", 0) & flag)
+
+
 MAX_PROPOSAL_BYTES = 2 * 1024 * 1024
 MAX_EVIDENCE_BYTES = 256 * 1024
 PROPOSAL_SCHEMA = "schemas/classification-proposal.schema.json"
@@ -28,10 +34,8 @@ PROPOSAL_SCHEMA = "schemas/classification-proposal.schema.json"
 
 def _read_proposal_snapshot(path):
     """Legge una proposta da un descrittore stabile e ne restituisce i byte esatti."""
-    import stat
-
     before = path.lstat()
-    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+    if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISREG(before.st_mode):
         raise ValueError("La proposta non è un file regolare sicuro.")
     flags = os.O_RDONLY
     if hasattr(os, "O_BINARY"):
@@ -42,7 +46,7 @@ def _read_proposal_snapshot(path):
     try:
         opened = os.fstat(descriptor)
         identity = (before.st_dev, before.st_ino)
-        if not stat.S_ISREG(opened.st_mode) or (opened.st_dev, opened.st_ino) != identity:
+        if not stat.S_ISREG(opened.st_mode) or _is_reparse_point(opened) or (opened.st_dev, opened.st_ino) != identity:
             raise ValueError("La proposta è cambiata durante l'apertura.")
         chunks = []
         total = 0
@@ -59,7 +63,7 @@ def _read_proposal_snapshot(path):
         after_path = path.lstat()
         if (after_fd.st_dev, after_fd.st_ino) != identity:
             raise ValueError("Il file della proposta è cambiato durante la lettura.")
-        if (after_path.st_dev, after_path.st_ino) != identity or stat.S_ISLNK(after_path.st_mode):
+        if (after_path.st_dev, after_path.st_ino) != identity or stat.S_ISLNK(after_path.st_mode) or _is_reparse_point(after_path):
             raise ValueError("Il percorso della proposta è stato sostituito durante la lettura.")
         if after_fd.st_size != len(raw):
             raise ValueError("La proposta è cambiata durante la lettura.")
@@ -80,8 +84,9 @@ def _read_evidence_snapshot(root, source):
     current = root
     for part in relative.parts:
         current = current / part
-        if current.is_symlink():
-            raise ValueError("La prova contiene un collegamento simbolico.")
+        info = current.lstat()
+        if stat.S_ISLNK(info.st_mode) or _is_reparse_point(info):
+            raise ValueError("La prova contiene un collegamento o punto di reindirizzamento.")
     try:
         path.resolve(strict=True).relative_to((root / "intake").resolve(strict=True))
     except (OSError, RuntimeError, ValueError) as exc:
@@ -94,7 +99,8 @@ def _read_evidence_snapshot(root, source):
 
 def _validate_proposal(root, proposal, proposal_id):
     schema_path = root / PROPOSAL_SCHEMA
-    if schema_path.is_symlink() or not schema_path.is_file():
+    schema_info = schema_path.lstat()
+    if stat.S_ISLNK(schema_info.st_mode) or _is_reparse_point(schema_info) or not stat.S_ISREG(schema_info.st_mode):
         raise ValueError("Schema della proposta assente o non sicuro.")
     try:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -184,10 +190,12 @@ def decide_proposal(root, proposal_id, *, decision, actor, rationale):
     lock_path = _acquisition_lock(root)
     try:
         proposals_dir = root / "proposals"
-        if proposals_dir.is_symlink() or not proposals_dir.is_dir():
+        proposals_info = proposals_dir.lstat()
+        if stat.S_ISLNK(proposals_info.st_mode) or _is_reparse_point(proposals_info) or not stat.S_ISDIR(proposals_info.st_mode):
             raise FileNotFoundError("Cartella delle proposte assente o non sicura.")
         proposal_path = proposals_dir / f"{proposal_id}.json"
-        if proposal_path.is_symlink() or not proposal_path.is_file():
+        proposal_info = proposal_path.lstat()
+        if stat.S_ISLNK(proposal_info.st_mode) or _is_reparse_point(proposal_info) or not stat.S_ISREG(proposal_info.st_mode):
             raise FileNotFoundError(f"Proposta non trovata o non sicura: {proposal_id}")
         proposal_bytes, proposal_digest = _read_proposal_snapshot(proposal_path)
         try:
