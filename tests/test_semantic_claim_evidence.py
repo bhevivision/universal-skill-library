@@ -88,6 +88,18 @@ class ExactClaimEvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "file selezionato"):
             validate_claim_evidence(self.root, self.proposal, allowed_sources={})
 
+    def test_rejects_conflicting_digest_for_cached_source_path(self):
+        altered = dict(self.proposal["evidence"][0])
+        altered["id"] = "ev.altered"
+        altered["sha256"] = "0" * 64
+        self.proposal["evidence"].append(altered)
+        self.proposal["capabilities"][0]["evidence_refs"] = ["ev.altered"]
+        self.proposal["capabilities"][0]["evidence_quotes"] = [
+            {"evidence_ref": "ev.altered", "quote": "Questa skill legge documenti PDF."}
+        ]
+        with self.assertRaisesRegex(ValueError, "impronta SHA-256"):
+            validate_claim_evidence(self.root, self.proposal)
+
     def test_rejects_source_fingerprint_mismatch(self):
         self.source.write_text("File modificato.\n", encoding="utf-8")
         with self.assertRaises(ValueError):
