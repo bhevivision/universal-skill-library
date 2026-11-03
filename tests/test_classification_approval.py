@@ -49,7 +49,7 @@ class ClassificationApprovalTests(unittest.TestCase):
             "status": "pending_approval",
             "material": {"id": "acq.example", "sha256": digest, "original_kind": "file"},
             "proposal": {"kind": "skill", "confidence": "medium", "rationale": "Metadati e istruzioni rilevati."},
-            "evidence": [{"source": "catalog/materials.json", "type": "identity", "material_id": "acq.example", "sha256": digest}, {"source": "intake/acq-example/source/material.md", "type": "text_file", "sha256": digest, "bytes": self.original.stat().st_size}],
+            "evidence": [{"source": "catalog/materials.json", "type": "identity", "material_id": "acq.example", "sha256": digest}, {"source": "intake/acq-example/source/material.md", "type": "text_file", "sha256": hashlib.sha256(self.original.read_bytes()).hexdigest(), "bytes": self.original.stat().st_size}],
             "dependencies": [],
             "missing_references": [],
             "unknowns": [],
@@ -154,7 +154,7 @@ class ClassificationApprovalTests(unittest.TestCase):
 
     def test_rejects_proposal_with_invalid_evidence_hash(self):
         path = self.root / "proposals/class.example.json"
-        self.proposal["evidence"][1]["sha256"] = "not-a-sha256"
+        self.proposal["evidence"][1]["sha256"] = "0" * 64
         path.write_text(json.dumps(self.proposal), encoding="utf-8")
         before = (self.root / "catalog/materials.json").read_bytes()
         with self.assertRaises(ValueError):
