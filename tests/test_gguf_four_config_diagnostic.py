@@ -1,11 +1,16 @@
 import json
 import unittest
 
-from scripts.gguf_four_config_diagnostic import CONFIGURATIONS, _apply_configuration, consume_sse
+from scripts.gguf_four_config_diagnostic import CONFIGURATIONS, _apply_configuration, consume_sse, select_configuration
 from scripts.llama_cpp_adapter import _semantic_output_schema
 
 
 class StreamingDiagnosticTests(unittest.TestCase):
+    def test_selects_exactly_one_known_configuration(self):
+        self.assertEqual(select_configuration("C")["id"], "C")
+        with self.assertRaises(ValueError):
+            select_configuration("E")
+
     def test_preserves_each_content_delta_before_stream_finishes(self):
         events = [
             "data: " + json.dumps({"choices": [{"delta": {"content": '{"kind"'}}]}),
