@@ -1,0 +1,210 @@
+{
+  "report_version": "1.1",
+  "generated_at": "2026-11-03",
+  "dataset_version": "1.0",
+  "purpose": "Valutazione esplorativa della classificazione primaria, non certificazione statistica.",
+  "model": {
+    "name": "Qwen/Qwen2.5-3B-Instruct-GGUF",
+    "quantization": "Q4_K_M",
+    "sha256": "626b4a6678b86442240e33df819e00132d3ba7dddfe1cdc4fbb18e0a9615c62d",
+    "runtime": "llama.cpp",
+    "image_digest": "ghcr.io/ggml-org/llama.cpp@sha256:10a38e6cc91760ab157f0a0a8546218d35f4a314432a70298abfa3d096829ad7"
+  },
+  "execution": {
+    "github_actions_run_id": 41632778918,
+    "github_actions_url": "https://github.com/bhevivision/universal-skill-library/actions/runs/41632778918",
+    "artifact_id": 13228659123,
+    "artifact_url": "https://github.com/bhevivision/universal-skill-library/actions/runs/41632778918/artifacts/13228659123",
+    "full_report_sha256": "b124805a9bcaff76e7c379c0c6ddc435e1a514a9fd3a60c678a2fbd7e8743326",
+    "test_run_id": 41632778956,
+    "test_run_url": "https://github.com/bhevivision/universal-skill-library/actions/runs/41632778956",
+    "test_count": 205,
+    "test_platforms": [
+      "ubuntu-latest",
+      "windows-latest"
+    ],
+    "test_result": "success"
+  },
+  "security_limits": {
+    "model_container": {
+      "memory_bytes": 5368709120,
+      "cpus": 2,
+      "pids_limit": 128,
+      "readonly_rootfs": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "no_new_privileges": true,
+      "model_mount_readonly": true,
+      "network": "Docker internal network; no external network",
+      "published_ports": []
+    },
+    "evaluator_container": {
+      "memory_bytes": 1073741824,
+      "cpus": 1,
+      "pids_limit": 32,
+      "readonly_rootfs": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "no_new_privileges": true,
+      "source_mount_readonly": true
+    },
+    "model_context_tokens": 2048,
+    "max_generated_tokens": 256,
+    "note": "La prova è stata eseguita in contenitori Docker su GitHub Actions; non equivale a una certificazione di sicurezza del kernel o a una prova sul computer locale."
+  },
+  "metrics": {
+    "sample_count": 12,
+    "exact_accuracy": 1,
+    "coverage": 1,
+    "selective_accuracy": 1,
+    "macro_f1": 1,
+    "abstention_count": 0,
+    "mean_elapsed_seconds": 26.711,
+    "per_class": {
+      "skill": {
+        "support": 2,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "tool": {
+        "support": 2,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "agent": {
+        "support": 2,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "workflow": {
+        "support": 2,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "resource": {
+        "support": 2,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "composite": {
+        "support": 2,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      }
+    },
+    "evidence_reference_integrity": 1
+  },
+  "predictions": [
+    {
+      "id": "skill-01",
+      "expected": "skill",
+      "predicted": "skill",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "skill-02",
+      "expected": "skill",
+      "predicted": "skill",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "tool-01",
+      "expected": "tool",
+      "predicted": "tool",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "tool-02",
+      "expected": "tool",
+      "predicted": "tool",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "agent-01",
+      "expected": "agent",
+      "predicted": "agent",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "agent-02",
+      "expected": "agent",
+      "predicted": "agent",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "workflow-01",
+      "expected": "workflow",
+      "predicted": "workflow",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "workflow-02",
+      "expected": "workflow",
+      "predicted": "workflow",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "resource-01",
+      "expected": "resource",
+      "predicted": "resource",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "resource-02",
+      "expected": "resource",
+      "predicted": "resource",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "composite-01",
+      "expected": "composite",
+      "predicted": "composite",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    },
+    {
+      "id": "composite-02",
+      "expected": "composite",
+      "predicted": "composite",
+      "correct": true,
+      "confidence": "high",
+      "source_references_valid": true
+    }
+  ],
+  "interpretation": [
+    "Il modello GGUF reale è stato caricato ed eseguito con successo.",
+    "La modalità classificazione primaria ha classificato correttamente tutti i 12 campioni iniziali.",
+    "Il rapporto misura soltanto la classificazione primaria; non certifica l'estrazione completa di capacità, interfacce, dipendenze o rischi.",
+    "Due esempi per classe sono insufficienti per stimare l'accuratezza su materiali reali eterogenei. Ampliare il campione prima di considerare il classificatore affidabile."
+  ],
+  "metric_definition": "evidence_reference_integrity misura soltanto la corrispondenza tecnica dei riferimenti alle fonti che l'adattatore costruisce a partire dagli input; non misura la fedeltà semantica delle affermazioni del modello né il collegamento di ogni affermazione a un passaggio sorgente."
+}

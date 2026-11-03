@@ -1,0 +1,6 @@
+.git
+models/
+output/
+*.gguf
+__pycache__/
+*.py[cod]

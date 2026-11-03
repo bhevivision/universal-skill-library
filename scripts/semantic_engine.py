@@ -100,6 +100,15 @@ def _base_proposal(request: dict, catalog_sha256: str, status: str, reason: str)
     return proposal
 
 
+class ProposalValidationError(ValueError):
+    """Errore di schema con diagnostica sicura, senza esporre valori del modello."""
+
+    def __init__(self, location: str, rule: str):
+        self.location = location
+        self.rule = rule
+        super().__init__(f"Proposta non conforme in {location} ({rule}).")
+
+
 def _validate_proposal_schema(proposal: dict) -> None:
     try:
         schema = json.loads(PROPOSAL_SCHEMA.read_text(encoding="utf-8"))
@@ -111,7 +120,53 @@ def _validate_proposal_schema(proposal: dict) -> None:
     if errors:
         error = errors[0]
         location = ".".join(str(part) for part in error.absolute_path) or "proposta"
-        raise ValueError(f"Proposta dell'analizzatore non conforme in {location}: {error.message}")
+        raise ProposalValidationError(location, str(error.validator))
+
+
+def _normalize_semantic_fields(result: dict) -> dict:
+    """Completa soltanto i campi omessi, rendendo esplicito che la proposta è parziale."""
+    fields = (
+        "status", "classification", "capabilities", "interfaces",
+        "dependencies", "tools_and_platforms", "evidence",
+        "missing_references", "contradictions", "risks", "unknowns", "limits",
+    )
+    missing = [field for field in fields if field not in result]
+    if not missing:
+        return result
+
+    normalized = dict(result)
+    defaults = {
+        "status": "partial",
+        "classification": {
+            "kind": "unclassified",
+            "confidence": "low",
+            "rationale": "La risposta dell'analizzatore non contiene una classificazione completa.",
+            "summary": "Proposta semantica incompleta.",
+            "evidence_refs": [],
+        },
+        "capabilities": [],
+        "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+        "dependencies": [],
+        "tools_and_platforms": [],
+        "evidence": [],
+        "missing_references": [],
+        "contradictions": [],
+        "risks": [],
+        "unknowns": [],
+        "limits": [],
+    }
+    for field, default in defaults.items():
+        normalized.setdefault(field, default)
+
+    if normalized["status"] == "completed":
+        normalized["status"] = "partial"
+    normalized["unknowns"] = list(normalized["unknowns"]) + [
+        "Campi semantici mancanti nella risposta dell'analizzatore: " + ", ".join(missing) + "."
+    ]
+    normalized["limits"] = list(normalized["limits"]) + [
+        "Output incompleto: i campi mancanti sono stati lasciati non disponibili."
+    ]
+    return normalized
 
 
 def run_semantic_engine(
@@ -158,6 +213,7 @@ def run_semantic_engine(
             "dependencies", "tools_and_platforms", "evidence",
             "missing_references", "contradictions", "risks", "unknowns", "limits",
         )
+        result = _normalize_semantic_fields(result)
         proposal = {
             "schema_version": "1.0",
             "proposal_id": _proposal_id(request_snapshot["request_id"]),
@@ -193,11 +249,19 @@ def run_semantic_engine(
         return proposal
     except Exception as exc:
         # Non conservare un risultato parziale o potenzialmente malformato.
+        # Per gli errori di schema registra solo il percorso e la regola, mai il valore grezzo.
+        diagnostic = type(exc).__name__
+        if isinstance(exc, KeyError) and exc.args:
+            missing_key = exc.args[0]
+            if isinstance(missing_key, str) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]{0,63}", missing_key):
+                diagnostic += " missing_key=" + missing_key
+        if isinstance(exc, ProposalValidationError):
+            diagnostic += " at " + exc.location + " (" + exc.rule + ")"
         proposal = _base_proposal(
             request_snapshot,
             catalog_sha256,
             "failed",
-            "L'analisi semantica non è stata completata: " + type(exc).__name__ + ".",
+            "L'analisi semantica non è stata completata: " + diagnostic + ".",
         )
         _validate_proposal_schema(proposal)
         return proposal

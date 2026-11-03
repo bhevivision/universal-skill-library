@@ -2,7 +2,7 @@
 
 ## Stato
 
-Il modulo `scripts/semantic_engine.py` fornisce il confine dell'analizzatore; `scripts/semantic_pipeline.py` collega preparazione, richiesta, analisi, verifica applicativa e salvataggio esclusivo. Non è ancora presente un modello semantico locale reale.
+Il modulo `scripts/semantic_engine.py` fornisce il confine dell'analizzatore; `scripts/semantic_pipeline.py` collega preparazione, richiesta, analisi, verifica applicativa e salvataggio esclusivo. È disponibile l'adattatore `llama.cpp` e la modalità `classification_only` è stata verificata con un vero modello GGUF su GitHub Actions. Questa prova copre la classe primaria e restituisce una proposta `partial`; l'estrazione semantica completa resta da verificare.
 
 ## Interfaccia
 
@@ -76,16 +76,16 @@ Il modulo `scripts/llama_cpp_adapter.py` implementa il collegamento:
 - richiede un risultato JSON strutturato;
 - restituisce il risultato al motore, che ricostruisce i metadati fidati e applica i controlli di schema e delle prove.
 
-L'adattatore è stato verificato con un server HTTP locale simulato in GitHub Actions. **Non è ancora stata eseguita un'inferenza con un vero file GGUF**: il precedente computer è fuori uso e i correnti esecutori GitHub non sono una prova del funzionamento sul futuro computer di destinazione. Non si inseriscono modelli pesanti nel repository e non si scaricano modelli durante i test automatici.
+L'adattatore è stato verificato sia con un server HTTP simulato sia con un vero modello GGUF. La prova reale ha usato `Qwen/Qwen2.5-3B-Instruct-GGUF` in quantizzazione `Q4_K_M`, eseguito con llama.cpp su GitHub Actions. Nel campione iniziale di 12 materiali la modalità di classificazione primaria ha ottenuto accuratezza esatta 1,00, copertura 1,00 e macro-F1 1,00, con tempo medio 26,711 secondi per materiale. L'integrità dei riferimenti alle fonti è 1,00, ma misura soltanto la corrispondenza tecnica dei riferimenti generati dall'adattatore con gli input: non misura la fedeltà semantica delle affermazioni del modello. Impronta GGUF: `626b4a6678b86442240e33df819e00132d3ba7dddfe1cdc4fbb18e0a9615c62d`. Il rapporto completo e le prove sono collegati in `docs/SEMANTIC-EVALUATION-RESULTS.md` e nell'artefatto del run `41632778918`. La prova è stata eseguita su un runner remoto, non sul computer personale fuori uso. Il campione contiene soltanto due esempi per classe e non certifica la generalizzazione. La modalità `classification_only` non estrae capacità, interfacce, dipendenze, strumenti o rischi: produce intenzionalmente una proposta `partial`. La modalità completa dell'adattatore deve ancora essere verificata con un modello reale. Non si inseriscono modelli pesanti nel repository e non si scaricano modelli durante i test automatici ordinari.
 
 La scelta del modello GGUF specifico resta aperta fino a quando sarà noto l'hardware disponibile (memoria, processore, scheda grafica e memoria grafica). L'adattatore non dipende dal nome del modello: lo riceve come configurazione.
 
 ## Limiti e lavori aperti
 
-1. Eseguire e verificare l'adattatore con un vero modello GGUF sul computer di destinazione; il collegamento software a llama.cpp è implementato, l'inferenza reale resta non verificata.
-2. Isolare l'adattatore dal file system, dalla rete e dall'esecuzione di comandi; il contratto attuale esprime i permessi richiesti ma non costituisce sandbox.
-3. Applicare un limite di tempo effettivo al processo d'inferenza e gestire memoria e annullamento.
-4. Aggiungere un insieme di materiali campione con classificazioni attese e misure di precisione, richiamo, coerenza e qualità delle prove.
+1. Verificare sul computer di destinazione la compatibilità, la memoria e le prestazioni del modello: la prova corrente è su GitHub Actions e non sostituisce quella locale.
+2. Verificare la modalità completa di analisi semantica con un vero GGUF: la prova attuale copre soltanto la classe primaria e restituisce una proposta `partial`.
+3. Estendere le prove di isolamento e dei limiti operativi sotto carico, inclusi annullamento, consumo massimo, timeout e test avversari. La prima esecuzione Docker con rete interna, file system in sola lettura, privilegi eliminati e limiti CPU/memoria/processi è stata verificata.
+4. Ampliare il campione oltre i 12 materiali iniziali, aggiungendo casi ambigui, incompleti, ostili e materiali reali indipendenti; il 100% attuale è un risultato esplorativo, non una certificazione.
 5. Ampliare la copertura dei formati oltre i testi già supportati da `material_preparer.py`.
 
 Fino al completamento di questi punti, il flusso integrato è utilizzabile per produrre proposte `not_available` o per verificare adattatori di prova; non è ancora un classificatore autonomo pronto all'uso.

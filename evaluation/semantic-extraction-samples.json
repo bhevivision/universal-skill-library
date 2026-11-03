@@ -1,0 +1,155 @@
+{
+  "dataset_version": "1.0",
+  "description": "Quattro skill campione con fatti esplicitamente dichiarati. Le etichette e le parole-chiave attese sono usate soltanto dal valutatore e non vengono inserite nei materiali inviati al modello.",
+  "samples": [
+    {
+      "id": "skill-pdf-text",
+      "expected_kind": "skill",
+      "text": "# Skill: Estrazione testo da PDF\n\n## Scopo\nEstrarre il testo da documenti PDF e conservarne l'ordine di lettura.\n\n## Capacità\nLa skill estrae il testo dai file PDF e lo prepara per successive elaborazioni.\n\n## Ingressi\nUn file PDF leggibile.\n\n## Uscite\nUn file TXT codificato in UTF-8.\n\n## Dipendenze\nRichiede Python 3.11 e la libreria PyMuPDF installata.\n\n## Strumenti e piattaforme\nEsegue il codice con Python 3.11.\n\n## Limiti\nNon modifica né sovrascrive il documento PDF originale.",
+      "expected_facts": {
+        "capabilities": [
+          [
+            "estrae",
+            "testo",
+            "pdf"
+          ]
+        ],
+        "inputs": [
+          [
+            "file pdf"
+          ]
+        ],
+        "outputs": [
+          [
+            "file txt",
+            "utf-8"
+          ]
+        ],
+        "dependencies": [
+          [
+            "pymupdf"
+          ]
+        ],
+        "tools_and_platforms": [
+          [
+            "python 3.11"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "skill-csv-validation",
+      "expected_kind": "skill",
+      "text": "# Skill: Validazione di file CSV\n\n## Scopo\nControllare che un file CSV rispetti uno schema JSON fornito.\n\n## Capacità\nLa skill valida le colonne, i tipi dei dati e i campi obbligatori del CSV rispetto allo schema.\n\n## Ingressi\nUn file CSV e un file di schema JSON.\n\n## Uscite\nUn rapporto JSON con l'elenco delle righe non valide, il numero della riga e la descrizione dell'errore.\n\n## Dipendenze\nRichiede Python 3.11 e la libreria jsonschema.\n\n## Strumenti e piattaforme\nEsegue il controllo tramite Python 3.11 e jsonschema.\n\n## Limiti\nLegge i file in ingresso senza modificarli.",
+      "expected_facts": {
+        "capabilities": [
+          [
+            "valida",
+            "csv",
+            "schema"
+          ]
+        ],
+        "inputs": [
+          [
+            "file csv"
+          ],
+          [
+            "schema json"
+          ]
+        ],
+        "outputs": [
+          [
+            "rapporto json"
+          ]
+        ],
+        "dependencies": [
+          [
+            "jsonschema"
+          ]
+        ],
+        "tools_and_platforms": [
+          [
+            "python 3.11"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "skill-markdown-links",
+      "expected_kind": "skill",
+      "text": "# Skill: Controllo dei collegamenti Markdown\n\n## Scopo\nIndividuare collegamenti non validi nei documenti Markdown.\n\n## Capacità\nLa skill controlla i collegamenti interni e verifica la raggiungibilità degli indirizzi HTTP esterni.\n\n## Ingressi\nUno o più file Markdown e, facoltativamente, la cartella radice del progetto.\n\n## Uscite\nUn rapporto JSON con il percorso del file, il numero di riga, l'indirizzo del collegamento e il risultato del controllo.\n\n## Dipendenze\nRichiede Python 3.11 e la libreria requests.\n\n## Strumenti e piattaforme\nUsa Python 3.11 e requests.\n\n## Rischi e limiti\nPer verificare gli indirizzi esterni effettua richieste HTTP verso la rete esterna. Non modifica i documenti originali.",
+      "expected_facts": {
+        "capabilities": [
+          [
+            "controlla",
+            "collegamenti",
+            "markdown"
+          ]
+        ],
+        "inputs": [
+          [
+            "file markdown"
+          ]
+        ],
+        "outputs": [
+          [
+            "rapporto json"
+          ]
+        ],
+        "dependencies": [
+          [
+            "requests"
+          ]
+        ],
+        "tools_and_platforms": [
+          [
+            "python 3.11"
+          ]
+        ],
+        "risks": [
+          [
+            "richieste http",
+            "rete esterna"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "skill-invoice-data",
+      "expected_kind": "skill",
+      "text": "# Skill: Estrazione dati da fatture\n\n## Scopo\nEstrarre i dati principali da una fattura in formato PDF.\n\n## Capacità\nLa skill estrae fornitore, numero della fattura, data, imponibile, imposta e totale.\n\n## Ingressi\nUn documento PDF contenente una fattura.\n\n## Uscite\nUn oggetto JSON con i campi fornitore, numero, data, imponibile, imposta e totale. I campi illeggibili vengono lasciati null e segnalati.\n\n## Dipendenze\nRichiede Python 3.11 e Tesseract OCR per il riconoscimento del testo nelle scansioni.\n\n## Strumenti e piattaforme\nUsa Python 3.11 e Tesseract OCR.\n\n## Limiti\nNon invia i documenti a servizi esterni e non registra pagamenti.",
+      "expected_facts": {
+        "capabilities": [
+          [
+            "estrae",
+            "dati",
+            "fatture"
+          ]
+        ],
+        "inputs": [
+          [
+            "documento pdf"
+          ]
+        ],
+        "outputs": [
+          [
+            "oggetto json"
+          ]
+        ],
+        "dependencies": [
+          [
+            "tesseract"
+          ]
+        ],
+        "tools_and_platforms": [
+          [
+            "python 3.11"
+          ],
+          [
+            "tesseract"
+          ]
+        ]
+      }
+    }
+  ]
+}
