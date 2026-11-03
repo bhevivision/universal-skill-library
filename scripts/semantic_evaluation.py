@@ -66,7 +66,7 @@ def score_predictions(rows: list[dict]) -> dict:
         ) if classified else 0.0,
         "macro_f1": round(sum(f1_values) / len(f1_values), 4) if f1_values else 0.0,
         "per_class": per_class,
-        "evidence_fidelity": round(sum(bool(row["evidence_valid"]) for row in rows) / total, 4) if total else 0.0,
+        "evidence_reference_integrity": round(sum(bool(row["source_references_valid"]) for row in rows) / total, 4) if total else 0.0,
         "abstention_count": sum(row["predicted"] == "unclassified" for row in rows),
         "mean_elapsed_seconds": round(sum(row.get("elapsed_seconds", 0) for row in rows) / total, 3) if total else 0.0,
     }
@@ -78,7 +78,7 @@ def run_evaluation(adapter, dataset: dict) -> dict:
         started = time.monotonic()
         request = build_request(sample)
         error = None
-        evidence_valid = False
+        source_references_valid = False
         try:
             result = adapter.analyze(request)
             classification = result.get("classification")
@@ -91,7 +91,7 @@ def run_evaluation(adapter, dataset: dict) -> dict:
             }
             refs = classification.get("evidence_refs", [])
             source, digest = request["files"][0]["path"], request["files"][0]["sha256"]
-            evidence_valid = bool(refs) and all(
+            source_references_valid = bool(refs) and all(
                 ref in evidence
                 and evidence[ref].get("source") == source
                 and evidence[ref].get("sha256") == digest
@@ -114,7 +114,7 @@ def run_evaluation(adapter, dataset: dict) -> dict:
             error = type(exc).__name__ + ": " + str(exc)
         rows.append({
             "id": sample["id"], "expected": sample["expected_kind"], "predicted": predicted,
-            "correct": predicted == sample["expected_kind"], "evidence_valid": evidence_valid,
+            "correct": predicted == sample["expected_kind"], "source_references_valid": source_references_valid,
             "model_status": model_status, "classification": classification_diagnostics,
             "returned_keys": returned_keys,
             "elapsed_seconds": round(time.monotonic() - started, 3), "error": error,
@@ -131,7 +131,7 @@ def main() -> int:
         "dataset_version": dataset["dataset_version"],
         "model": "Qwen/Qwen2.5-3B-Instruct-GGUF:Q4_K_M",
         "adapter": adapter.version,
-        "evaluation_note": "Campione iniziale esplorativo, non una certificazione statistica. Le etichette attese non sono incluse nelle richieste inviate al modello.",
+        "evaluation_note": "Campione iniziale esplorativo, non una certificazione statistica. Le etichette attese non sono incluse nelle richieste inviate al modello. L’integrità dei riferimenti alle fonti è controllata dopo che l’adattatore li costruisce a partire dagli input: non misura la fedeltà semantica delle affermazioni del modello né il collegamento puntuale di ogni affermazione al passaggio sorgente."
     })
     output = Path(os.environ.get("SEMANTIC_EVALUATION_REPORT", ROOT / "semantic-evaluation-report.json"))
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
