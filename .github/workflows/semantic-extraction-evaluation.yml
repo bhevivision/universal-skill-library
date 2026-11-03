@@ -67,8 +67,9 @@ jobs:
             --pids-limit 32 --memory 1g --memory-swap 1g --cpus 1 \
             --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
             --mount type=bind,src="$GITHUB_WORKSPACE",dst=/workspace,readonly \
+            --mount type=bind,src="$GITHUB_WORKSPACE/output/adapter-diagnostics",dst=/diagnostics \
             --workdir /workspace --env PYTHONPATH=/workspace \
-            --env SEMANTIC_EXTRACTION_REPORT=/tmp/semantic-extraction-evaluation-report.json \\
+            --env SEMANTIC_EXTRACTION_REPORT=/tmp/semantic-extraction-evaluation-report.json \
             --env SEMANTIC_ADAPTER_DIAGNOSTICS_DIR=/diagnostics \
             semantic-evaluation-client python -c 'import time, urllib.request, subprocess
           ready=False
