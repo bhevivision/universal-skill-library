@@ -6,6 +6,9 @@ on:
     paths:
       - docs/SEMANTIC-EVALUATION-TRIGGER.md
   workflow_dispatch:
+  push:
+    branches:
+      - semantic-evaluation-isolation-v1
 permissions:
   contents: read
 jobs:
