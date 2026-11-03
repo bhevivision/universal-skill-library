@@ -4,10 +4,13 @@ on:
     branches:
       - model/structural-model-v1
     paths:
-      - "scripts/semantic_*.py"
-      - "tests/test_semantic*.py"
-      - "schemas/semantic*.json"
-      - "docs/SEMANTIC*.md"
+      - "scripts/semantic_evaluation.py"
+      - "tests/test_semantic_evaluation.py"
+      - "evaluation/**"
+      - "reports/semantic-evaluation-*.json"
+      - "docs/SEMANTIC-EVALUATION-*.md"
+      - "docs/SEMANTIC-GGUF-*.md"
+      - "docs/GGUF-EVALUATION-*.md"
   push:
     branches:
       - semantic-evaluation-isolation-v1
