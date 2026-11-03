@@ -84,6 +84,9 @@ def _apply_configuration(schema, config):
 class StreamingDiagnosticAdapter:
     """Adattatore limitato al test: non modifica l'adattatore di produzione."""
 
+    analyzer_id = "llama.cpp-diagnostic"
+    version = "progressive-stream-four-configs-v1"
+
     def __init__(self, base_url, config, output_dir, timeout_seconds=180, max_tokens=2048):
         self.base_url = base_url.rstrip("/")
         self.config = config
