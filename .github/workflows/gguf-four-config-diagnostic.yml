@@ -12,7 +12,7 @@ on:
       timeout_seconds:
         description: Limite massimo per singola richiesta (secondi)
         required: true
-        default: "180"
+        default: "120"
         type: string
       max_tokens:
         description: Numero massimo di token generati per richiesta
@@ -83,6 +83,7 @@ jobs:
           mkdir -p output/gguf-four-configs
           docker run --name gguf-four-config-evaluator \
             --network container:gguf-diagnostic-model \
+            --user "$(id -u):$(id -g)" \
             --read-only --cap-drop ALL --security-opt no-new-privileges:true \
             --pids-limit 32 --memory 1g --memory-swap 1g --cpus 1 \
             --tmpfs /tmp:rw,noexec,nosuid,nodev,size=128m \
@@ -90,6 +91,12 @@ jobs:
             --mount type=bind,src="$GITHUB_WORKSPACE/output",dst=/output \
             --workdir /workspace --env PYTHONPATH=/workspace \
             gguf-four-config-client python -c 'import time, urllib.request, subprocess
+          from pathlib import Path
+          out=Path("/output/gguf-four-configs")
+          out.mkdir(parents=True, exist_ok=True)
+          probe=out/".write-test"
+          probe.write_text("ok", encoding="utf-8")
+          probe.unlink()
           ready=False
           for attempt in range(120):
               try:
@@ -103,7 +110,7 @@ jobs:
               "python", "/workspace/scripts/gguf_four_config_diagnostic.py",
               "--base-url", "http://127.0.0.1:8080",
               "--output-dir", "/output/gguf-four-configs",
-              "--timeout-seconds", "${{ inputs.timeout_seconds || '180' }}",
+              "--timeout-seconds", "${{ inputs.timeout_seconds || '120' }}",
               "--max-tokens", "${{ inputs.max_tokens || '2048' }}"
           ], check=True, timeout=6600)'
 
