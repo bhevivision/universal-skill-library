@@ -190,5 +190,40 @@ class CatalogManagerTests(unittest.TestCase):
         put_entry(self.root, "materials", self.material("source.valid", license_record=license_record))
         self.assertEqual(get_entry(self.root, "materials", "source.valid")["license"]["identifier"], "MIT")
 
+
+    def test_accept_skill_with_classified_skill_source_record(self):
+        put_entry(self.root, "capabilities", self.capability())
+        put_entry(self.root, "materials", self.material("source.original-skill", kind="skill"))
+        entry = self.skill(source_record_id="source.original-skill")
+        put_entry(self.root, "skills", entry)
+        self.assertEqual(get_entry(self.root, "skills", "test.skill")["source_record_id"],
+                         "source.original-skill")
+
+    def test_reject_material_license_evidence_with_wrong_subject(self):
+        proof_dir = self.root / "tests" / "evidence"
+        proof_dir.mkdir(parents=True)
+        proof = {
+            "id": "proof.wrong.subject",
+            "subject": "material.other.license",
+            "result": "passed",
+            "tested_at": "2026-11-03T20:00:00Z",
+            "command": "Verifica licenza della fonte di prova.",
+            "summary": "Prova associata al materiale sbagliato."
+        }
+        (proof_dir / "license-wrong-subject.json").write_text(json.dumps(proof), encoding="utf-8")
+        license_record = {
+            "status": "identified",
+            "identifier": "MIT",
+            "source_uri": "https://example.org/LICENSE",
+            "source_revision": "a" * 40,
+            "file_path": "LICENSE",
+            "review_status": "reviewed",
+            "reviewed_at": "2026-11-03T20:00:00Z",
+            "evidence_refs": ["tests/evidence/license-wrong-subject.json"],
+            "obligations": ["Conservare il testo della licenza."]
+        }
+        with self.assertRaisesRegex(CatalogError, "la prova riguarda"):
+            put_entry(self.root, "materials", self.material("source.wrong-proof", license_record=license_record))
+
 if __name__ == "__main__":
     unittest.main()
