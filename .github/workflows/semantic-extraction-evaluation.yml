@@ -4,10 +4,7 @@ on:
     branches:
       - semantic-engine-v1
     paths:
-      - scripts/semantic_extraction_evaluation.py
-      - tests/test_semantic_extraction_evaluation.py
-      - evaluation/semantic-extraction-samples.json
-      - scripts/llama_cpp_adapter.py
+      - docs/SEMANTIC-EVALUATION-TRIGGER.md
   workflow_dispatch:
 permissions:
   contents: read
