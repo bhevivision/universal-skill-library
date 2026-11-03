@@ -4,6 +4,7 @@ on:
     branches:
       - semantic-engine-v1
       - semantic-evaluation-isolation-v1
+      - delivery/initial-library-v1
     paths:
       - docs/SEMANTIC-EVALUATION-TRIGGER.md
       - scripts/semantic_engine.py
