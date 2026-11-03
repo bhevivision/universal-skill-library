@@ -490,9 +490,9 @@ La lettura dei file selezionati deve rispettare il limite effettivo, non soltant
 
 Su Windows, dove `O_NOFOLLOW` non è disponibile, il controllo si basa sul confronto dell'identità restituita da `lstat` e `fstat` prima della lettura, e sulla verifica successiva del descrittore e del percorso. Questo controllo deve essere provato su Windows con un test che sostituisce il percorso con un collegamento simbolico tra il controllo iniziale e l'apertura.
 
-Questi controlli riducono il rischio di leggere un file cresciuto oltre il limite o un file diverso da quello controllato. Non costituiscono una garanzia assoluta contro ogni possibile modifica concorrente del contenuto o contro junction, mount point e altri reparse point non coperti dal contratto. Il controllo d'integrità finale resta obbligatorio e indipendente.
+Questi controlli riducono il rischio di leggere un file cresciuto oltre il limite o un file diverso da quello controllato. Non costituiscono una garanzia assoluta contro ogni possibile modifica concorrente del contenuto o contro mount point e configurazioni particolari del file system. I collegamenti simbolici e i reparse point riconoscibili dal sistema operativo vengono rifiutati. Il controllo d'integrità finale resta obbligatorio e indipendente.
 
 
 ## Limiti dell'inventario
 
-L'inventario è limitato a 10.000 elementi e 64 livelli di profondità. Se uno dei limiti viene superato, la preparazione termina con codice \`INVENTORY_LIMIT_EXCEEDED\` e non restituisce contenuti parziali. Questi limiti si aggiungono ai limiti del profilo \`bounded_text_v1\`: 100 file selezionati, 256 KiB per file e 1 MiB complessivo.
+L'inventario è limitato a 10.000 elementi e 64 livelli di profondità. Se uno dei limiti viene superato, la preparazione termina con codice `INVENTORY_LIMIT_EXCEEDED` e non restituisce contenuti parziali. Questi limiti si aggiungono ai limiti del profilo `bounded_text_v1`: 100 file selezionati, 256 KiB per file e 1 MiB complessivo.
