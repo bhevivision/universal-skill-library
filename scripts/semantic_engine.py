@@ -12,8 +12,10 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 try:
     from scripts.semantic_evidence_integrity import validate_semantic_request
+    from scripts.semantic_claim_evidence import validate_claim_evidence
 except ImportError:  # Esecuzione diretta da scripts/
     from semantic_evidence_integrity import validate_semantic_request
+    from semantic_claim_evidence import validate_claim_evidence
 
 
 PROPOSAL_SCHEMA = (
@@ -239,6 +241,7 @@ def run_semantic_engine(
         digest_payload["analyzer"] = dict(proposal["analyzer"])
         digest_payload["analyzer"].pop("output_sha256")
         proposal["analyzer"]["output_sha256"] = _sha256(_canonical_bytes(digest_payload))
+        validate_claim_evidence(Path(__file__).resolve().parents[1], proposal)
         _validate_proposal_schema(proposal)
         if proposal["material"] != {
             "id": request_snapshot["material"]["id"],
