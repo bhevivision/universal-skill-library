@@ -116,8 +116,14 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertEqual(_Handler.received["response_format"]["type"], "json_schema")
         self.assertIn("claims", _Handler.received["response_format"]["schema"]["$defs"])
         model_schema = _Handler.received["response_format"]["schema"]
-        self.assertIn("evidence_quotes", model_schema["properties"]["classification"]["required"])
-        self.assertIn("evidence_quotes", model_schema["$defs"]["claims"]["items"]["required"])
+        classification_schema = model_schema["properties"]["classification"]
+        self.assertIn("evidence_quotes", classification_schema["required"])
+        self.assertNotIn("evidence_refs", classification_schema["required"])
+        self.assertEqual(classification_schema["properties"]["evidence_quotes"]["items"]["required"], ["source", "quote"])
+        claims_schema = model_schema["$defs"]["claims"]["items"]
+        self.assertIn("evidence_quotes", claims_schema["required"])
+        self.assertNotIn("evidence_refs", claims_schema["required"])
+        self.assertEqual(claims_schema["properties"]["evidence_quotes"]["items"]["required"], ["source", "quote"])
         model_request = json.loads(_Handler.received["messages"][1]["content"])
         self.assertEqual(model_request["evidence_sources"][0]["id"], "ev.sample-001")
         self.assertEqual(model_request["evidence_sources"][0]["path"], "intake/acq-test/source/SKILL.md")
@@ -178,7 +184,7 @@ class LlamaCppAdapterTests(unittest.TestCase):
             "evidence": [{"id": "invented", "source": "outside.md", "sha256": "0" * 64, "kind": "text_file"}],
             "classification": {
                 "kind": "skill", "evidence_refs": [],
-                "evidence_quotes": [{"evidence_ref": "ev.sample-001", "quote": "A literal source sentence."}]
+                "evidence_quotes": [{"source": "intake/sample/source.md", "quote": "A literal source sentence."}]
             },
             "capabilities": [{
                 "name": "Test", "description": "Test",
