@@ -24,6 +24,9 @@ from jsonschema import Draft202012Validator, FormatChecker
 ID_PATTERN = re.compile(r"^[a-z0-9]+(?:[.-][a-z0-9]+)*$")
 MATERIAL_SCHEMA = "schemas/material-record.schema.json"
 LOCK_NAME = ".materials-acquisition.lock"
+MAX_ACQUISITION_FILES = 10000
+MAX_ACQUISITION_BYTES = 1073741824
+MAX_ACQUISITION_DEPTH = 64
 
 
 class DuplicateMaterialError(ValueError):
@@ -41,14 +44,38 @@ def _validate_id(material_id):
         raise ValueError("Identificativo non valido: usare lettere minuscole, numeri, punti o trattini.")
 
 
-def _reject_symlinks(path):
+def _inspect_source(path):
+    """Controlla la sorgente senza seguire collegamenti e con risorse limitate."""
     path = Path(path)
     if path.is_symlink():
-        raise ValueError(f"Collegamento simbolico non ammesso: {path}")
-    if path.is_dir():
-        for item in path.rglob("*"):
-            if item.is_symlink():
-                raise ValueError(f"Collegamento simbolico non ammesso: {item}")
+        raise ValueError("Il materiale sorgente non può essere un collegamento simbolico.")
+    if path.is_file():
+        size = path.stat().st_size
+        if size > MAX_ACQUISITION_BYTES:
+            raise ValueError("Il materiale supera il limite massimo di byte acquisibili.")
+        return 1, size
+    files = 0
+    total_bytes = 0
+    for current, directories, filenames in os.walk(path, followlinks=False):
+        current_path = Path(current)
+        if len(current_path.relative_to(path).parts) > MAX_ACQUISITION_DEPTH:
+            raise ValueError("Il materiale supera la profondità massima consentita.")
+        for name in list(directories):
+            child = current_path / name
+            if child.is_symlink():
+                raise ValueError(f"Collegamento simbolico non ammesso: {child}")
+        for name in filenames:
+            child = current_path / name
+            info = child.lstat()
+            if child.is_symlink() or not child.is_file():
+                raise ValueError(f"Elemento non regolare non ammesso: {child}")
+            files += 1
+            total_bytes += info.st_size
+            if files > MAX_ACQUISITION_FILES:
+                raise ValueError("Il materiale supera il numero massimo di file acquisibili.")
+            if total_bytes > MAX_ACQUISITION_BYTES:
+                raise ValueError("Il materiale supera il limite massimo di byte acquisibili.")
+    return files, total_bytes
 
 
 def _digest_file(path):
@@ -383,9 +410,9 @@ def acquire_material(root, source, material_id, *, name=None, description=None,
     if source_input.is_symlink():
         raise ValueError("Il materiale sorgente non può essere un collegamento simbolico.")
     source_path = source_input.resolve(strict=True)
-    _reject_symlinks(source_path)
     if not (source_path.is_file() or source_path.is_dir()):
         raise ValueError("Sono ammessi soltanto file e cartelle.")
+    _inspect_source(source_path)
     try:
         source_path.relative_to(root)
     except ValueError:
