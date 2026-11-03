@@ -128,7 +128,8 @@
       "notes": [
         "Il documento di progettazione UNLAZY esteso è stato reperito nell'archivio personale, ma i tre riferimenti separati non sono stati trovati.",
         "Nessuna licenza autonoma è dichiarata nel materiale consultato. L'uso nel progetto è autorizzato dall'utente; non si presume una licenza aperta per la redistribuzione verbatim.",
-        "La skill adattata dovrà distinguere esecuzione, risultato prodotto, verifica, accettazione e completamento."
+        "La skill adattata dovrà distinguere esecuzione, risultato prodotto, verifica, accettazione e completamento.",
+        "La Library contiene un documento esteso UNLAZY/OKF di 2.109 righe e una specifica UNLAZY-SYSTEM; non sono equivalenti ai tre riferimenti separati dichiarati dalla skill. Gli scenari descritti non costituiscono rapporti runtime indipendenti."
       ],
       "dependencies": [
         "Open Knowledge Format v0.2 come riferimento concettuale; la specifica canonica è Apache-2.0 e non viene copiata integralmente."
@@ -200,7 +201,8 @@
       "format": "Markdown; istruzioni e modello documentale",
       "notes": [
         "Nessuna licenza autonoma è dichiarata nei materiali consultati. L'uso nel progetto è autorizzato dall'utente; non si presume una licenza aperta per la redistribuzione verbatim.",
-        "Il principio di approvazione va applicato alle azioni rischiose o irreversibili, non trasformato in un divieto assoluto di ogni scrittura."
+        "Il principio di approvazione va applicato alle azioni rischiose o irreversibili, non trasformato in un divieto assoluto di ogni scrittura.",
+        "È stato individuato nella Library il documento ARCHIVISTA DEL LIBRO — Sistema Completo, TEMPLATE_MASTER_v3, ma l'estrazione integrale tramite Files e la materializzazione originale non sono riuscite: sono disponibili soltanto estratti. Non dichiarare lettura integrale."
       ],
       "declared_version": "TEMPLATE_MASTER_v3 (documento completo nell'archivio personale)",
       "dependencies": [
@@ -416,7 +418,8 @@
       "notes": [
         "Il README dichiara 184 capacità e 39 skill; il registro main consultato riporta 184 e 40.",
         "La run 38500893498 ha fallito quattro contratti cognitivi; due cause note sono argomenti mancanti/incompatibili in reasoning.plan.decompose e reasoning.plan.generate.",
-        "Il motore usa skill.yaml e non è direttamente compatibile con Agent Skills SKILL.md."
+        "Il motore usa skill.yaml e non è direttamente compatibile con Agent Skills SKILL.md.",
+        "Run CI aggiornata 2026-11-03 sul commit d9e3644e8aac6b75f327d973f94e187d2e8f789c: Smoke Verification 41575541695 e Governance 41550512246 superate; Cognitive Continuous Validation 41565121801 fallita. Quattro capacità: reasoning.plan.decompose (mancano problem e strategy), reasoning.plan.generate (objective non accettato), memory.context.store e perception.input.structure (cause non disponibili). Il rapporto e2e dettagliato è stato prodotto dal test ma escluso dall'artefatto; scorecard e report deprecation risultano mancanti."
       ],
       "declared_version": "1.0.2",
       "dependencies": [
