@@ -101,4 +101,77 @@ class Tests(unittest.TestCase):
   errors=validate_repository(self.root)
   self.assertTrue(errors, "La verifica not_run ha accettato prove: " + repr(errors))
 
+
+ def _add_material_with_license(self, license_record, include_evidence=True):
+  evidence={
+   "id":"proof.material.license.001",
+   "subject":"material.source.matt.license",
+   "result":"passed",
+   "tested_at":"2026-11-03T20:00:00Z",
+   "command":"Inspect LICENSE at the pinned source revision",
+   "summary":"The declared license text was located and its obligations recorded. This is not a legal opinion."
+  }
+  if include_evidence:
+   write_json(self.root,"tests/evidence/material-license.json",evidence)
+  material={
+   "id":"source.matt",
+   "acquisition":{
+    "status":"received",
+    "acquired_at":"2026-11-03T20:00:00Z",
+    "method":"remote reference registration",
+    "original":{"kind":"remote_reference","uri":"https://github.com/mattpocock/skills"}
+   },
+   "classification":{"status":"classified","kind":"resource"},
+   "documentation":{"status":"partial"},
+   "verification":{"status":"not_verified"},
+   "usability":{"status":"not_assessed"},
+   "license":license_record
+  }
+  catalog=self.root/"catalog/materials.json"
+  data=json.loads(catalog.read_text(encoding="utf-8"))
+  data["materials"].append(material)
+  catalog.write_text(json.dumps(data),encoding="utf-8")
+
+ def test_accepts_reviewed_material_license_with_matching_evidence(self):
+  license_record={
+   "status":"identified",
+   "identifier":"MIT",
+   "source_uri":"https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/LICENSE",
+   "source_revision":"4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+   "file_path":"LICENSE",
+   "review_status":"reviewed",
+   "reviewed_at":"2026-11-03T20:00:00Z",
+   "evidence_refs":["tests/evidence/material-license.json"],
+   "obligations":["Preserve the copyright notice and include the MIT license text."],
+   "notes":["Review of the declared license text; not a legal opinion."]
+  }
+  self._add_material_with_license(license_record)
+  self.assertEqual(validate_repository(self.root),[])
+
+ def test_rejects_reviewed_material_license_without_evidence_file(self):
+  license_record={
+   "status":"identified",
+   "identifier":"MIT",
+   "source_uri":"https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/LICENSE",
+   "source_revision":"4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+   "file_path":"LICENSE",
+   "review_status":"reviewed",
+   "reviewed_at":"2026-11-03T20:00:00Z",
+   "evidence_refs":["tests/evidence/missing-license.json"],
+   "obligations":[],
+   "notes":[]
+  }
+  self._add_material_with_license(license_record,include_evidence=False)
+  self.assertTrue(any("prova non trovata" in e.lower() for e in validate_repository(self.root)))
+
+ def test_rejects_identified_material_license_without_identifier(self):
+  license_record={
+   "status":"identified",
+   "source_uri":"https://github.com/mattpocock/skills",
+   "review_status":"not_reviewed",
+   "evidence_refs":[]
+  }
+  self._add_material_with_license(license_record,include_evidence=False)
+  self.assertTrue(any("identifier" in e.lower() for e in validate_repository(self.root)))
+
 if __name__=="__main__":unittest.main()
