@@ -251,6 +251,10 @@ def run_semantic_engine(
         # Non conservare un risultato parziale o potenzialmente malformato.
         # Per gli errori di schema registra solo il percorso e la regola, mai il valore grezzo.
         diagnostic = type(exc).__name__
+        if isinstance(exc, KeyError) and exc.args:
+            missing_key = exc.args[0]
+            if isinstance(missing_key, str) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]{0,63}", missing_key):
+                diagnostic += " missing_key=" + missing_key
         if isinstance(exc, ProposalValidationError):
             diagnostic += " at " + exc.location + " (" + exc.rule + ")"
         proposal = _base_proposal(
