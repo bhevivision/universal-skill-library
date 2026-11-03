@@ -18,6 +18,17 @@ else:
     from scripts.material_preparer import prepare_material
 
 
+TEXT_EXTENSIONS = {
+    ".md", ".markdown", ".txt", ".rst", ".json", ".yaml", ".yml",
+    ".toml", ".py", ".js", ".ts", ".sh", ".ps1", ".bat", ".xml",
+    ".html", ".css",
+}
+MAX_FILE_BYTES = 256 * 1024
+MAX_TOTAL_BYTES = 1024 * 1024
+MAX_FILES = 100
+PROPOSAL_SCHEMA_VERSION = "1.0"
+
+
 def _propose(texts, original_kind):
     if original_kind == "remote_reference":
         return "unclassified", "low", "Il riferimento remoto non è stato scaricato né esaminato."
