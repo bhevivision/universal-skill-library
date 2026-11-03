@@ -1,0 +1,8 @@
+{
+  "id": "proof.material.agent-skills-format.license",
+  "subject": "material.agent-skills-format.license",
+  "result": "passed",
+  "tested_at": "2026-11-03T20:14:05Z",
+  "command": "Inspect license declaration at pinned source revision for material.agent-skills-format",
+  "summary": "Verified repository code Apache-2.0 and documentation CC-BY-4.0. This records source declarations, not license terms for third-party skill content."
+}

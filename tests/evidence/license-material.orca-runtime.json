@@ -1,0 +1,8 @@
+{
+  "id": "proof.material.orca-runtime.license",
+  "subject": "material.orca-runtime.license",
+  "result": "passed",
+  "tested_at": "2026-11-03T20:14:05Z",
+  "command": "Inspect license declaration at pinned source revision for material.orca-runtime",
+  "summary": "Verified the declared Apache-2.0 license file at the pinned source revision. Obligations summarized in the material record; not a legal opinion."
+}

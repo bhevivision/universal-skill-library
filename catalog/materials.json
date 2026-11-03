@@ -1,4 +1,504 @@
 {
   "catalog_version": "1.0",
-  "materials": []
+  "materials": [
+    {
+      "id": "material.agent-skills-format",
+      "name": "Agent Skills — specifica del formato",
+      "description": "Specificazione aperta per confezionare skill in cartelle con SKILL.md, metadati YAML e risorse facoltative.",
+      "acquisition": {
+        "status": "received",
+        "acquired_at": "2026-11-03T20:14:05Z",
+        "method": "remote_reference",
+        "source": "Fonte GitHub fissata a una revisione specifica; nessuna copia locale dichiarata.",
+        "original": {
+          "kind": "remote_reference",
+          "uri": "https://github.com/agentskills/agentskills/tree/69ef37e9424c0a7ea9dd2293b559e43ec8176379"
+        }
+      },
+      "classification": {
+        "status": "classified",
+        "kind": "resource",
+        "confidence": "high",
+        "rationale": "Specifica di formato, non skill eseguibile né motore di coordinamento."
+      },
+      "documentation": {
+        "status": "complete"
+      },
+      "verification": {
+        "status": "not_verified"
+      },
+      "usability": {
+        "status": "available_with_conditions",
+        "conditions": [
+          "Usare come profilo di formato per SKILL.md; non presume che l'agente sappia eseguire la skill.",
+          "I permessi effettivi e la verifica funzionale restano responsabilità della libreria e dell'ambiente."
+        ]
+      },
+      "license": {
+        "status": "identified",
+        "identifier": "Apache-2.0 (codice); CC-BY-4.0 (documentazione)",
+        "source_uri": "https://github.com/agentskills/agentskills/tree/69ef37e9424c0a7ea9dd2293b559e43ec8176379",
+        "source_revision": "69ef37e9424c0a7ea9dd2293b559e43ec8176379",
+        "file_path": "LICENSE; docs/LICENSE",
+        "review_status": "reviewed",
+        "reviewed_at": "2026-11-03T20:14:05Z",
+        "evidence_refs": [
+          "tests/evidence/license-material.agent-skills-format.json"
+        ],
+        "obligations": [
+          "Codice: includere Apache-2.0, conservare avvisi, indicare i file modificati e includere NOTICE se presente.",
+          "Documentazione: attribuire, collegare CC-BY-4.0, indicare le modifiche e non imporre restrizioni aggiuntive."
+        ],
+        "notes": [
+          "La licenza del repository non è la licenza dei contenuti delle skill create da terzi."
+        ]
+      },
+      "tags": [
+        "agent-skills",
+        "standard",
+        "formato",
+        "interoperabilita"
+      ],
+      "format": "Markdown + YAML; specifica di formato",
+      "notes": [
+        "Il repository dichiara Apache-2.0 per il codice e CC-BY-4.0 per la documentazione.",
+        "La specifica supporta name e description obbligatori; license, compatibility, metadata e allowed-tools sono facoltativi. allowed-tools è sperimentale.",
+        "La licenza del repository non si trasferisce automaticamente ai contenuti delle skill scritte da terzi."
+      ]
+    },
+    {
+      "id": "material.unlazy-evidence-control",
+      "name": "UNLAZY — controllo basato su prove",
+      "description": "Metodo di governo e verifica che collega requisiti, criteri, prove, esecuzioni, decisioni e Gate.",
+      "acquisition": {
+        "status": "received",
+        "acquired_at": "2026-11-03T20:14:05Z",
+        "method": "remote_reference",
+        "source": "Fonte GitHub fissata a una revisione specifica; nessuna copia locale dichiarata.",
+        "original": {
+          "kind": "remote_reference",
+          "uri": "https://github.com/bhevivision/universal-skill-library/blob/085783d4051a6605066c0df95aef852296d46296/personalizzazione/UNLAZY-skill.md"
+        }
+      },
+      "classification": {
+        "status": "provisional",
+        "kind": "skill",
+        "confidence": "medium",
+        "rationale": "Metodo riutilizzabile, ma tre riferimenti dichiarati dalla skill non sono stati reperiti."
+      },
+      "documentation": {
+        "status": "partial",
+        "missing_fields": [
+          "Tre riferimenti operativi dichiarati ma non reperiti."
+        ]
+      },
+      "verification": {
+        "status": "not_verified"
+      },
+      "usability": {
+        "status": "requires_adapter",
+        "conditions": [
+          "Adattare le procedure al modello e agli stati già approvati nella libreria.",
+          "Non dichiarare completamento senza prove riferite a versione, ambiente e procedura."
+        ]
+      },
+      "license": {
+        "status": "not_declared",
+        "source_uri": "https://github.com/bhevivision/universal-skill-library/blob/085783d4051a6605066c0df95aef852296d46296/personalizzazione/UNLAZY-skill.md",
+        "source_revision": "085783d4051a6605066c0df95aef852296d46296",
+        "file_path": "personalizzazione/UNLAZY-skill.md",
+        "review_status": "reviewed",
+        "reviewed_at": "2026-11-03T20:14:05Z",
+        "evidence_refs": [
+          "tests/evidence/license-material.unlazy-evidence-control.json"
+        ],
+        "obligations": [],
+        "notes": [
+          "Nessuna licenza autonoma dichiarata nel materiale consultato. L'uso nel progetto è autorizzato dall'utente; non si presume una licenza aperta per redistribuzione verbatim."
+        ]
+      },
+      "tags": [
+        "unlazy",
+        "prove",
+        "verifica",
+        "accettazione",
+        "governance"
+      ],
+      "format": "Markdown; istruzioni operative e modello di controllo",
+      "notes": [
+        "Il documento di progettazione UNLAZY esteso è stato reperito nell'archivio personale, ma i tre riferimenti separati non sono stati trovati.",
+        "Nessuna licenza autonoma è dichiarata nel materiale consultato. L'uso nel progetto è autorizzato dall'utente; non si presume una licenza aperta per la redistribuzione verbatim.",
+        "La skill adattata dovrà distinguere esecuzione, risultato prodotto, verifica, accettazione e completamento."
+      ],
+      "dependencies": [
+        "Open Knowledge Format v0.2 come riferimento concettuale; la specifica canonica è Apache-2.0 e non viene copiata integralmente."
+      ],
+      "missing_references": [
+        "references/tipi_di_prova.md",
+        "references/file_di_controllo.md",
+        "references/casi_reali.md"
+      ]
+    },
+    {
+      "id": "material.archivista-document-control",
+      "name": "Archivista — gestione documentale",
+      "description": "Metodo di gestione documentale e storica, originariamente specifico per fascicoli di libri.",
+      "acquisition": {
+        "status": "received",
+        "acquired_at": "2026-11-03T20:14:05Z",
+        "method": "remote_reference",
+        "source": "Fonte GitHub fissata a una revisione specifica; nessuna copia locale dichiarata.",
+        "original": {
+          "kind": "remote_reference",
+          "uri": "https://github.com/bhevivision/universal-skill-library/blob/085783d4051a6605066c0df95aef852296d46296/personalizzazione/archivista-skill.md"
+        }
+      },
+      "classification": {
+        "status": "provisional",
+        "kind": "skill",
+        "confidence": "medium",
+        "rationale": "La skill è specifica per il dominio editoriale; i principi universali sono separabili dal fascicolo del libro."
+      },
+      "documentation": {
+        "status": "partial",
+        "missing_fields": [
+          "Il riferimento reference/regole-complete.md non è nel deposito GitHub; il documento completo v3 è stato recuperato nell'archivio personale."
+        ]
+      },
+      "verification": {
+        "status": "not_verified"
+      },
+      "usability": {
+        "status": "requires_adapter",
+        "conditions": [
+          "Estrarre solo provenienza, integrità, versionamento, storia e approvazione.",
+          "Non trasferire le 17 sezioni del fascicolo del libro o i riferimenti specifici a Obsidian."
+        ]
+      },
+      "license": {
+        "status": "not_declared",
+        "source_uri": "https://github.com/bhevivision/universal-skill-library/blob/085783d4051a6605066c0df95aef852296d46296/personalizzazione/archivista-skill.md",
+        "source_revision": "085783d4051a6605066c0df95aef852296d46296",
+        "file_path": "personalizzazione/archivista-skill.md",
+        "review_status": "reviewed",
+        "reviewed_at": "2026-11-03T20:14:05Z",
+        "evidence_refs": [
+          "tests/evidence/license-material.archivista-document-control.json"
+        ],
+        "obligations": [],
+        "notes": [
+          "Nessuna licenza autonoma dichiarata nel materiale consultato. L'uso nel progetto è autorizzato dall'utente; non si presume una licenza aperta per redistribuzione verbatim."
+        ]
+      },
+      "tags": [
+        "archivista",
+        "provenienza",
+        "versionamento",
+        "storia",
+        "conservazione"
+      ],
+      "format": "Markdown; istruzioni e modello documentale",
+      "notes": [
+        "Nessuna licenza autonoma è dichiarata nei materiali consultati. L'uso nel progetto è autorizzato dall'utente; non si presume una licenza aperta per la redistribuzione verbatim.",
+        "Il principio di approvazione va applicato alle azioni rischiose o irreversibili, non trasformato in un divieto assoluto di ogni scrittura."
+      ],
+      "declared_version": "TEMPLATE_MASTER_v3 (documento completo nell'archivio personale)",
+      "dependencies": [
+        "Documento normativo completo TEMPLATE_MASTER_v3 reperito nell'archivio personale dell'utente."
+      ],
+      "missing_references": [
+        "reference/regole-complete.md (assente nel deposito GitHub; contenuto v3 recuperato separatamente nell'archivio personale)."
+      ]
+    },
+    {
+      "id": "material.find-skills-discovery",
+      "name": "Find Skills — ricerca di skill",
+      "description": "Skill di scoperta e installazione di skill esterne tramite la CLI skills e il catalogo skills.sh.",
+      "acquisition": {
+        "status": "received",
+        "acquired_at": "2026-11-03T20:14:05Z",
+        "method": "remote_reference",
+        "source": "Fonte GitHub fissata a una revisione specifica; nessuna copia locale dichiarata.",
+        "original": {
+          "kind": "remote_reference",
+          "uri": "https://github.com/vercel-labs/skills/tree/7a5e920bead4b1039a6d6df5d7e1163b7b09423a/skills/find-skills"
+        }
+      },
+      "classification": {
+        "status": "classified",
+        "kind": "skill",
+        "confidence": "high",
+        "rationale": "Procedura identificabile per cercare skill; la fase di installazione è distinta e richiede autorizzazione."
+      },
+      "documentation": {
+        "status": "partial"
+      },
+      "verification": {
+        "status": "not_verified"
+      },
+      "usability": {
+        "status": "requires_adapter",
+        "conditions": [
+          "Usare la ricerca senza installare automaticamente.",
+          "Non considerare popolarità, stelle o numero di installazioni come prove di sicurezza o funzionamento.",
+          "Non usare installazioni globali o conferme automatiche come impostazione predefinita."
+        ]
+      },
+      "license": {
+        "status": "identified",
+        "identifier": "MIT",
+        "source_uri": "https://github.com/vercel-labs/skills/blob/7a5e920bead4b1039a6d6df5d7e1163b7b09423a/LICENSE",
+        "source_revision": "7a5e920bead4b1039a6d6df5d7e1163b7b09423a",
+        "file_path": "LICENSE",
+        "review_status": "reviewed",
+        "reviewed_at": "2026-11-03T20:14:05Z",
+        "evidence_refs": [
+          "tests/evidence/license-material.find-skills-discovery.json"
+        ],
+        "obligations": [
+          "Conservare l'avviso di copyright e includere il testo completo della licenza MIT quando si ridistribuiscono copie o derivati."
+        ],
+        "notes": [
+          "La revisione identifica la licenza dichiarata nella fonte; non costituisce un parere legale né una valutazione automatica dei diritti in ogni contesto."
+        ]
+      },
+      "tags": [
+        "find-skills",
+        "ricerca",
+        "acquisizione",
+        "cli"
+      ],
+      "format": "Agent Skill + CLI Node.js",
+      "notes": [
+        "La CLI e la skill upstream sono nel repository MIT.",
+        "La CLI raccoglie telemetria anonima per impostazione predefinita; DISABLE_TELEMETRY=1 o DO_NOT_TRACK=1 la disabilitano.",
+        "Nessun pacchetto è stato installato durante questa analisi."
+      ],
+      "declared_version": "skills CLI 1.7.6",
+      "dependencies": [
+        "Node.js >=22.20",
+        "CLI npm skills 1.7.6",
+        "Accesso di rete per la ricerca tramite skills.sh"
+      ],
+      "missing_references": [
+        "La copia locale personalizzazione/find-skill.md non ha frontmatter Agent Skills e non registra una revisione upstream."
+      ]
+    },
+    {
+      "id": "material.matt-pocock-skills",
+      "name": "Matt Pocock Skills — raccolta di procedure di ingegneria",
+      "description": "Raccolta di 27 skill per chiarimento requisiti, progettazione, sviluppo, prove, diagnosi, revisione e scrittura per agenti.",
+      "acquisition": {
+        "status": "received",
+        "acquired_at": "2026-11-03T20:14:05Z",
+        "method": "remote_reference",
+        "source": "Fonte GitHub fissata a una revisione specifica; nessuna copia locale dichiarata.",
+        "original": {
+          "kind": "remote_reference",
+          "uri": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d"
+        }
+      },
+      "classification": {
+        "status": "classified",
+        "kind": "composite",
+        "confidence": "high",
+        "rationale": "È una raccolta di skill indipendenti, non una singola skill o un motore di esecuzione."
+      },
+      "documentation": {
+        "status": "partial"
+      },
+      "verification": {
+        "status": "not_verified"
+      },
+      "usability": {
+        "status": "requires_adapter",
+        "conditions": [
+          "Selezionare le sole procedure pertinenti alla libreria.",
+          "Adattare le dipendenze da issue tracker, sottagenti e strumenti specifici.",
+          "Conservare attribuzione e licenza MIT per i derivati distribuiti."
+        ]
+      },
+      "license": {
+        "status": "identified",
+        "identifier": "MIT",
+        "source_uri": "https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/LICENSE",
+        "source_revision": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+        "file_path": "LICENSE",
+        "review_status": "reviewed",
+        "reviewed_at": "2026-11-03T20:14:05Z",
+        "evidence_refs": [
+          "tests/evidence/license-material.matt-pocock-skills.json"
+        ],
+        "obligations": [
+          "Conservare l'avviso di copyright e includere il testo completo della licenza MIT quando si ridistribuiscono copie o derivati."
+        ],
+        "notes": [
+          "La revisione identifica la licenza dichiarata nella fonte; non costituisce un parere legale né una valutazione automatica dei diritti in ogni contesto."
+        ]
+      },
+      "tags": [
+        "matt-pocock",
+        "ingegneria",
+        "tdd",
+        "progettazione",
+        "revisione"
+      ],
+      "format": "Raccolta Agent Skills (27 file SKILL.md)",
+      "notes": [
+        "Il repository contiene 27 file SKILL.md nelle aree engineering e productivity.",
+        "Le procedure prioritarie sono grill-me/grill-with-docs, domain-modeling, codebase-design, to-spec/implement-spec, tdd, diagnosing-bugs, code-review e writing-for-agents.",
+        "Non importare l'intera raccolta indiscriminatamente."
+      ],
+      "declared_version": "1.3.2",
+      "dependencies": [
+        "Un ambiente agente compatibile con skill o istruzioni equivalenti; alcune procedure presuppongono issue tracker o sottagenti."
+      ]
+    },
+    {
+      "id": "material.orca-runtime",
+      "name": "ORCA — motore di esecuzione Agent Skills",
+      "description": "Motore Python che esegue flussi di skill dichiarati in YAML tramite contratti di capacità e binding.",
+      "acquisition": {
+        "status": "received",
+        "acquired_at": "2026-11-03T20:14:05Z",
+        "method": "remote_reference",
+        "source": "Fonte GitHub fissata a una revisione specifica; nessuna copia locale dichiarata.",
+        "original": {
+          "kind": "remote_reference",
+          "uri": "https://github.com/gfernandf/agent-skills/tree/d9e3644e8aac6b75f327d973f94e187d2e8f789c"
+        }
+      },
+      "classification": {
+        "status": "classified",
+        "kind": "tool",
+        "confidence": "high",
+        "rationale": "È un motore runtime, distinto dal registro e dai formati delle skill."
+      },
+      "documentation": {
+        "status": "partial"
+      },
+      "verification": {
+        "status": "not_verified"
+      },
+      "usability": {
+        "status": "not_assessed",
+        "conditions": [
+          "Non integrare prima di fissare revisioni coerenti e riprodurre i test.",
+          "Python >=3.11; verificare dipendenze e policy nell'ambiente isolato."
+        ]
+      },
+      "license": {
+        "status": "identified",
+        "identifier": "Apache-2.0",
+        "source_uri": "https://github.com/gfernandf/agent-skills/blob/d9e3644e8aac6b75f327d973f94e187d2e8f789c/LICENSE",
+        "source_revision": "d9e3644e8aac6b75f327d973f94e187d2e8f789c",
+        "file_path": "LICENSE",
+        "review_status": "reviewed",
+        "reviewed_at": "2026-11-03T20:14:05Z",
+        "evidence_refs": [
+          "tests/evidence/license-material.orca-runtime.json"
+        ],
+        "obligations": [
+          "Includere copia della licenza Apache-2.0, indicare i file modificati, conservare gli avvisi pertinenti e includere NOTICE se presente; nessun diritto sui marchi è concesso."
+        ],
+        "notes": [
+          "La revisione identifica la licenza dichiarata nella fonte; non costituisce un parere legale né una valutazione automatica dei diritti in ogni contesto."
+        ]
+      },
+      "tags": [
+        "orca",
+        "runtime",
+        "dag",
+        "coordinamento",
+        "esecuzione"
+      ],
+      "format": "Pacchetto Python + DSL YAML per flussi DAG",
+      "notes": [
+        "Il README dichiara 184 capacità e 39 skill; il registro main consultato riporta 184 e 40.",
+        "La run 38500893498 ha fallito quattro contratti cognitivi; due cause note sono argomenti mancanti/incompatibili in reasoning.plan.decompose e reasoning.plan.generate.",
+        "Il motore usa skill.yaml e non è direttamente compatibile con Agent Skills SKILL.md."
+      ],
+      "declared_version": "1.0.2",
+      "dependencies": [
+        "Python >=3.11",
+        "PyYAML >=6.0",
+        "requests >=2.28",
+        "Registro gfernandf/agent-skill-registry; i binding e le dipendenze opzionali vanno verificati."
+      ],
+      "missing_references": [
+        "Il report dettagliato delle quattro capacità fallite nella run 38500893498 non era incluso nell'artefatto pubblicato.",
+        "Le cause di memory.context.store e perception.input.structure restano sconosciute."
+      ]
+    },
+    {
+      "id": "material.orca-registry",
+      "name": "ORCA — registro di capacità e skill",
+      "description": "Registro dichiarativo di capacità primitive, skill composte, vocabolario e cataloghi JSON generati.",
+      "acquisition": {
+        "status": "received",
+        "acquired_at": "2026-11-03T20:14:05Z",
+        "method": "remote_reference",
+        "source": "Fonte GitHub fissata a una revisione specifica; nessuna copia locale dichiarata.",
+        "original": {
+          "kind": "remote_reference",
+          "uri": "https://github.com/gfernandf/agent-skill-registry/tree/b70a6f99cf01ca928a94231e5d7b1a1e82098612"
+        }
+      },
+      "classification": {
+        "status": "classified",
+        "kind": "resource",
+        "confidence": "high",
+        "rationale": "Definisce contratti e flussi dichiarativi; non esegue le skill senza un runtime compatibile."
+      },
+      "documentation": {
+        "status": "partial"
+      },
+      "verification": {
+        "status": "not_verified"
+      },
+      "usability": {
+        "status": "requires_adapter",
+        "conditions": [
+          "Mappare i contratti ORCA al modello interno senza copiare automaticamente l'intero catalogo.",
+          "Fissare una revisione e verificare riferimenti, dipendenze e semantica dei campi."
+        ]
+      },
+      "license": {
+        "status": "identified",
+        "identifier": "Apache-2.0",
+        "source_uri": "https://github.com/gfernandf/agent-skill-registry/blob/b70a6f99cf01ca928a94231e5d7b1a1e82098612/LICENSE",
+        "source_revision": "b70a6f99cf01ca928a94231e5d7b1a1e82098612",
+        "file_path": "LICENSE",
+        "review_status": "reviewed",
+        "reviewed_at": "2026-11-03T20:14:05Z",
+        "evidence_refs": [
+          "tests/evidence/license-material.orca-registry.json"
+        ],
+        "obligations": [
+          "Includere copia della licenza Apache-2.0, indicare i file modificati, conservare gli avvisi pertinenti e includere NOTICE se presente; nessun diritto sui marchi è concesso."
+        ],
+        "notes": [
+          "La revisione identifica la licenza dichiarata nella fonte; non costituisce un parere legale né una valutazione automatica dei diritti in ogni contesto."
+        ]
+      },
+      "tags": [
+        "orca",
+        "registro",
+        "capacita",
+        "skill",
+        "catalogo"
+      ],
+      "format": "Definizioni YAML + cataloghi JSON",
+      "notes": [
+        "Conteggi sui cataloghi JSON: main 184/40; pin smoke 184/39; pin CI 192/39. Il README del registro dichiara 159/37.",
+        "Licenza Apache-2.0; conservare LICENSE, attribuzioni e avvisi di modifica per eventuali derivati."
+      ],
+      "dependencies": [
+        "Motore runtime separato gfernandf/agent-skills."
+      ],
+      "missing_references": [
+        "I pin usati da smoke e CI non coincidono con main e tra loro."
+      ]
+    }
+  ]
 }

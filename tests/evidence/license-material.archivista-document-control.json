@@ -1,0 +1,8 @@
+{
+  "id": "proof.material.archivista-document-control.license",
+  "subject": "material.archivista-document-control.license",
+  "result": "passed",
+  "tested_at": "2026-11-03T20:14:05Z",
+  "command": "Inspect license declaration at pinned source revision for material.archivista-document-control",
+  "summary": "No separate license declaration was found in the checked project material. User direction authorizes project use; no open redistribution license is inferred."
+}
