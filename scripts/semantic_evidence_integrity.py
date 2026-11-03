@@ -14,6 +14,12 @@ else:
     from scripts.material_integrity import load_material_record, verify_material
 
 
+try:
+    from scripts.semantic_claim_evidence import validate_claim_evidence
+except ImportError:
+    from semantic_claim_evidence import validate_claim_evidence
+
+
 SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schemas/semantic-classification-proposal.schema.json"
 
 
@@ -303,6 +309,8 @@ def validate_semantic_proposal(root, proposal):
 
     if remote and any(item["source"] != "catalog/materials.json" for item in evidence):
         raise ValueError("Le prove del riferimento remoto possono attestare soltanto i metadati di catalogo.")
+
+    validate_claim_evidence(root, proposal)
 
     # Ricontrollo finale per rilevare modifiche avvenute durante la verifica.
     if _sha256(catalog_path) != catalog_hash:
