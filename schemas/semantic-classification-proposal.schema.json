@@ -121,8 +121,51 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "evidence_quotes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "evidence_ref",
+              "quote"
+            ],
+            "properties": {
+              "evidence_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "quote": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "not": {
+                  "const": "unclassified"
+                }
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "evidence_quotes"
+            ]
+          }
+        }
+      ]
     },
     "capabilities": {
       "type": "array",
@@ -134,7 +177,8 @@
           "name",
           "description",
           "certainty",
-          "evidence_refs"
+          "evidence_refs",
+          "evidence_quotes"
         ],
         "properties": {
           "id": {
@@ -162,6 +206,28 @@
             "items": {
               "type": "string",
               "minLength": 1
+            }
+          },
+          "evidence_quotes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "evidence_ref",
+                "quote"
+              ],
+              "properties": {
+                "evidence_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "quote": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
             }
           }
         }
@@ -227,6 +293,28 @@
               "type": "string",
               "minLength": 1
             }
+          },
+          "evidence_quotes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "evidence_ref",
+                "quote"
+              ],
+              "properties": {
+                "evidence_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "quote": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
           }
         },
         "allOf": [
@@ -251,6 +339,26 @@
                 }
               }
             }
+          },
+          {
+            "if": {
+              "properties": {
+                "certainty": {
+                  "enum": [
+                    "declared",
+                    "inferred"
+                  ]
+                }
+              },
+              "required": [
+                "certainty"
+              ]
+            },
+            "then": {
+              "required": [
+                "evidence_quotes"
+              ]
+            }
           }
         ]
       }
@@ -264,7 +372,8 @@
           "name",
           "kind",
           "compatibility",
-          "evidence_refs"
+          "evidence_refs",
+          "evidence_quotes"
         ],
         "properties": {
           "name": {
@@ -294,6 +403,28 @@
             "items": {
               "type": "string",
               "minLength": 1
+            }
+          },
+          "evidence_quotes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "evidence_ref",
+                "quote"
+              ],
+              "properties": {
+                "evidence_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "quote": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
             }
           }
         }
@@ -534,7 +665,8 @@
         "required": [
           "value",
           "certainty",
-          "evidence_refs"
+          "evidence_refs",
+          "evidence_quotes"
         ],
         "properties": {
           "value": {
@@ -554,6 +686,28 @@
             "items": {
               "type": "string",
               "minLength": 1
+            }
+          },
+          "evidence_quotes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "evidence_ref",
+                "quote"
+              ],
+              "properties": {
+                "evidence_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "quote": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
             }
           }
         },
