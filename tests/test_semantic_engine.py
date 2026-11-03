@@ -150,6 +150,38 @@ class SemanticEngineTests(unittest.TestCase):
         self.assertIn("classification.kind", proposal["unknowns"][0])
         self.assertIn("enum", proposal["unknowns"][0])
 
+
+    def test_missing_semantic_fields_become_partial_with_safe_diagnostic(self):
+        class IncompleteAdapter:
+            def analyze(self, request):
+                item = request["selected_content"][0]
+                return {
+                    "status": "completed",
+                    "classification": {
+                        "kind": "skill",
+                        "confidence": "high",
+                        "rationale": "Descrive una procedura.",
+                        "summary": "Procedura riutilizzabile.",
+                        "evidence_refs": ["ev.source"],
+                    },
+                    "evidence": [{
+                        "id": "ev.source",
+                        "source": item["path"],
+                        "sha256": item["sha256"],
+                        "kind": "text_file",
+                    }],
+                }
+
+        proposal = run_semantic_engine(
+            valid_request(), analyzer=IncompleteAdapter(), catalog_sha256="c" * 64
+        )
+
+        self.assertEqual(proposal["status"], "partial")
+        self.assertEqual(proposal["capabilities"], [])
+        self.assertEqual(proposal["interfaces"], {"inputs": [], "outputs": [], "usage_conditions": []})
+        self.assertTrue(any("capabilities" in item for item in proposal["unknowns"]))
+        self.assertTrue(any("campi mancanti" in item.lower() for item in proposal["limits"]))
+
     def test_missing_catalog_fingerprint_is_rejected(self):
         with self.assertRaises(ValueError):
             run_semantic_engine(valid_request())
