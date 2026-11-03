@@ -185,7 +185,7 @@ def _read_bounded_file(path: Path, expected_size: int) -> bytes:
     sostituito tra il controllo del percorso e l'apertura.
     """
     before = path.lstat()
-    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+    if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISREG(before.st_mode):
         raise OSError("Il percorso non identifica un file regolare stabile.")
 
     flags = os.O_RDONLY
@@ -197,7 +197,7 @@ def _read_bounded_file(path: Path, expected_size: int) -> bytes:
     descriptor = os.open(path, flags)
     try:
         opened = os.fstat(descriptor)
-        if not stat.S_ISREG(opened.st_mode):
+        if not stat.S_ISREG(opened.st_mode) or _is_reparse_point(opened):
             raise OSError("Il descrittore non identifica un file regolare.")
         if _file_identity(opened) != _file_identity(before):
             raise OSError("Il file è cambiato durante l'apertura.")
@@ -214,7 +214,7 @@ def _read_bounded_file(path: Path, expected_size: int) -> bytes:
 
         after_fd = os.fstat(descriptor)
         after_path = path.lstat()
-        if not stat.S_ISREG(after_path.st_mode):
+        if not stat.S_ISREG(after_path.st_mode) or _is_reparse_point(after_path):
             raise OSError("Il percorso non identifica più un file regolare.")
         if _file_identity(after_fd) != _file_identity(opened):
             raise OSError("Il file aperto è cambiato durante la lettura.")
