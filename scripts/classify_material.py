@@ -107,7 +107,7 @@ def analyze_material(root, material_id):
         skipped = [item.get("source") for item in prepared.get("skipped", [])]
 
     proposed_kind, confidence, rationale = _propose(texts, kind)
-    if evidence:
+    if kind != "remote_reference":
         evidence.insert(0, {"source": "catalog/materials.json", "type": "identity", "material_id": material_id, "sha256": digest})
     limits = [
         "Analisi statica: nessun file, comando, programma o contenuto incorporato è stato eseguito.",
