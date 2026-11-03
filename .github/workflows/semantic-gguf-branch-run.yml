@@ -1,0 +1,46 @@
+name: Prova GGUF su ramo dedicato
+on:
+  push:
+    branches:
+      - semantic-evaluation-isolation-v1
+permissions:
+  contents: read
+jobs:
+  run-model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --disable-pip-version-check jsonschema
+      - name: Download GGUF
+        run: |
+          mkdir -p models
+          curl --fail --location --retry 3 --max-time 600 "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf" --output models/qwen2.5-0.5b-instruct-q4_k_m.gguf
+          sha256sum models/qwen2.5-0.5b-instruct-q4_k_m.gguf | tee model-sha256.txt
+      - run: docker pull ghcr.io/ggml-org/llama.cpp:server
+      - run: docker network create --internal semantic-model-isolated
+      - name: Run bounded model container
+        run: |
+          docker run -d --name semantic-llama-server --network semantic-model-isolated -p 127.0.0.1:8080:8080 --read-only --cap-drop ALL --security-opt no-new-privileges:true --pids-limit 128 --memory 5g --memory-swap 5g --cpus 2 --tmpfs /tmp:rw,noexec,nosuid,nodev,size=256m --mount type=bind,src="$GITHUB_WORKSPACE/models",dst=/models,readonly ghcr.io/ggml-org/llama.cpp:server -m /models/qwen2.5-0.5b-instruct-q4_k_m.gguf --host 0.0.0.0 --port 8080 --ctx-size 4096 --threads 2 --threads-batch 2 --n-predict 1024
+          for i in $(seq 1 90); do curl -fsS http://127.0.0.1:8080/health && break || sleep 2; done
+          docker inspect semantic-llama-server --format '{{json .HostConfig}}' > docker-security-config.json
+      - run: python scripts/semantic_evaluation.py
+      - if: always()
+        run: |
+          docker logs semantic-llama-server > llama-server.log 2>&1 || true
+          docker stats --no-stream semantic-llama-server || true
+          docker rm -f semantic-llama-server || true
+          docker network rm semantic-model-isolated || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semantic-gguf-evaluation
+          path: |
+            semantic-evaluation-report.json
+            model-sha256.txt
+            docker-security-config.json
+            llama-server.log
+          retention-days: 30
