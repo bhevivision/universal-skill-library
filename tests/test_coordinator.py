@@ -29,6 +29,10 @@ def evidence(evidence_id, subject):
 def make_valid_library(root, *, lifecycle="stable", risk_level="low", implementation_permissions=None,
                        implementation_tools=None):
     source_root = Path(__file__).resolve().parents[1]
+    for name in ("schemas", "skills", "catalog", "tests", "implementations"):
+        existing = root / name
+        if existing.exists():
+            shutil.rmtree(existing)
     shutil.copytree(source_root / "schemas", root / "schemas")
     (root / "skills" / "read").mkdir(parents=True)
     (root / "skills" / "read" / "SKILL.md").write_text(
