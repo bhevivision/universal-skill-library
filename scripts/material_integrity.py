@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import stat
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlparse
 
@@ -34,11 +36,37 @@ def _check(name: str, status: str, detail: str) -> dict:
 
 
 def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for chunk in iter(lambda: stream.read(CHUNK_SIZE), b""):
+    """Calcola l'impronta da un descrittore stabile, rifiutando sostituzioni del percorso."""
+    before = path.lstat()
+    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il percorso non identifica un file regolare.")
+    flags = os.O_RDONLY
+    if hasattr(os, "O_BINARY"):
+        flags |= os.O_BINARY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags)
+    try:
+        opened = os.fstat(descriptor)
+        identity_before = (before.st_dev, before.st_ino)
+        identity_opened = (opened.st_dev, opened.st_ino)
+        if not stat.S_ISREG(opened.st_mode) or identity_before != identity_opened:
+            raise MaterialIntegrityError("PATH_CHANGED_DURING_READ", "Il file è cambiato durante l'apertura.")
+        digest = hashlib.sha256()
+        while True:
+            chunk = os.read(descriptor, CHUNK_SIZE)
+            if not chunk:
+                break
             digest.update(chunk)
-    return digest.hexdigest()
+        after_fd = os.fstat(descriptor)
+        after_path = path.lstat()
+        if (after_fd.st_dev, after_fd.st_ino) != identity_opened:
+            raise MaterialIntegrityError("FILE_CHANGED_DURING_READ", "Il file è cambiato durante la lettura.")
+        if (after_path.st_dev, after_path.st_ino) != identity_opened or stat.S_ISLNK(after_path.st_mode):
+            raise MaterialIntegrityError("PATH_CHANGED_DURING_READ", "Il percorso è stato sostituito durante la lettura.")
+        return digest.hexdigest()
+    finally:
+        os.close(descriptor)
 
 
 def _sha256_tree(path: Path, *, legacy: bool = False) -> str:
@@ -59,9 +87,7 @@ def _sha256_tree(path: Path, *, legacy: bool = False) -> str:
                 digest.update(relative + b"\0")
             else:
                 digest.update(b"F\0" + relative + b"\0")
-            with item.open("rb") as stream:
-                for chunk in iter(lambda: stream.read(CHUNK_SIZE), b""):
-                    digest.update(chunk)
+            digest.update(bytes.fromhex(_sha256_file(item)))
             digest.update(b"\0")
     return digest.hexdigest()
 
