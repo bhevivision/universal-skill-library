@@ -110,7 +110,9 @@ class LlamaCppAdapterTests(unittest.TestCase):
             },
         })
 
-        self.assertEqual(result["status"], "not_available")
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["evidence"][0]["id"], "ev.sample-001")
+        self.assertEqual(_Handler.received["messages"][1]["content"] and json.loads(_Handler.received["messages"][1]["content"])["available_evidence"][0]["id"], "ev.sample-001")
         self.assertEqual(_Handler.received["model"], "fixture-local-model")
         self.assertFalse(_Handler.received["stream"])
         self.assertEqual(_Handler.received["response_format"]["type"], "json_schema")
