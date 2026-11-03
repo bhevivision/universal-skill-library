@@ -241,12 +241,12 @@ def run_semantic_engine(
         digest_payload["analyzer"] = dict(proposal["analyzer"])
         digest_payload["analyzer"].pop("output_sha256")
         proposal["analyzer"]["output_sha256"] = _sha256(_canonical_bytes(digest_payload))
+        _validate_proposal_schema(proposal)
         validate_claim_evidence(
             Path(__file__).resolve().parents[1],
             proposal,
             {item["path"]: item["sha256"] for item in request_snapshot["selected_content"]},
         )
-        _validate_proposal_schema(proposal)
         if proposal["material"] != {
             "id": request_snapshot["material"]["id"],
             "sha256": request_snapshot["material"]["sha256"],
