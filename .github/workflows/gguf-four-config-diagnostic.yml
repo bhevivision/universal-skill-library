@@ -85,8 +85,8 @@ jobs:
       - name: Execute four samples for selected configuration
         env:
           CONFIGURATION: ${{ matrix.configuration }}
-          REQUEST_TIMEOUT: ${{ inputs.timeout_seconds }}
-          MAX_TOKENS: ${{ inputs.max_tokens }}
+          REQUEST_TIMEOUT: ${{ inputs.timeout_seconds || '120' }}
+          MAX_TOKENS: ${{ inputs.max_tokens || '2048' }}
         run: |
           set -euo pipefail
           mkdir -p output/gguf-four-configs
