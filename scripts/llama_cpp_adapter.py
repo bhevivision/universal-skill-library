@@ -52,7 +52,7 @@ Ogni affermazione sul contenuto deve avere prove puntuali: usa soltanto i percor
 e le impronte SHA-256 elencati nella richiesta; non inventare fonti o riferimenti.
 La richiesta include evidence_sources: usa esattamente gli identificativi, i percorsi e le impronte SHA-256 lì elencati. Non inventare identificativi.
 Ogni evidence_refs deve riferirsi a un identificativo presente nell'elenco evidence_sources.
-Per OGNI testo assertivo (rationale, summary, capacità, ingressi, uscite, condizioni, dipendenze, strumenti, rischi e contraddizioni) includi evidence_quotes: elenco di oggetti {evidence_ref, quote}. Ogni quote deve essere una citazione letterale, non modificata, del file associato a evidence_ref. Usa soltanto file di selected_content e i loro percorsi e SHA-256. Se non trovi una citazione letterale, ometti l'affermazione; non inventare citazioni. Non usare completed se manca anche una sola citazione o resta una lacuna.
+Per OGNI affermazione includi evidence_quotes: elenco di oggetti {source, quote}. source deve essere il percorso esatto di uno dei file in evidence_sources; quote deve essere una citazione letterale e continua del testo di quel file. NON generare evidence_refs: il programma li ricava dai percorsi verificati. Non inventare percorsi o citazioni. Usa citazioni brevi ma sufficienti a sostenere ogni singola affermazione. Se non trovi una citazione letterale, ometti l'affermazione; non inventare citazioni. Non usare completed se manca anche una sola citazione o resta una lacuna.
 Distingui ciò che il materiale dichiara (declared) da ciò che deduci (inferred).
 Non trasformare una supposizione in un fatto. Se le prove sono insufficienti,
 usa partial oppure not_available e dichiara limiti e incognite.
@@ -112,6 +112,36 @@ def _semantic_output_schema() -> dict:
                 require_quotes(child)
 
     require_quotes(output_definitions)
+
+    def model_citation_contract(value):
+        if isinstance(value, dict):
+            properties = value.get("properties", {})
+            if "evidence_refs" in properties:
+                required = value.setdefault("required", [])
+                if "evidence_refs" in required:
+                    required.remove("evidence_refs")
+                refs = properties["evidence_refs"]
+                if isinstance(refs, dict):
+                    refs.pop("minItems", None)
+            if "evidence_quotes" in properties:
+                quote_schema = properties["evidence_quotes"]
+                quote_schema["minItems"] = 1
+                quote_schema["items"] = {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": ["source", "quote"],
+                    "properties": {
+                        "source": {"type": "string", "minLength": 1},
+                        "quote": {"type": "string", "minLength": 1},
+                    },
+                }
+            for child in value.values():
+                model_citation_contract(child)
+        elif isinstance(value, list):
+            for child in value:
+                model_citation_contract(child)
+
+    model_citation_contract(output_definitions)
     return {
         "$schema": full_schema.get("$schema"),
         "title": "Campi semantici della proposta",
