@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import shutil
 import socket
 import tempfile
 import unittest
@@ -17,6 +18,9 @@ class ClassificationApprovalTests(unittest.TestCase):
         (self.root / "intake/acq-example/source").mkdir(parents=True)
         (self.root / "catalog").mkdir()
         (self.root / "proposals").mkdir()
+        (self.root / "schemas").mkdir()
+        schema_source = Path(__file__).resolve().parents[1] / "schemas/classification-proposal.schema.json"
+        shutil.copyfile(schema_source, self.root / "schemas/classification-proposal.schema.json")
         self.original = self.root / "intake/acq-example/source/material.md"
         self.original.write_text("# Example skill\n\n## Instructions\nDo the work.\n", encoding="utf-8")
         digest = hashlib.sha256(self.original.read_bytes()).hexdigest()
@@ -97,6 +101,7 @@ class ClassificationApprovalTests(unittest.TestCase):
 
     def test_preserves_error_when_proposal_fingerprint_is_stale(self):
         self.proposal["material"]["sha256"] = "0" * 64
+        self.proposal["evidence"][0]["sha256"] = "0" * 64
         (self.root / "proposals/class.example.json").write_text(
             json.dumps(self.proposal), encoding="utf-8"
         )
