@@ -17,6 +17,7 @@ Agent Skills è un formato supportato, non un requisito per conservare un pacche
 - [Roadmap](ROADMAP.md)
 - [Struttura della libreria](docs/LIBRARY-STRUCTURE.md)
 - [Dati per la selezione autonoma delle skill](docs/SKILL-SELECTION.md)
+- [Prima implementazione del motore semantico](docs/SEMANTIC-ENGINE-IMPLEMENTATION.md)
 - [Progettazione della classificazione semantica](docs/SEMANTIC-CLASSIFICATION-DESIGN.md)
 - [Contratto tecnico della classificazione semantica](docs/SEMANTIC-CLASSIFICATION-CONTRACT.md)
 - [Schema JSON della richiesta semantica](schemas/semantic-classification-request.schema.json)
