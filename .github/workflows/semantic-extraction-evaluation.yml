@@ -11,6 +11,8 @@ on:
       - scripts/semantic_claim_evidence.py
       - scripts/llama_cpp_adapter.py
       - scripts/llama_cpp_constraint_probe.py
+      - tests/test_llama_cpp_adapter.py
+      - tests/test_llama_cpp_constraint_probe.py
       - scripts/semantic_extraction_evaluation.py
       - schemas/semantic-classification-proposal.schema.json
       - evaluation/semantic-extraction-samples.json
