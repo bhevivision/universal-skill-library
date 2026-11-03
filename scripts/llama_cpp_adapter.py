@@ -51,6 +51,7 @@ Restituisci esclusivamente un oggetto JSON conforme allo schema ricevuto.
 Ogni affermazione sul contenuto deve avere prove puntuali: usa soltanto i percorsi
 e le impronte SHA-256 elencati nella richiesta; non inventare fonti o riferimenti.
 Ogni evidence_refs deve riferirsi a un identificativo presente nell'elenco evidence.
+Per OGNI testo assertivo (rationale, summary, capacità, ingressi, uscite, condizioni, dipendenze, strumenti, rischi e contraddizioni) includi evidence_quotes: elenco di oggetti {evidence_ref, quote}. Ogni quote deve essere una citazione letterale, non modificata, del file associato a evidence_ref. Usa soltanto file di selected_content e i loro percorsi e SHA-256. Se non trovi una citazione letterale, ometti l'affermazione; non inventare citazioni. Non usare completed se manca anche una sola citazione o resta una lacuna.
 Distingui ciò che il materiale dichiara (declared) da ciò che deduci (inferred).
 Non trasformare una supposizione in un fatto. Se le prove sono insufficienti,
 usa partial oppure not_available e dichiara limiti e incognite.
