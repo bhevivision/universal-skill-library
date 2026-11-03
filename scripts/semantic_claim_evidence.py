@@ -180,10 +180,12 @@ def validate_claim_evidence(root, proposal, allowed_sources=None):
                 if digest != item.get("sha256"):
                     raise ValueError(f"Impronta SHA-256 non corrispondente: {source}")
                 try:
-                    checked_files[source] = path.read_text(encoding="utf-8")
+                    checked_files[source] = (digest, path.read_text(encoding="utf-8"))
                 except UnicodeError as exc:
                     raise ValueError(f"File sorgente non UTF-8: {source}") from exc
-            if quote not in checked_files[source]:
+            elif checked_files[source][0] != item.get("sha256"):
+                raise ValueError(f"Impronta SHA-256 non corrispondente: {source}")
+            if quote not in checked_files[source][1]:
                 raise ValueError(f"Citazione inventata o assente nel file sorgente: {source}")
             cited.add(ref)
         if not cited or set(refs) - cited:
