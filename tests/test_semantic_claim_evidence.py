@@ -97,7 +97,7 @@ class ExactClaimEvidenceTests(unittest.TestCase):
         self.proposal["capabilities"][0]["evidence_quotes"] = [
             {"evidence_ref": "ev.altered", "quote": "Questa skill legge documenti PDF."}
         ]
-        with self.assertRaisesRegex(ValueError, "impronta SHA-256"):
+        with self.assertRaisesRegex(ValueError, "[Ii]mpronta SHA-256"):
             validate_claim_evidence(self.root, self.proposal)
 
     def test_rejects_source_fingerprint_mismatch(self):
