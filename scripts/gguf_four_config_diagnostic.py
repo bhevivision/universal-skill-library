@@ -221,7 +221,7 @@ class StreamingDiagnosticAdapter:
                 raise ValueError("La risposta del modello non è un oggetto JSON.")
             metrics["status"] = "json_parsed"
             return _normalize_full_evidence(parsed, request)
-        except (HTTPError, URLError, TimeoutError, OSError, UnicodeError, ValueError, json.JSONDecodeError) as exc:
+        except Exception as exc:
             metrics["status"] = "interrupted_or_invalid"
             metrics["error"] = type(exc).__name__ + ": " + str(exc)[:1000]
             raise
