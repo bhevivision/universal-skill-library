@@ -16,7 +16,7 @@ SCHEMA = {
     "properties": {"result": {"type": "string", "enum": ["CONSTRAINT_APPLIED"]}},
 }
 # GBNF equivalente: un solo oggetto JSON, un solo campo e un solo valore ammesso.
-GRAMMAR = r'''root ::= "{\\"result\\":\\"CONSTRAINT_APPLIED\\"}"'''
+GRAMMAR = r'''root ::= "{\"result\":\"CONSTRAINT_APPLIED\"}"'''
 
 
 def is_constraint_response(raw_content: object) -> bool:
