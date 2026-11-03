@@ -132,6 +132,9 @@ def _all_catalogs(root: Path):
     loaded = {}
     for kind in CATALOGS:
         _, _, loaded[kind] = _load_catalog(root, kind)
+    for kind, (_, collection, _) in CATALOGS.items():
+        for entry in loaded[kind][collection]:
+            _validate_links(root, kind, entry, loaded)
     return loaded
 
 
@@ -153,8 +156,11 @@ def _atomic_write(path: Path, value: dict):
 
 def list_entries(root: Path, kind: str):
     root = Path(root).resolve()
-    _, collection, catalog = _load_catalog(root, kind)
-    return catalog[collection]
+    if kind not in CATALOGS:
+        raise CatalogError(f"Catalogo sconosciuto: {kind}")
+    catalogs = _all_catalogs(root)
+    collection = CATALOGS[kind][1]
+    return catalogs[kind][collection]
 
 
 def get_entry(root: Path, kind: str, entry_id: str):
