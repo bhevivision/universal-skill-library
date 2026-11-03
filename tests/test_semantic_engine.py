@@ -147,8 +147,8 @@ class SemanticEngineTests(unittest.TestCase):
         )
 
         self.assertEqual(proposal["status"], "failed")
-        self.assertIn("classification.kind", proposal["limits"][0])
-        self.assertIn("enum", proposal["limits"][0])
+        self.assertIn("classification.kind", proposal["unknowns"][0])
+        self.assertIn("enum", proposal["unknowns"][0])
 
     def test_missing_catalog_fingerprint_is_rejected(self):
         with self.assertRaises(ValueError):
