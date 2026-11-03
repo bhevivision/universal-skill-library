@@ -2,6 +2,9 @@ name: Valutazione modello GGUF isolato
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - semantic-evaluation-isolation-v1
 
 permissions:
   contents: read
