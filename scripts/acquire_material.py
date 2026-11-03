@@ -168,6 +168,9 @@ def _copy_directory_bounded(source, destination):
     """Copia un albero con limiti applicati durante la lettura effettiva."""
     source = Path(source)
     destination = Path(destination)
+    source_info = source.lstat()
+    if stat.S_ISLNK(source_info.st_mode) or not stat.S_ISDIR(source_info.st_mode):
+        raise ValueError("La cartella sorgente è cambiata o non è sicura.")
     entries = _bounded_entries(source)
     destination.mkdir(parents=True, exist_ok=False)
     for item, kind, info in sorted(
@@ -181,14 +184,53 @@ def _copy_directory_bounded(source, destination):
     for item, kind, _info in entries:
         if kind == "file":
             _copy_file_bounded(item, destination / item.relative_to(source), counters)
+    for item, kind, info in entries:
+        if kind == "directory":
+            after = item.lstat()
+            if stat.S_ISLNK(after.st_mode) or (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                raise ValueError(f"La cartella sorgente è stata sostituita durante la copia: {item}")
+    source_after = source.lstat()
+    if stat.S_ISLNK(source_after.st_mode) or (source_after.st_dev, source_after.st_ino) != (source_info.st_dev, source_info.st_ino):
+        raise ValueError("La cartella sorgente è stata sostituita durante la copia.")
     return counters["files"], counters["bytes"]
+
+
+def _update_digest_from_file(digest, path):
+    path = Path(path)
+    before = path.lstat()
+    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+        raise ValueError(f"Il percorso non identifica un file regolare: {path}")
+    flags = os.O_RDONLY
+    if hasattr(os, "O_BINARY"):
+        flags |= os.O_BINARY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags)
+    try:
+        opened = os.fstat(descriptor)
+        identity = (before.st_dev, before.st_ino)
+        if not stat.S_ISREG(opened.st_mode) or (opened.st_dev, opened.st_ino) != identity:
+            raise ValueError(f"Il file è cambiato durante l'apertura: {path}")
+        while True:
+            chunk = os.read(descriptor, 1024 * 1024)
+            if not chunk:
+                break
+            digest.update(chunk)
+        after_fd = os.fstat(descriptor)
+        after_path = path.lstat()
+        if (after_fd.st_dev, after_fd.st_ino) != identity:
+            raise ValueError(f"Il file è cambiato durante la lettura: {path}")
+        if (after_path.st_dev, after_path.st_ino) != identity or stat.S_ISLNK(after_path.st_mode):
+            raise ValueError(f"Il percorso è stato sostituito durante la lettura: {path}")
+        if after_fd.st_size != opened.st_size:
+            raise ValueError(f"La dimensione del file è cambiata durante la lettura: {path}")
+    finally:
+        os.close(descriptor)
 
 
 def _digest_file(path):
     digest = hashlib.sha256()
-    with Path(path).open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(chunk)
+    _update_digest_from_file(digest, path)
     return digest.hexdigest()
 
 
@@ -200,9 +242,7 @@ def _digest_directory(path):
             digest.update(b"D\0" + relative + b"\0")
         else:
             digest.update(b"F\0" + relative + b"\0")
-            with item.open("rb") as stream:
-                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-                    digest.update(chunk)
+            _update_digest_from_file(digest, item)
             digest.update(b"\0")
     return digest.hexdigest()
 
@@ -213,9 +253,7 @@ def _digest_directory_legacy(path):
         if kind == "file":
             digest.update(item.relative_to(path).as_posix().encode("utf-8"))
             digest.update(b"\0")
-            with item.open("rb") as stream:
-                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-                    digest.update(chunk)
+            _update_digest_from_file(digest, item)
             digest.update(b"\0")
     return digest.hexdigest()
 
