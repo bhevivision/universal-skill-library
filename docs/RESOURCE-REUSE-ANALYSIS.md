@@ -91,7 +91,7 @@ La skill UNLAZY contiene una disciplina operativa concreta:
 - dichiarare NON VERIFICABILE quando manca uno strumento, un accesso o un dato;
 - ricontrollare verifiche rese obsolete da modifiche successive.
 
-Il modello esteso introduce entità distinte per Source, SourceVersion, Evidence, Requirement, Rule, Criterion, Procedure, Execution, Receipt, Attestation, Verification, Result, Decision, Gate, Change, Impact, Revalidation, Gap, Approval ed Event. Distingue inoltre UNKNOWN, MISSING, STALE, FAILED e BLOCKED.
+Il modello esteso introduce entità distinte per Source, SourceVersion, Evidence, Requirement, Rule, Criterion, Procedure, Execution, Receipt, Attestation, Verification, Result, Decision, Gate, Change, Impact, Revalidation, Gap, Approval ed Event. Distingue inoltre UNKNOWN, MISSING, STALE, FAILED e BLOCKED. Il documento descrive anche dieci scenari di controllo con esiti dichiarati; non contiene però rapporti runtime indipendenti, quindi questi scenari non sono conteggiati come prove funzionali eseguite.
 
 ### Dipendenze e lacune
 
@@ -117,8 +117,10 @@ Non trasferire automaticamente l'intero modello UNLAZY come un'unica skill monol
 
 **Fonti consultate:**
 - `personalizzazione/archivista-skill.md`, blob `cc0074a15072111f98e3764951fae9d6b4957ca1`;
-- documento normativo completo `ARCHIVISTA DEL LIBRO — Sistema Completo`, versione `TEMPLATE_MASTER_v3`, reperito nell'archivio personale;
+- documento intitolato `ARCHIVISTA DEL LIBRO — Sistema Completo`, versione `TEMPLATE_MASTER_v3`, reperito nell'archivio personale;
 - versione precedente `TEMPLATE_MASTER_v1`, reperita nell'archivio personale.
+
+**Limite di consultazione:** la ricerca nella Library ha individuato il documento v3 e ha restituito estratti sostanziali, ma la lettura integrale tramite Files e la materializzazione del file originale non sono riuscite. La descrizione lo identifica come documento completo; non dichiaro quindi di aver verificato ogni sua sezione.
 
 **Licenza:** non è stato trovato un file di licenza autonomo nei documenti consultati. Trattare la fonte come materiale dell'utente, senza dichiararla open source.
 
@@ -254,15 +256,24 @@ Il README del registro dichiara ancora 159 capacità e 37 skill. Il README del m
 
 La workflow `cognitive_continuous_validation.yml` clona il registro `main` senza fissare una revisione. Le workflow CI e smoke usano invece due pin differenti. Questo rende non uniforme la base di confronto.
 
-### Prova di funzionamento già recuperata
+### Prova di funzionamento e controllo CI aggiornati
 
-La workflow run `38500893498` del 14 ottobre 2026, sul commit motore `d9e3644e8aac6b75f327d973f94e187d2e8f789c`, è fallita nel controllo end-to-end delle capacità cognitive: 4 capacità non hanno superato i controlli di contratto/risultato.
+La precedente workflow run `38500893498` del 14 ottobre 2026 e la nuova run `41565121801` del 3 novembre 2026, entrambe sul commit motore `d9e3644e8aac6b75f327d973f94e187d2e8f789c`, falliscono il controllo end-to-end delle capacità cognitive. La ripetizione sullo stesso commit conferma che il problema è persistente, non un episodio isolato.
 
-Gli estratti del registro di esecuzione identificano due cause concrete:
-- `reasoning.plan.decompose`: il binding invoca `split_problem` senza gli argomenti obbligatori `problem` e `strategy`;
-- `reasoning.plan.generate`: il binding passa `objective`, argomento non accettato da `generate_skill_from_prompt`.
+Nella run più recente:
+- Smoke Verification #401, run `41575541695`: successo;
+- Governance Continuous Validation #156, run `41550512246`: successo;
+- Cognitive Continuous Validation #137, run `41565121801`: fallimento nel test `test_all_cognitive_capabilities_end_to_end_contracts`.
 
-Le altre due capacità segnalate sono `memory.context.store` e `perception.input.structure`; il rapporto di dettaglio dei quattro casi non era incluso nell'artefatto pubblicato, quindi le loro cause restano da identificare. Il rapporto aggregato segnala inoltre come mancanti lo scorecard e il report di dismissione: il controllo iniziale fallisce prima che tali file vengano prodotti.
+Il log del test e il rapporto aggregato identificano quattro capacità che non superano i controlli di contratto/risultato:
+- `reasoning.plan.decompose`: il binding invoca `split_problem` senza gli argomenti obbligatori `problem` e `strategy`; il test fornisce soltanto `macro_stage`;
+- `reasoning.plan.generate`: il binding passa `objective`, argomento non accettato da `generate_skill_from_prompt`;
+- `memory.context.store`: indicata come fallita, ma la causa specifica non è presente nel log pubblicato;
+- `perception.input.structure`: indicata come fallita, ma la causa specifica non è presente nel log pubblicato.
+
+È stato scaricato e ispezionato l'artefatto della run `41565121801`. Il test segnala che ha prodotto `artifacts/cognitive_e2e_contract_report.json`, ma il flusso di caricamento dell'artefatto non include quel file: il rapporto dettagliato delle quattro capacità è quindi perso. L'archivio pubblicato contiene soltanto il rapporto generale del gate e quello continuo. Quest'ultimo marca come mancanti anche `cognitive_quality_scorecard.json` e `cognitive_deprecation_sunset_report.json`, contribuendo al fallimento complessivo.
+
+**Conclusione verificata:** due cause sono note e riguardano contratti di ingresso non coerenti tra definizione e funzione Python; due cause restano sconosciute perché il rapporto dettagliato non è stato conservato. I controlli smoke e governance verdi non annullano il fallimento cognitivo: dimostrano soltanto che quei controlli specifici sono passati.
 
 ### Decisione per la libreria
 
@@ -308,7 +319,7 @@ La sintesi non è importare sei raccolte. È riutilizzare procedure e principi c
 
 ## 12. Stato delle attività
 
-- Analisi statica delle sei fonti: **completata a livello documentale**; restano esplicite le lacune dei tre riferimenti UNLAZY e delle due verifiche ORCA non dettagliate.
+- Analisi statica delle sei fonti: **completata a livello documentale**; il modello UNLAZY esteso e il documento Archivista v3 sono stati individuati nell'archivio personale, ma le tre dipendenze UNLAZY specifiche non sono state reperite e il testo Archivista v3 non è stato letto integralmente. Per ORCA due cause sono identificate e due restano senza dettaglio a causa di un rapporto non incluso nell'artefatto.
 - Licenze delle fonti pubbliche: **identificate a livello di repository/pacchetto; obblighi di distribuzione da applicare ai singoli derivati**.
 - Campo strutturato per licenza del materiale: **implementato nel ramo di analisi**; la revisione richiede prove e non produce un giudizio legale automatico.
 - Verifica della licenza con prova collegata: **7 prove registrate**; il validatore controlla esistenza, soggetto ed esito. I run `41711115849` e `41711127483` hanno superato 199 test e validazione cataloghi su Ubuntu e Windows.
