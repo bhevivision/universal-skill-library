@@ -8,14 +8,14 @@ Questo documento registra le fonti esterne consultate e le procedure selezionate
 - Fonte: https://github.com/mattpocock/skills
 - Revisione: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
 - Licenza: MIT — licenses/third-party/MIT-Matt-Pocock.txt
-- Procedure considerate: chiarimento dei requisiti, modellazione del dominio, progettazione dei moduli, sviluppo guidato dai test, diagnosi dei guasti, revisione e scrittura di documenti per agenti.
+- Procedure adattate: skill-authoring-adaptation ed evidence-based-review; sono stati inoltre riutilizzati principi di chiarimento dei requisiti e progettazione dei moduli.
 - Modifiche: procedure riscritte in italiano e limitate alle parti trasferibili alla libreria; non vengono copiati i file originali delle skill.
 
 ### Vercel Skills / Find Skills
 - Fonte: https://github.com/vercel-labs/skills
 - Revisione: 7a5e920bead4b1039a6d6df5d7e1163b7b09423a
 - Licenza: MIT — licenses/third-party/MIT-Vercel-Skills.txt
-- Procedura considerata: ricerca e individuazione di skill esterne.
+- Procedura adattata: resource-discovery-assessment; la ricerca è separata da installazione ed esecuzione.
 - Modifiche: installazione separata dalla ricerca; aggiunti controlli su provenienza, revisione, licenza, dipendenze, permessi e prove; eliminate installazione globale e conferma automatica come comportamento predefinito.
 
 ## Materiali con licenza Apache-2.0
@@ -26,14 +26,14 @@ Il testo della licenza è conservato in licenses/third-party/Apache-2.0.txt.
 - Fonte: https://github.com/gfernandf/agent-skills
 - Revisione: d9e3644e8aac6b75f327d973f94e187d2e8f789c
 - Licenza: Apache-2.0.
-- Uso: riferimento architetturale per contratti, flussi a dipendenze, collegamenti a implementazioni, stato, controlli di policy e tracciabilità.
+- Uso: riferimento architetturale per workflow-composition-planning, con contratti, flussi a dipendenze, collegamenti a implementazioni, stato, controlli di policy e tracciabilità.
 - Modifiche: nessun codice o file YAML ORCA viene copiato nelle nuove skill.
 
 ### ORCA Registry
 - Fonte: https://github.com/gfernandf/agent-skill-registry
 - Revisione: b70a6f99cf01ca928a94231e5d7b1a1e82098612
 - Licenza: Apache-2.0.
-- Uso: riferimento per la separazione tra capacità primitive e skill composte.
+- Uso: riferimento per la separazione tra capacità primitive e skill composte nella skill skill-authoring-adaptation.
 - Modifiche: nessun catalogo ORCA viene importato integralmente.
 
 ### Open Knowledge Format (OKF)
@@ -53,7 +53,7 @@ Il testo della licenza è conservato in licenses/third-party/Apache-2.0.txt.
 ### Agent Skills — documentazione
 - Fonte: https://github.com/agentskills/agentskills/tree/69ef37e9424c0a7ea9dd2293b559e43ec8176379/docs
 - Licenza: CC-BY-4.0 — licenses/third-party/CC-BY-4.0-AgentSkills-Docs.txt.
-- Uso: consultazione della specifica di formato.
+- Uso: consultazione della specifica di formato applicata alle quattro nuove skill; nessun testo della specifica è riprodotto.
 - Modifiche: non viene riprodotto il testo della documentazione; le nuove skill sono scritte autonomamente e rispettano la struttura del formato.
 
 ## Materiali forniti dall'utente senza licenza autonoma dichiarata
