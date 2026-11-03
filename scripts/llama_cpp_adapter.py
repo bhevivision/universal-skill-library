@@ -170,6 +170,11 @@ def _decode_model_json(content):
 def _verified_input_evidence(request):
     evidence = []
     seen = set()
+    allowed_files = {
+        item.get("path"): item.get("sha256")
+        for item in request.get("files", [])
+        if isinstance(item, dict)
+    }
     for item in request.get("selected_content", []):
         if not isinstance(item, dict):
             continue
@@ -179,6 +184,7 @@ def _verified_input_evidence(request):
             or "\\\\" in source or ".." in source.split("/")
             or not isinstance(digest, str) or len(digest) != 64
             or any(char not in "0123456789abcdef" for char in digest)
+            or allowed_files.get(source) != digest
             or source in seen
         ):
             continue
