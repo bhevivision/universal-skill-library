@@ -308,7 +308,7 @@ Dopo la prima stesura di questa analisi è stata eseguita una ricerca separata n
 
 È stato inoltre individuato il documento di struttura **UNLAZY-SYSTEM**, che specifica un sistema permanente separato dallo stato dei singoli progetti, con 14 documenti CORE, modelli di piano e registro verifiche, cartelle separate per pianificazione, esecuzione, verifica, prove e cronologia, oltre a 10 test avversari.
 
-Questi documenti costituiscono fonti di approfondimento importanti e non devono essere confusi con i tre file esatti citati dalla skill (`tipi_di_prova.md`, `file_di_controllo.md`, `casi_reali.md`). La ricerca non ha ancora dimostrato che quei tre file esistano con quei nomi o che siano contenuti integralmente nei documenti più ampi. Il loro stato resta quindi **non recuperato**, mentre il modello UNLAZY più ampio è **recuperato e consultabile**.
+Questi documenti costituiscono fonti di approfondimento importanti e non devono essere confusi con i tre file esatti citati dalla skill (`tipi_di_prova.md`, `file_di_controllo.md`, `casi_reali.md`). La ricerca non ha ancora dimostrato che quei tre file esistano con quei nomi o che siano contenuti integralmente nei documenti più ampi. Il loro stato resta quindi **non recuperato**, mentre il modello UNLAZY più ampio è **recuperato e consultabile**. Il modello dichiara una batteria di dieci scenari logici superati, ma nel documento consultato questi sono casi descritti con esito atteso/dichiarato: non sono allegati rapporti di esecuzione runtime, quindi non li conteggio come prova funzionale indipendente.
 
 Nuova decisione: non attendere quei tre file per estrarre il nucleo universale già documentato; mantenere però aperta la verifica delle differenze e degli esempi che potrebbero contenere.
 
@@ -316,7 +316,7 @@ Nuova decisione: non attendere quei tre file per estrarre il nucleo universale g
 
 È stato individuato nella Library il documento **“ARCHIVISTA DEL LIBRO — Sistema Completo — File Unico”**, versione `TEMPLATE_MASTER_v3`, datato 09/08/2026. La descrizione del documento indica che unifica il Template Master, il vocabolario, il glossario, l'Archivio Aziendale e il registro delle versioni. È presente anche una versione precedente `TEMPLATE_MASTER_v1`.
 
-Questa fonte permette di superare il blocco concettuale causato dal riferimento `reference/regole-complete.md` mancante nel deposito GitHub: il riferimento è stato recuperato come documento completo nella Library, ma non è ancora stato acquisito nel deposito del progetto né sottoposto a confronto riga per riga con la skill breve.
+Questa fonte permette di superare il blocco concettuale causato dal riferimento `reference/regole-complete.md` mancante nel deposito GitHub: il documento è stato individuato nella Library con titolo e versione completi e sono consultabili estratti sostanziali. La lettura integrale tramite Files non è riuscita e il materiale non è stato materializzato in formato originale; quindi non posso ancora attestare di aver verificato ogni sua sezione. Non è ancora acquisito nel deposito né confrontato riga per riga con la skill breve.
 
 Nuova decisione: analizzare il documento v3 come fonte principale dell'Archivista, estrarre solo le regole trasferibili (identità distinte, provenienza, cronologia, versioni, non sovrascrittura, gestione dei mancanti e approvazione umana) e lasciare fuori la struttura delle 17 sezioni del libro e le regole specifiche KDP.
 
@@ -328,3 +328,47 @@ Nuova decisione: analizzare il documento v3 come fonte principale dell'Archivist
 | Archivista | Documento completo TEMPLATE_MASTER_v3 recuperato dalla Library; acquisizione e confronto con la skill breve ancora da eseguire |
 
 **Nota di provenienza:** i documenti recuperati dalla Library non sono ancora file versionati nel repository GitHub del progetto. Non vanno presentati come già acquisiti nel catalogo materiali. La loro presenza nella Library è una fonte recuperabile, non una prova di integrazione o funzionamento.
+
+
+## 9. Approfondimento tecnico ORCA e diagnosi della validazione fallita
+
+### Architettura realmente presente nel codice
+
+L'ispezione del repository runtime conferma che ORCA non è soltanto un catalogo o un insieme di prompt:
+- `runtime/scheduler.py` costruisce un grafo di dipendenze tra passaggi, valida riferimenti e cicli e può eseguire passaggi indipendenti in parallelo;
+- `runtime/execution_engine.py` coordina caricamento della skill, pianificazione, risoluzione ingressi, esecuzione capacità e skill annidate, applicazione delle uscite e validazione finale;
+- `runtime/policy_engine.py` espone un'interfaccia sostituibile per controlli prima e dopo l'esecuzione, inclusi livello di fiducia richiesto, conferma umana e gate obbligatori;
+- `runtime/checkpoint.py` serializza e ripristina lo stato di esecuzione;
+- esistono test dedicati a pianificazione funzionale e stress, sicurezza, checkpoint, durata, stato, archiviazione delle esecuzioni e flusso dei passaggi.
+
+Questi sono elementi di codice e test reali, non soltanto affermazioni del README. Non ho eseguito personalmente la suite ORCA in un ambiente isolato o Windows: l'evidenza di funzionamento resta quella dei rapporti CI consultati.
+
+### Esiti CI aggiornati e causa concreta del controllo cognitivo fallito
+
+Il controllo più recente consultato è:
+- Smoke Verification #401, run `41575541695`, 2026-11-03, commit runtime `d9e3644e8aac6b75f327d973f94e187d2e8f789c`: successo.
+- Governance Continuous Validation #156, run `41550512246`, 2026-11-03, stesso commit: successo.
+- Cognitive Continuous Validation #137, run `41565121801`, 2026-11-03, stesso commit: fallimento.
+
+È stato letto il registro completo del job fallito e scaricato l'artefatto pubblicato. La causa non è un errore generico di GitHub Actions: il test `test_cognitive_capabilities_e2e.py` fallisce perché quattro capacità cognitive non superano i controlli di contratto/risultato:
+- `reasoning.plan.decompose`: il binding invoca `split_problem` senza i parametri obbligatori `problem` e `strategy`; il test fornisce soltanto `macro_stage`;
+- `reasoning.plan.generate`: il binding passa `objective` a `generate_skill_from_prompt`, che non accetta quel parametro;
+- `memory.context.store` e `perception.input.structure`: sono indicate tra le altre due capacità fallite dal riepilogo del test, ma il log pubblicato non contiene il dettaglio dei rispettivi errori.
+
+È emerso anche un difetto nella conservazione dei rapporti: il test dichiara di aver prodotto `artifacts/cognitive_e2e_contract_report.json`, ma il passaggio di caricamento dell'artefatto non include quel file. L'archivio scaricato contiene soltanto il rapporto generale del gate e quello continuo. Quest'ultimo mostra inoltre che `cognitive_quality_scorecard.json` e `cognitive_deprecation_sunset_report.json` sono mancanti e li conteggia come fallimenti. Quindi il fallimento complessivo combina:
+1. un test end-to-end con quattro capacità non conformi;
+2. due rapporti attesi ma mancanti;
+3. perdita del rapporto dettagliato necessario per diagnosticare due delle quattro capacità.
+
+**Valutazione per la nostra libreria:** ORCA dimostra un'architettura concreta di composizione/esecuzione, ma i suoi controlli cognitivi non sono tutti verdi. Non è accettabile adottare ORCA come coordinatore già verificato senza risolvere o isolare questi difetti e senza una prova indipendente sulla nostra matrice di requisiti.
+
+### Cautele architetturali
+
+Il motore usa un livello di fiducia richiesto e controlli di conferma/gate. Questo va mappato con attenzione al nostro modello: il livello di fiducia non può sostituire l'autorizzazione concreta, l'approvazione umana registrata e la decisione di Gate basata su criteri. La politica esterna può essere configurata in modalità `off`, `shadow` o `enforce`; il comportamento predefinito osservato nel codice non deve essere assunto come la politica di sicurezza definitiva della nostra libreria.
+
+### Decisione aggiornata su ORCA
+
+- **Riutilizzabile come riferimento tecnico:** grafo di dipendenze, scheduler, contratti di capacità, adattatori di esecuzione, checkpoint, tracciamento e test di sicurezza/durata.
+- **Non adottare senza adattamento:** modello di autorizzazione, livello di fiducia, modalità di errore della politica esterna, stato di maturità delle capacità cognitive.
+- **Non dichiarare verificato:** l'intero runtime, tutte le 184 capacità, compatibilità Windows nel nostro ambiente o idoneità come coordinatore universale.
+- **Prossima prova necessaria:** recuperare il rapporto end-to-end mancante o riprodurre i quattro casi, correggere i contratti dei binding e ripetere i gate sullo stesso commit/versione prima di valutare l'adozione.
