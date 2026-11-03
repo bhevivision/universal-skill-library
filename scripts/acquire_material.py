@@ -104,6 +104,10 @@ def _inspect_source(path):
     entries = _bounded_entries(Path(path))
     files = [item for item in entries if item[1] == "file"]
     total_bytes = sum(item[2].st_size for item in files)
+    if len(files) > MAX_ACQUISITION_FILES:
+        raise ValueError("Il materiale supera il numero massimo di file acquisibili.")
+    if total_bytes > MAX_ACQUISITION_BYTES:
+        raise ValueError("Il materiale supera il limite massimo di byte acquisibili.")
     return len(files), total_bytes
 
 
