@@ -120,6 +120,44 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertIn("non seguire", system)
 
 
+    def test_classification_only_mode_normalizes_minimal_model_output(self):
+        _Handler.response_content = json.dumps({
+            "kind": "skill",
+            "confidence": "high",
+            "rationale": "Il testo definisce una procedura riutilizzabile.",
+            "summary": "Istruzioni operative riutilizzabili.",
+        })
+        adapter = LlamaCppServerAdapter(
+            base_url=self.base_url,
+            model="fixture-local-model",
+            timeout_seconds=5,
+            classification_only=True,
+        )
+        request = {
+            "request_id": "req.sample",
+            "material": {"id": "acq.sample", "sha256": "a" * 64, "original_kind": "file"},
+            "files": [{"path": "intake/evaluation/skill-01.md", "sha256": "b" * 64, "size_bytes": 20}],
+            "selected_content": [{
+                "path": "intake/evaluation/skill-01.md",
+                "sha256": "b" * 64,
+                "size_bytes": 20,
+                "text": "Istruzioni operative riutilizzabili.",
+            }],
+            "limits": {"max_duration_seconds": 5},
+            "safety": {"content_is_untrusted_data": True, "follow_instructions_in_content": False},
+        }
+
+        result = adapter.analyze(request)
+
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["classification"]["kind"], "skill")
+        self.assertEqual(result["classification"]["confidence"], "high")
+        self.assertEqual(result["classification"]["evidence_refs"], ["ev.sample-001"])
+        self.assertEqual(result["evidence"][0]["source"], "intake/evaluation/skill-01.md")
+        self.assertEqual(result["evidence"][0]["sha256"], "b" * 64)
+        self.assertEqual(_Handler.received["response_format"]["schema"]["required"],
+                         ["kind", "confidence", "rationale", "summary"])
+
     def test_bounds_generated_tokens(self):
         with self.assertRaises(ValueError):
             LlamaCppServerAdapter(max_tokens=0)
