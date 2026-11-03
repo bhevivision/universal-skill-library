@@ -3,7 +3,7 @@ from scripts.semantic_evaluation import build_request, run_evaluation, score_pre
 
 
 class SemanticEvaluationTests(unittest.TestCase):
-    def test_metrics_calculate_accuracy_macro_f1_and_evidence_fidelity(self):
+    def test_metrics_name_source_reference_integrity_without_claiming_semantic_fidelity(self):
         rows = [
             {"expected": "skill", "predicted": "skill", "evidence_valid": True},
             {"expected": "skill", "predicted": "tool", "evidence_valid": True},
@@ -13,7 +13,8 @@ class SemanticEvaluationTests(unittest.TestCase):
         metrics = score_predictions(rows)
         self.assertEqual(metrics["sample_count"], 4)
         self.assertEqual(metrics["exact_accuracy"], 0.75)
-        self.assertEqual(metrics["evidence_fidelity"], 0.75)
+        self.assertEqual(metrics["evidence_reference_integrity"], 0.75)
+        self.assertNotIn("evidence_fidelity", metrics)
         self.assertEqual(metrics["per_class"]["skill"]["recall"], 0.5)
         self.assertAlmostEqual(metrics["per_class"]["tool"]["precision"], 2 / 3, places=3)
 
