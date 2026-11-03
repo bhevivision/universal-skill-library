@@ -167,9 +167,10 @@ class ClassificationApprovalTests(unittest.TestCase):
         calls = {"count": 0}
 
         def change_before_final_check(path):
-            calls["count"] += 1
-            if calls["count"] == 2:
-                path.write_text(path.read_text(encoding="utf-8") + " ", encoding="utf-8")
+            if path.name == "class.example.json":
+                calls["count"] += 1
+                if calls["count"] == 2:
+                    path.write_text(path.read_text(encoding="utf-8") + " ", encoding="utf-8")
             return original_reader(path)
 
         with patch("scripts.classification_approval._read_proposal_snapshot", side_effect=change_before_final_check):
