@@ -126,6 +126,7 @@ class LlamaCppAdapterTests(unittest.TestCase):
             "confidence": "high",
             "rationale": "Il testo definisce una procedura riutilizzabile.",
             "summary": "Istruzioni operative riutilizzabili.",
+            "evidence_quotes": [{"source": "intake/evaluation/skill-01.md", "quote": "Istruzioni operative riutilizzabili."}],
         })
         adapter = LlamaCppServerAdapter(
             base_url=self.base_url,
@@ -153,10 +154,11 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertEqual(result["classification"]["kind"], "skill")
         self.assertEqual(result["classification"]["confidence"], "high")
         self.assertEqual(result["classification"]["evidence_refs"], ["ev.sample-001"])
+        self.assertEqual(result["classification"]["evidence_quotes"][0]["quote"], "Istruzioni operative riutilizzabili.")
         self.assertEqual(result["evidence"][0]["source"], "intake/evaluation/skill-01.md")
         self.assertEqual(result["evidence"][0]["sha256"], "b" * 64)
         self.assertEqual(_Handler.received["response_format"]["schema"]["required"],
-                         ["kind", "confidence", "rationale", "summary"])
+                         ["kind", "confidence", "rationale", "summary", "evidence_quotes"])
 
     def test_accepts_json_fenced_response_with_surrounding_text(self):
         _Handler.response_content = 'Risultato modello:\\n```json\\n' + json.dumps({
