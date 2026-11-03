@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import socket
+import stat
 import sys
 import tarfile
 import tempfile
@@ -27,6 +28,7 @@ LOCK_NAME = ".materials-acquisition.lock"
 MAX_ACQUISITION_FILES = 10000
 MAX_ACQUISITION_BYTES = 1073741824
 MAX_ACQUISITION_DEPTH = 64
+MAX_ACQUISITION_ENTRIES = 10000
 
 
 class DuplicateMaterialError(ValueError):
@@ -44,38 +46,142 @@ def _validate_id(material_id):
         raise ValueError("Identificativo non valido: usare lettere minuscole, numeri, punti o trattini.")
 
 
-def _inspect_source(path):
-    """Controlla la sorgente senza seguire collegamenti e con risorse limitate."""
+def _bounded_entries(path):
+    """Elenca un albero entro limiti rigidi di elementi e profondità."""
     path = Path(path)
     if path.is_symlink():
-        raise ValueError("Il materiale sorgente non può essere un collegamento simbolico.")
+        raise ValueError(f"Collegamento simbolico non ammesso: {path}")
     if path.is_file():
-        size = path.stat().st_size
-        if size > MAX_ACQUISITION_BYTES:
-            raise ValueError("Il materiale supera il limite massimo di byte acquisibili.")
-        return 1, size
-    files = 0
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode):
+            raise ValueError(f"Elemento non regolare non ammesso: {path}")
+        return [(path, "file", info)]
+    if not path.is_dir():
+        raise ValueError(f"Sorgente non regolare non ammessa: {path}")
+
+    entries = []
+    pending = [(path, 0)]
+    file_count = 0
     total_bytes = 0
-    for current, directories, filenames in os.walk(path, followlinks=False):
-        current_path = Path(current)
-        if len(current_path.relative_to(path).parts) > MAX_ACQUISITION_DEPTH:
-            raise ValueError("Il materiale supera la profondità massima consentita.")
-        for name in list(directories):
-            child = current_path / name
-            if child.is_symlink():
+    while pending:
+        current, depth = pending.pop()
+        children = []
+        with os.scandir(current) as iterator:
+            for entry in iterator:
+                children.append(entry)
+                if len(entries) + len(children) > MAX_ACQUISITION_ENTRIES:
+                    raise ValueError("Il materiale supera il numero massimo di elementi acquisibili.")
+        children.sort(key=lambda item: item.name)
+        subdirectories = []
+        for entry in children:
+            child = Path(entry.path)
+            info = entry.stat(follow_symlinks=False)
+            if stat.S_ISLNK(info.st_mode):
                 raise ValueError(f"Collegamento simbolico non ammesso: {child}")
-        for name in filenames:
-            child = current_path / name
-            info = child.lstat()
-            if child.is_symlink() or not child.is_file():
+            if stat.S_ISDIR(info.st_mode):
+                if depth + 1 > MAX_ACQUISITION_DEPTH:
+                    raise ValueError("Il materiale supera la profondità massima consentita.")
+                entries.append((child, "directory", info))
+                subdirectories.append((child, depth + 1))
+            elif stat.S_ISREG(info.st_mode):
+                file_count += 1
+                total_bytes += info.st_size
+                if file_count > MAX_ACQUISITION_FILES:
+                    raise ValueError("Il materiale supera il numero massimo di file acquisibili.")
+                if total_bytes > MAX_ACQUISITION_BYTES:
+                    raise ValueError("Il materiale supera il limite massimo di byte acquisibili.")
+                entries.append((child, "file", info))
+            else:
                 raise ValueError(f"Elemento non regolare non ammesso: {child}")
-            files += 1
-            total_bytes += info.st_size
-            if files > MAX_ACQUISITION_FILES:
-                raise ValueError("Il materiale supera il numero massimo di file acquisibili.")
-            if total_bytes > MAX_ACQUISITION_BYTES:
-                raise ValueError("Il materiale supera il limite massimo di byte acquisibili.")
-    return files, total_bytes
+            if len(entries) > MAX_ACQUISITION_ENTRIES:
+                raise ValueError("Il materiale supera il numero massimo di elementi acquisibili.")
+        pending.extend(reversed(subdirectories))
+    return sorted(entries, key=lambda item: item[0].relative_to(path).as_posix())
+
+
+def _inspect_source(path):
+    """Controlla la sorgente senza seguire collegamenti e con risorse limitate."""
+    entries = _bounded_entries(Path(path))
+    files = [item for item in entries if item[1] == "file"]
+    total_bytes = sum(item[2].st_size for item in files)
+    return len(files), total_bytes
+
+
+def _copy_file_bounded(source, destination, counters):
+    """Copia un file regolare limitando i byte effettivamente letti, anche se cresce."""
+    source = Path(source)
+    destination = Path(destination)
+    before = source.lstat()
+    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+        raise ValueError(f"Elemento non regolare non ammesso: {source}")
+    if counters["files"] + 1 > MAX_ACQUISITION_FILES:
+        raise ValueError("Il materiale supera il numero massimo di file acquisibili.")
+    remaining_budget = MAX_ACQUISITION_BYTES - counters["bytes"]
+    if before.st_size > remaining_budget:
+        raise ValueError("Il materiale supera il limite massimo di byte acquisibili.")
+
+    flags = os.O_RDONLY
+    if hasattr(os, "O_BINARY"):
+        flags |= os.O_BINARY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(source, flags)
+    copied = 0
+    try:
+        opened = os.fstat(descriptor)
+        identity = (before.st_dev, before.st_ino)
+        if not stat.S_ISREG(opened.st_mode) or (opened.st_dev, opened.st_ino) != identity:
+            raise ValueError("Il file sorgente è cambiato durante l'apertura.")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with destination.open("xb") as output:
+            while True:
+                allowance = min(1024 * 1024, remaining_budget - copied + 1)
+                chunk = os.read(descriptor, allowance)
+                if not chunk:
+                    break
+                copied += len(chunk)
+                if copied > remaining_budget:
+                    raise ValueError("Il materiale supera il limite massimo di byte acquisibili durante la copia.")
+                output.write(chunk)
+            output.flush()
+            os.fsync(output.fileno())
+        after_fd = os.fstat(descriptor)
+        after_path = source.lstat()
+        if (after_fd.st_dev, after_fd.st_ino) != identity:
+            raise ValueError("Il file sorgente è cambiato durante la copia.")
+        if (after_path.st_dev, after_path.st_ino) != identity or stat.S_ISLNK(after_path.st_mode):
+            raise ValueError("Il percorso sorgente è stato sostituito durante la copia.")
+        if after_fd.st_size != copied or before.st_size != copied:
+            raise ValueError("La dimensione del file sorgente è cambiata durante la copia.")
+        os.chmod(destination, stat.S_IMODE(before.st_mode))
+        os.utime(destination, ns=(before.st_atime_ns, before.st_mtime_ns))
+    except Exception:
+        destination.unlink(missing_ok=True)
+        raise
+    finally:
+        os.close(descriptor)
+    counters["files"] += 1
+    counters["bytes"] += copied
+
+
+def _copy_directory_bounded(source, destination):
+    """Copia un albero con limiti applicati durante la lettura effettiva."""
+    source = Path(source)
+    destination = Path(destination)
+    entries = _bounded_entries(source)
+    destination.mkdir(parents=True, exist_ok=False)
+    for item, kind, info in sorted(
+        (entry for entry in entries if entry[1] == "directory"),
+        key=lambda entry: (len(entry[0].relative_to(source).parts), entry[0].relative_to(source).as_posix())
+    ):
+        target = destination / item.relative_to(source)
+        target.mkdir(parents=True, exist_ok=True)
+        os.chmod(target, stat.S_IMODE(info.st_mode))
+    counters = {"files": 0, "bytes": 0}
+    for item, kind, _info in entries:
+        if kind == "file":
+            _copy_file_bounded(item, destination / item.relative_to(source), counters)
+    return counters["files"], counters["bytes"]
 
 
 def _digest_file(path):
@@ -88,13 +194,11 @@ def _digest_file(path):
 
 def _digest_directory(path):
     digest = hashlib.sha256()
-    for item in sorted(Path(path).rglob("*"), key=lambda entry: entry.relative_to(path).as_posix()):
-        if item.is_symlink():
-            raise ValueError(f"Collegamento simbolico non ammesso: {item}")
+    for item, kind, _info in _bounded_entries(Path(path)):
         relative = item.relative_to(path).as_posix().encode("utf-8")
-        if item.is_dir():
+        if kind == "directory":
             digest.update(b"D\0" + relative + b"\0")
-        elif item.is_file():
+        else:
             digest.update(b"F\0" + relative + b"\0")
             with item.open("rb") as stream:
                 for chunk in iter(lambda: stream.read(1024 * 1024), b""):
@@ -105,10 +209,8 @@ def _digest_directory(path):
 
 def _digest_directory_legacy(path):
     digest = hashlib.sha256()
-    for item in sorted(Path(path).rglob("*")):
-        if item.is_symlink():
-            raise ValueError(f"Collegamento simbolico non ammesso: {item}")
-        if item.is_file():
+    for item, kind, _info in _bounded_entries(Path(path)):
+        if kind == "file":
             digest.update(item.relative_to(path).as_posix().encode("utf-8"))
             digest.update(b"\0")
             with item.open("rb") as stream:
@@ -119,7 +221,7 @@ def _digest_directory_legacy(path):
 
 
 def _directory_size(path):
-    return sum(item.stat().st_size for item in Path(path).rglob("*") if item.is_file())
+    return sum(info.st_size for _item, kind, info in _bounded_entries(Path(path)) if kind == "file")
 
 
 def _infer_kind(source):
@@ -448,14 +550,16 @@ def acquire_material(root, source, material_id, *, name=None, description=None,
         stage = Path(tempfile.mkdtemp(prefix=f".staging-{folder_name}-", dir=intake))
         staged_source = stage / "source"
         if source_path.is_dir():
-            shutil.copytree(source_path, staged_source, copy_function=shutil.copy2)
-            digest, byte_size = _digest_directory(staged_source), _directory_size(staged_source)
+            copied_files, byte_size = _copy_directory_bounded(source_path, staged_source)
+            digest = _digest_directory(staged_source)
             stored_path = f"intake/{folder_name}/source"
         else:
             staged_source.mkdir()
             copied_file = staged_source / source_path.name
-            shutil.copy2(source_path, copied_file)
-            digest, byte_size = _digest_file(copied_file), copied_file.stat().st_size
+            counters = {"files": 0, "bytes": 0}
+            _copy_file_bounded(source_path, copied_file, counters)
+            byte_size = counters["bytes"]
+            digest = _digest_file(copied_file)
             stored_path = f"intake/{folder_name}/source/{source_path.name}"
 
         source_digest = _digest_directory(source_path) if source_path.is_dir() else _digest_file(source_path)
