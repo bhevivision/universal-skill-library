@@ -86,5 +86,40 @@
         "files_examined": { "type": "integer", "minimum": 0 }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "material": {
+            "properties": {
+              "original_kind": { "const": "remote_reference" }
+            },
+            "required": ["original_kind"]
+          }
+        },
+        "required": ["material"]
+      },
+      "then": {
+        "properties": {
+          "proposal": {
+            "properties": {
+              "kind": { "const": "unclassified" },
+              "confidence": { "const": "low" }
+            }
+          },
+          "evidence": { "maxItems": 0 },
+          "dependencies": { "maxItems": 0 },
+          "missing_references": { "maxItems": 0 },
+          "unknowns": { "minItems": 1 },
+          "limits": { "minItems": 1 },
+          "analysis": {
+            "properties": {
+              "files_examined": { "const": 0 }
+            }
+          }
+        }
+      }
+    }
+  ]
 }
