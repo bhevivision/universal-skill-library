@@ -127,7 +127,7 @@ def _classification_output_schema() -> dict:
     return {
         "type": "object",
         "additionalProperties": False,
-        "required": ["kind", "confidence", "rationale", "summary"],
+        "required": ["kind", "confidence", "rationale", "summary", "evidence_quotes"],
         "properties": {
             "kind": {
                 "type": "string",
@@ -139,6 +139,7 @@ def _classification_output_schema() -> dict:
             },
             "rationale": {"type": "string", "minLength": 5},
             "summary": {"type": "string", "minLength": 5},
+            "evidence_quotes": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": False, "required": ["source", "quote"], "properties": {"source": {"type": "string", "minLength": 1}, "quote": {"type": "string", "minLength": 1}}}},
         },
     }
 
@@ -257,27 +258,35 @@ class LlamaCppServerAdapter:
         if not isinstance(summary, str) or not summary.strip():
             raise ValueError("La sintesi della classificazione è assente.")
 
-        evidence = []
-        for index, item in enumerate(request.get("selected_content", []), start=1):
-            if not isinstance(item, dict):
-                continue
-            source = item.get("path")
+        selected = {
+            item.get("path"): item
+            for item in request.get("selected_content", [])
+            if isinstance(item, dict) and isinstance(item.get("path"), str)
+        }
+        evidence_by_source = {}
+        normalized_quotes = []
+        for quote_item in result.get("evidence_quotes", []):
+            if not isinstance(quote_item, dict):
+                raise ValueError("Citazione della classificazione malformata.")
+            source = quote_item.get("source")
+            quote = quote_item.get("quote")
+            item = selected.get(source)
+            if item is None or not isinstance(quote, str) or not quote.strip():
+                raise ValueError("La citazione non identifica un file selezionato o contiene testo vuoto.")
             digest = item.get("sha256")
-            if (
-                isinstance(source, str)
-                and source.startswith("intake/")
-                and isinstance(digest, str)
-                and len(digest) == 64
-                and all(char in "0123456789abcdef" for char in digest)
-            ):
-                evidence.append({
-                    "id": f"ev.sample-{index:03d}",
-                    "source": source,
-                    "sha256": digest,
-                    "kind": "text_file",
-                })
-        if not evidence:
-            raise ValueError("La richiesta non contiene prove testuali ammesse per la classificazione.")
+            if not isinstance(digest, str) or len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
+                raise ValueError("Impronta del file selezionato non valida.")
+            if source not in evidence_by_source:
+                evidence_id = f"ev.sample-{len(evidence_by_source) + 1:03d}"
+                evidence_by_source[source] = {
+                    "id": evidence_id, "source": source, "sha256": digest, "kind": "text_file"
+                }
+            normalized_quotes.append({
+                "evidence_ref": evidence_by_source[source]["id"], "quote": quote
+            })
+        evidence = list(evidence_by_source.values())
+        if not evidence or not normalized_quotes:
+            raise ValueError("La classificazione non contiene citazioni testuali verificabili.")
 
         return {
             "status": "partial",
@@ -287,6 +296,7 @@ class LlamaCppServerAdapter:
                 "rationale": rationale.strip(),
                 "summary": summary.strip(),
                 "evidence_refs": [item["id"] for item in evidence],
+                "evidence_quotes": normalized_quotes,
             },
             "capabilities": [],
             "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
