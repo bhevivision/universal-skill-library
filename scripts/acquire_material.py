@@ -189,13 +189,15 @@ def _copy_directory_bounded(source, destination):
     ):
         target = destination / item.relative_to(source)
         target.mkdir(parents=True, exist_ok=True)
-        os.chmod(target, stat.S_IMODE(info.st_mode))
     counters = {"files": 0, "bytes": 0}
     for item, kind, _info in entries:
         if kind == "file":
             _copy_file_bounded(item, destination / item.relative_to(source), counters)
     for item, kind, info in entries:
         if kind == "directory":
+            target = destination / item.relative_to(source)
+            os.chmod(target, stat.S_IMODE(info.st_mode))
+            os.utime(target, ns=(info.st_atime_ns, info.st_mtime_ns))
             after = item.lstat()
             if stat.S_ISLNK(after.st_mode) or _is_reparse_point(after) or not stat.S_ISDIR(after.st_mode):
                 raise ValueError(f"La cartella sorgente è stata sostituita durante la copia: {item}")
