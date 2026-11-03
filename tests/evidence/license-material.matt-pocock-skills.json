@@ -1,8 +1,8 @@
 {
-  "id": "proof.material.matt-pocock-skills.license",
-  "subject": "material.matt-pocock-skills.license",
+  "id": "proof.source.matt-pocock-skills.license",
+  "subject": "material.source.matt-pocock-skills.license",
   "result": "passed",
   "tested_at": "2026-11-03T20:14:05Z",
-  "command": "Inspect license declaration at pinned source revision for material.matt-pocock-skills",
+  "command": "Inspect license declaration at pinned source revision for source.matt-pocock-skills",
   "summary": "Verified the declared MIT license file at the pinned source revision. Obligations summarized in the material record; not a legal opinion."
 }

@@ -2,7 +2,7 @@
   "catalog_version": "1.0",
   "materials": [
     {
-      "id": "material.agent-skills-format",
+      "id": "source.agent-skills-format",
       "name": "Agent Skills — specifica del formato",
       "description": "Specificazione aperta per confezionare skill in cartelle con SKILL.md, metadati YAML e risorse facoltative.",
       "acquisition": {
@@ -67,7 +67,7 @@
       ]
     },
     {
-      "id": "material.unlazy-evidence-control",
+      "id": "source.unlazy-evidence-control",
       "name": "UNLAZY — controllo basato su prove",
       "description": "Metodo di governo e verifica che collega requisiti, criteri, prove, esecuzioni, decisioni e Gate.",
       "acquisition": {
@@ -140,7 +140,7 @@
       ]
     },
     {
-      "id": "material.archivista-document-control",
+      "id": "source.archivista-document-control",
       "name": "Archivista — gestione documentale",
       "description": "Metodo di gestione documentale e storica, originariamente specifico per fascicoli di libri.",
       "acquisition": {
@@ -211,7 +211,7 @@
       ]
     },
     {
-      "id": "material.find-skills-discovery",
+      "id": "source.find-skills-discovery",
       "name": "Find Skills — ricerca di skill",
       "description": "Skill di scoperta e installazione di skill esterne tramite la CLI skills e il catalogo skills.sh.",
       "acquisition": {
@@ -285,7 +285,7 @@
       ]
     },
     {
-      "id": "material.matt-pocock-skills",
+      "id": "source.matt-pocock-skills",
       "name": "Matt Pocock Skills — raccolta di procedure di ingegneria",
       "description": "Raccolta di 27 skill per chiarimento requisiti, progettazione, sviluppo, prove, diagnosi, revisione e scrittura per agenti.",
       "acquisition": {
@@ -355,7 +355,7 @@
       ]
     },
     {
-      "id": "material.orca-runtime",
+      "id": "source.orca-runtime",
       "name": "ORCA — motore di esecuzione Agent Skills",
       "description": "Motore Python che esegue flussi di skill dichiarati in YAML tramite contratti di capacità e binding.",
       "acquisition": {
@@ -431,7 +431,7 @@
       ]
     },
     {
-      "id": "material.orca-registry",
+      "id": "source.orca-registry",
       "name": "ORCA — registro di capacità e skill",
       "description": "Registro dichiarativo di capacità primitive, skill composte, vocabolario e cataloghi JSON generati.",
       "acquisition": {
