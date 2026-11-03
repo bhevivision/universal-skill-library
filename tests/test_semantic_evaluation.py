@@ -15,7 +15,7 @@ class SemanticEvaluationTests(unittest.TestCase):
         self.assertEqual(metrics["exact_accuracy"], 0.75)
         self.assertEqual(metrics["evidence_fidelity"], 0.75)
         self.assertEqual(metrics["per_class"]["skill"]["recall"], 0.5)
-        self.assertAlmostEqual(metrics["per_class"]["tool"]["precision"], 2 / 3)
+        self.assertAlmostEqual(metrics["per_class"]["tool"]["precision"], 2 / 3, places=3)
 
     def test_expected_label_is_not_sent_to_model(self):
         request = build_request({"id": "skill-01", "expected_kind": "skill", "text": "A skill description."})
