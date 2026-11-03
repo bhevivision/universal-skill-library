@@ -111,6 +111,7 @@ class LlamaCppServerAdapter:
         timeout_seconds: int = 120,
         max_response_bytes: int = 2 * 1024 * 1024,
         model_version: str | None = None,
+        max_tokens: int = 4096,
     ):
         if not isinstance(model, str) or not model.strip() or len(model) > 256:
             raise ValueError("Nome del modello locale non valido.")
@@ -122,6 +123,9 @@ class LlamaCppServerAdapter:
         self.model = model.strip()
         self.timeout_seconds = timeout_seconds
         self.max_response_bytes = max_response_bytes
+        if isinstance(max_tokens, bool) or not isinstance(max_tokens, int) or not 1 <= max_tokens <= 4096:
+            raise ValueError("Il limite di generazione deve essere compreso tra 1 e 4096 token.")
+        self.max_tokens = max_tokens
         self.model_version = model_version
 
     def analyze(self, request: dict) -> dict:
