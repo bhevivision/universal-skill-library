@@ -223,7 +223,7 @@ def main() -> int:
         model="Qwen2.5-3B-Instruct-GGUF-Q4_K_M",
         timeout_seconds=120,
         max_response_bytes=2 * 1024 * 1024,
-        max_tokens=1024,
+        max_tokens=2048,
         classification_only=False,
     )
     report = run_extraction_evaluation(adapter, dataset, work_root=Path(os.environ.get("TMPDIR", "/tmp")))
@@ -237,7 +237,7 @@ def main() -> int:
         "dataset_sha256": hashlib.sha256(args.dataset.read_bytes()).hexdigest(),
         "runtime_limits": {
             "context_tokens": 4096,
-            "max_generated_tokens": 1024,
+            "max_generated_tokens": 2048,
             "request_timeout_seconds": 120,
         },
         "evaluation_note": "Valutazione esplorativa dell'estrazione semantica completa; le etichette e i fatti attesi restano nel valutatore e non vengono inviati al modello.",
