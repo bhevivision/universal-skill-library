@@ -300,3 +300,50 @@ class FullSemanticPromptRegressionTests(unittest.TestCase):
             self.assertIn(field, SYSTEM_PROMPT)
         self.assertIn("ev.sample-001", SYSTEM_PROMPT)
         self.assertIn("non inventare", SYSTEM_PROMPT.lower())
+
+
+class FullSemanticNormalizationRegressionTests(unittest.TestCase):
+    def _request(self):
+        return {
+            "files": [{"path": "intake/acq-full/SKILL.md", "sha256": "b" * 64}],
+            "selected_content": [{
+                "path": "intake/acq-full/SKILL.md", "sha256": "b" * 64,
+                "text": "La procedura invia richieste HTTP a servizi esterni.",
+            }],
+        }
+
+    def _complete_result(self):
+        return {
+            "status": "completed",
+            "classification": {
+                "kind": "skill", "confidence": "high",
+                "rationale": "Descrive una procedura.",
+                "summary": "Procedura riutilizzabile.",
+                "evidence_refs": ["ev.sample-001"],
+            },
+            "capabilities": [{
+                "id": "cap.http", "name": "Richieste HTTP",
+                "description": "Invia richieste HTTP.",
+                "certainty": "declared", "evidence_refs": ["ev.sample-001"],
+            }],
+            "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms: [],
+            "evidence": [], "missing_references": [], "contradictions": [],
+            "risks": [{
+                "description": "Le richieste HTTP raggiungono servizi esterni e possono esporre dati.",
+                "certainty": "inferred", "evidence_refs": ["ev.sample-001"],
+            }],
+            "unknowns": [], "limits": [],
+        }
+
+    def test_preserves_network_exposure_risk_supported_by_source(self):
+        from scripts.llama_cpp_adapter import _normalize_full_semantic_result
+        result = _normalize_full_semantic_result(self._complete_result(), self._request())
+        self.assertEqual(len(result["risks"]), 1)
+        self.assertIn("servizi esterni", result["risks"][0]["description"])
+
+    def test_marks_fully_populated_extraction_completed_instead_of_forcing_partial(self):
+        from scripts.llama_cpp_adapter import _normalize_full_semantic_result
+        result = _normalize_full_semantic_result(self._complete_result(), self._request())
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["limits"], [])
