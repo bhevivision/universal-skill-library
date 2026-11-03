@@ -70,6 +70,11 @@ class ClassificationApprovalTests(unittest.TestCase):
         self.assertEqual(classification["confidence"], "medium")
         self.assertEqual(classification["decisions"][0]["decision"], "approved")
         self.assertEqual(result["decision"], "approved")
+        expected_proposal_digest = hashlib.sha256(
+            (self.root / "proposals/class.example.json").read_bytes()
+        ).hexdigest()
+        self.assertEqual(result["proposal_sha256"], expected_proposal_digest)
+        self.assertEqual(classification["decisions"][0]["proposal_sha256"], expected_proposal_digest)
         self.assertEqual((self.root / "catalog/skills.json").read_bytes(), skills_before)
         self.assertEqual(self.original.read_bytes(), original_before)
 
