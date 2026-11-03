@@ -46,7 +46,8 @@ def consume_sse(lines, on_chunk, on_event=None):
             event = json.loads(data)
         except json.JSONDecodeError:
             continue
-        if on_event is not None:\n            on_event(event)\n        choices = event.get("choices") or []
+        if on_event is not None:
+            on_event(event)\n        choices = event.get("choices") or []
         if choices:
             delta = choices[0].get("delta") or {}
             fragment = delta.get("content")
@@ -147,7 +148,15 @@ class StreamingDiagnosticAdapter:
             method="POST",
         )
 
-        def observe_event(event):\n            usage = event.get("usage")\n            if isinstance(usage, dict):\n                value = usage.get("completion_tokens")\n                if isinstance(value, int) and value >= 0:\n                    metrics["completion_tokens"] = value\n            choices = event.get("choices") or []\n            if choices and choices[0].get("finish_reason") is not None:\n                metrics["finish_reason"] = choices[0].get("finish_reason")\n\n        def save_fragment(fragment):
+        def observe_event(event):
+            usage = event.get("usage")
+            if isinstance(usage, dict):
+                value = usage.get("completion_tokens")
+                if isinstance(value, int) and value >= 0:
+                    metrics["completion_tokens"] = value
+            choices = event.get("choices") or []
+            if choices and choices[0].get("finish_reason") is not None:
+                metrics["finish_reason"] = choices[0].get("finish_reason")\n\n        def save_fragment(fragment):
             now = time.monotonic()
             if first_text[0] is None:
                 first_text[0] = now
