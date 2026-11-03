@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 import stat
+from os import close as _close_fd, open as _open_fd, read as _read_fd
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlparse
 
@@ -17,6 +18,8 @@ from urllib.parse import urlparse
 SCHEMA_VERSION = "1.0"
 DEFAULT_ALLOWED_STATES = ("preserved",)
 CHUNK_SIZE = 1024 * 1024
+MAX_TREE_ENTRIES = 10000
+MAX_TREE_DEPTH = 64
 
 
 class MaterialIntegrityError(ValueError):
@@ -35,25 +38,30 @@ def _check(name: str, status: str, detail: str) -> dict:
     return {"name": name, "status": status, "detail": detail}
 
 
+def _is_reparse_point(info) -> bool:
+    flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return bool(getattr(info, "st_file_attributes", 0) & flag)
+
+
 def _update_digest_from_file(digest, path: Path) -> None:
     """Aggiorna un'impronta leggendo da un descrittore stabile."""
     before = path.lstat()
-    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+    if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISREG(before.st_mode):
         raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Il percorso non identifica un file regolare.")
     flags = os.O_RDONLY
     if hasattr(os, "O_BINARY"):
         flags |= os.O_BINARY
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
-    descriptor = os.open(path, flags)
+    descriptor = _open_fd(path, flags)
     try:
         opened = os.fstat(descriptor)
         identity = (before.st_dev, before.st_ino)
         opened_identity = (opened.st_dev, opened.st_ino)
-        if not stat.S_ISREG(opened.st_mode) or identity != opened_identity:
+        if not stat.S_ISREG(opened.st_mode) or _is_reparse_point(opened) or identity != opened_identity:
             raise MaterialIntegrityError("PATH_CHANGED_DURING_READ", "Il file è cambiato durante l'apertura.")
         while True:
-            chunk = os.read(descriptor, CHUNK_SIZE)
+            chunk = _read_fd(descriptor, CHUNK_SIZE)
             if not chunk:
                 break
             digest.update(chunk)
@@ -61,10 +69,10 @@ def _update_digest_from_file(digest, path: Path) -> None:
         after_path = path.lstat()
         if (after_fd.st_dev, after_fd.st_ino) != opened_identity:
             raise MaterialIntegrityError("FILE_CHANGED_DURING_READ", "Il file è cambiato durante la lettura.")
-        if (after_path.st_dev, after_path.st_ino) != opened_identity or stat.S_ISLNK(after_path.st_mode):
+        if (after_path.st_dev, after_path.st_ino) != opened_identity or stat.S_ISLNK(after_path.st_mode) or _is_reparse_point(after_path):
             raise MaterialIntegrityError("PATH_CHANGED_DURING_READ", "Il percorso è stato sostituito durante la lettura.")
     finally:
-        os.close(descriptor)
+        _close_fd(descriptor)
 
 
 def _sha256_file(path: Path) -> str:
@@ -73,20 +81,79 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _bounded_tree_entries(path: Path):
+    """Restituisce al massimo MAX_TREE_ENTRIES voci senza seguire collegamenti."""
+    root_info = path.lstat()
+    if stat.S_ISLNK(root_info.st_mode) or _is_reparse_point(root_info) or not stat.S_ISDIR(root_info.st_mode):
+        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "La radice dell'albero non è una cartella sicura.")
+    entries = []
+    pending = [(path, 0, root_info)]
+    while pending:
+        current, depth, expected_info = pending.pop()
+        before = current.lstat()
+        if stat.S_ISLNK(before.st_mode) or _is_reparse_point(before) or not stat.S_ISDIR(before.st_mode):
+            raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "Una cartella dell'albero non è sicura.")
+        if os.name != "nt" and (before.st_dev, before.st_ino) != (expected_info.st_dev, expected_info.st_ino):
+            raise MaterialIntegrityError("TREE_CHANGED_DURING_CHECK", "Una cartella è stata sostituita durante il controllo.")
+        if os.name == "nt" and (
+            before.st_mtime_ns != expected_info.st_mtime_ns or before.st_ctime_ns != expected_info.st_ctime_ns
+        ):
+            raise MaterialIntegrityError("TREE_CHANGED_DURING_CHECK", "Una cartella è cambiata durante il controllo.")
+        children = []
+        with os.scandir(current) as iterator:
+            for entry in iterator:
+                children.append(entry)
+                if len(entries) + len(children) > MAX_TREE_ENTRIES:
+                    raise MaterialIntegrityError(
+                        "TREE_LIMIT_EXCEEDED", "Numero massimo di elementi dell'albero superato."
+                    )
+        after = current.lstat()
+        if stat.S_ISLNK(after.st_mode) or _is_reparse_point(after) or not stat.S_ISDIR(after.st_mode):
+            raise MaterialIntegrityError("TREE_CHANGED_DURING_CHECK", "Una cartella è cambiata durante il controllo.")
+        if os.name != "nt" and (after.st_dev, after.st_ino) != (before.st_dev, before.st_ino):
+            raise MaterialIntegrityError("TREE_CHANGED_DURING_CHECK", "Una cartella è stata sostituita durante il controllo.")
+        if os.name == "nt" and (
+            after.st_mtime_ns != before.st_mtime_ns or after.st_ctime_ns != before.st_ctime_ns
+        ):
+            raise MaterialIntegrityError("TREE_CHANGED_DURING_CHECK", "Una cartella è cambiata durante il controllo.")
+        children.sort(key=lambda item: item.name)
+        subdirectories = []
+        for entry in children:
+            child = Path(entry.path)
+            info = entry.stat(follow_symlinks=False)
+            if stat.S_ISLNK(info.st_mode) or _is_reparse_point(info):
+                raise MaterialIntegrityError(
+                    "SYMLINK_NOT_ALLOWED", f"Collegamento simbolico non ammesso nel materiale: {child}"
+                )
+            if stat.S_ISDIR(info.st_mode):
+                if depth + 1 > MAX_TREE_DEPTH:
+                    raise MaterialIntegrityError(
+                        "TREE_LIMIT_EXCEEDED", "Profondità massima dell'albero superata."
+                    )
+                entries.append((child, "directory"))
+                subdirectories.append((child, depth + 1, info))
+            elif stat.S_ISREG(info.st_mode):
+                entries.append((child, "file"))
+            else:
+                raise MaterialIntegrityError(
+                    "NON_REGULAR_ENTRY", f"Elemento non regolare nel materiale: {child}"
+                )
+            if len(entries) > MAX_TREE_ENTRIES:
+                raise MaterialIntegrityError(
+                    "TREE_LIMIT_EXCEEDED", "Numero massimo di elementi dell'albero superato."
+                )
+        pending.extend(reversed(subdirectories))
+    return sorted(entries, key=lambda item: item[0].relative_to(path).as_posix())
+
+
 def _sha256_tree(path: Path, *, legacy: bool = False) -> str:
     """Replica sha256-tree-v2 e la precedente impronta directory senza versione."""
     digest = hashlib.sha256()
-    entries = sorted(path.rglob("*"), key=lambda item: item.relative_to(path).as_posix())
-    for item in entries:
-        if item.is_symlink():
-            raise MaterialIntegrityError(
-                "SYMLINK_NOT_ALLOWED",
-                f"Collegamento simbolico non ammesso nel materiale: {item}",
-            )
+    for item, kind in _bounded_tree_entries(path):
         relative = item.relative_to(path).as_posix().encode("utf-8")
-        if item.is_dir() and not legacy:
+        if kind == "directory" and not legacy:
             digest.update(b"D\0" + relative + b"\0")
-        elif item.is_file():
+        elif kind == "file":
             if legacy:
                 digest.update(relative + b"\0")
             else:
@@ -99,9 +166,17 @@ def _sha256_tree(path: Path, *, legacy: bool = False) -> str:
 def _safe_catalog_path(root: Path) -> Path:
     catalog_dir = root / "catalog"
     catalog_path = catalog_dir / "materials.json"
-    if catalog_dir.is_symlink() or catalog_path.is_symlink():
+    try:
+        directory_info = catalog_dir.lstat()
+        file_info = catalog_path.lstat()
+    except OSError as exc:
+        raise MaterialIntegrityError("CATALOG_UNREADABLE", "Il catalogo materiali non è disponibile.") from exc
+    if (
+        stat.S_ISLNK(directory_info.st_mode) or _is_reparse_point(directory_info)
+        or stat.S_ISLNK(file_info.st_mode) or _is_reparse_point(file_info)
+    ):
         raise MaterialIntegrityError(
-            "SYMLINK_NOT_ALLOWED", "Il percorso del catalogo contiene un collegamento simbolico."
+            "SYMLINK_NOT_ALLOWED", "Il percorso del catalogo contiene un collegamento o punto di reindirizzamento."
         )
     if not catalog_path.is_file():
         raise MaterialIntegrityError(
@@ -194,15 +269,20 @@ def _safe_original_path(root: Path, original: dict) -> Path:
         )
 
     intake_root = root / "intake"
-    if intake_root.is_symlink():
-        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "La cartella intake non può essere un collegamento simbolico.")
+    try:
+        intake_info = intake_root.lstat()
+    except OSError as exc:
+        raise MaterialIntegrityError("ORIGINAL_NOT_FOUND", "La cartella intake non è disponibile.") from exc
+    if stat.S_ISLNK(intake_info.st_mode) or _is_reparse_point(intake_info):
+        raise MaterialIntegrityError("SYMLINK_NOT_ALLOWED", "La cartella intake non può essere un collegamento o punto di reindirizzamento.")
     candidate = root.joinpath(*pure.parts)
     current = root
     for part in pure.parts:
         current = current / part
-        if current.is_symlink():
+        current_info = current.lstat()
+        if stat.S_ISLNK(current_info.st_mode) or _is_reparse_point(current_info):
             raise MaterialIntegrityError(
-                "SYMLINK_NOT_ALLOWED", f"Collegamento simbolico nel percorso dell'originale: {relative_value}"
+                "SYMLINK_NOT_ALLOWED", f"Collegamento o punto di reindirizzamento nel percorso dell'originale: {relative_value}"
             )
     try:
         resolved = candidate.resolve(strict=True)
@@ -381,7 +461,7 @@ def verify_material(
             "INVALID_ACQUISITION_STATE", "INVALID_ORIGINAL_PATH", "PATH_OUTSIDE_INTAKE",
             "SYMLINK_NOT_ALLOWED", "ORIGINAL_NOT_FOUND", "DIGEST_MISMATCH",
             "EXPECTED_DIGEST_MISMATCH", "CATALOG_CHANGED_DURING_CHECK",
-            "DIGEST_CHANGED_DURING_CHECK",
+            "DIGEST_CHANGED_DURING_CHECK", "TREE_LIMIT_EXCEEDED", "TREE_CHANGED_DURING_CHECK",
         } else "failed"
         return result
     except (OSError, UnicodeError, RuntimeError) as exc:

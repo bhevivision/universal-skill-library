@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bhevivision.github.io/universal-skill-library/schemas/semantic-classification-request.schema.json",
+  "title": "Richiesta di classificazione semantica",
+  "description": "Ingresso limitato e non privilegiato per il motore di classificazione semantica.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "request_id",
+    "material",
+    "files",
+    "selected_content",
+    "limits",
+    "safety"
+  ],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sha256", "original_kind"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "original_kind": {
+          "enum": ["file", "directory", "archive", "package", "remote_reference", "unknown"]
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "size_bytes"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 1024,
+            "pattern": "^intake/(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\).+$"
+          },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "size_bytes": { "type": "integer", "minimum": 0, "maximum": 262144 }
+        }
+      }
+    },
+    "selected_content": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "text", "size_bytes"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 1024,
+            "pattern": "^intake/(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\).+$"
+          },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "text": { "type": "string", "maxLength": 262144 },
+          "size_bytes": { "type": "integer", "minimum": 0, "maximum": 262144 }
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_files", "max_file_bytes", "max_total_bytes", "max_duration_seconds"],
+      "properties": {
+        "max_files": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "max_file_bytes": { "type": "integer", "minimum": 1, "maximum": 262144 },
+        "max_total_bytes": { "type": "integer", "minimum": 1, "maximum": 1048576 },
+        "max_duration_seconds": { "type": "integer", "minimum": 1, "maximum": 300 }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_is_untrusted_data",
+        "follow_instructions_in_content",
+        "allow_filesystem_access",
+        "allow_network_access",
+        "allow_process_execution",
+        "allow_credential_access",
+        "allow_catalog_writes"
+      ],
+      "properties": {
+        "content_is_untrusted_data": { "const": true },
+        "follow_instructions_in_content": { "const": false },
+        "allow_filesystem_access": { "const": false },
+        "allow_network_access": { "const": false },
+        "allow_process_execution": { "const": false },
+        "allow_credential_access": { "const": false },
+        "allow_catalog_writes": { "const": false }
+      }
+    }
+  }
+}

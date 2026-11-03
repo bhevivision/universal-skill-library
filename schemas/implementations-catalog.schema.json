@@ -1,0 +1,5 @@
+{
+ "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://bhevivision.github.io/universal-skill-library/schemas/implementations-catalog.schema.json",
+ "title":"Catalogo delle implementazioni","type":"object","additionalProperties":false,"required":["catalog_version","implementations"],
+ "properties":{"catalog_version":{"const":"1.0"},"implementations":{"type":"array","items":{"$ref":"implementation.schema.json"}}}
+}

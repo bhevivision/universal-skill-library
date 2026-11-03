@@ -1,0 +1,59 @@
+{
+  "note": "Esempi concettuali: gli identificativi skill sono candidati illustrativi, non skill già presenti o verificate.",
+  "cases": [
+    {
+      "request": "Analizza questo PDF e restituisci una sintesi con riferimenti alle pagine.",
+      "capability_id": "document.pdf.analyze",
+      "expected_result": "Sintesi strutturata con riferimenti verificabili alle pagine del documento.",
+      "candidate_skill_ids": [
+        "document.extract-content",
+        "document.verify-citations"
+      ],
+      "implementation_options": [
+        "local-pdf-parser",
+        "agent-with-file-reading"
+      ],
+      "checks": [
+        "Il file sorgente è quello richiesto.",
+        "Le affermazioni principali rimandano a pagine esistenti.",
+        "Le parti illeggibili sono dichiarate."
+      ]
+    },
+    {
+      "request": "Cerca sul web informazioni aggiornate e confronta fonti attendibili.",
+      "capability_id": "research.web",
+      "expected_result": "Rapporto sintetico con fonti, date e distinzione tra fatti e incertezze.",
+      "candidate_skill_ids": [
+        "research.search-web",
+        "research.evaluate-sources"
+      ],
+      "implementation_options": [
+        "browser-search-adapter",
+        "search-api-adapter"
+      ],
+      "checks": [
+        "Le fonti sono state effettivamente consultate.",
+        "Le date corrispondono al periodo richiesto.",
+        "Le affermazioni rilevanti sono citate."
+      ]
+    },
+    {
+      "request": "Apri un'applicazione Windows, modifica un'impostazione e verifica il risultato.",
+      "capability_id": "desktop.windows.operate",
+      "expected_result": "Impostazione modificata nell'applicazione corretta e risultato osservato.",
+      "candidate_skill_ids": [
+        "desktop.inspect-interface",
+        "desktop.change-setting"
+      ],
+      "implementation_options": [
+        "windows-ui-automation",
+        "approved-desktop-control"
+      ],
+      "checks": [
+        "Applicazione e impostazione sono state identificate senza ambiguità.",
+        "L'azione era autorizzata e reversibile oppure approvata.",
+        "Il valore finale è stato riletto e verificato."
+      ]
+    }
+  ]
+}

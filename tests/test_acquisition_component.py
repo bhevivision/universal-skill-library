@@ -69,29 +69,6 @@ class AcquisitionComponentTests(unittest.TestCase):
         self.assertTrue(stored.is_file())
         self.assertEqual(record["acquisition"]["original"]["kind"], "archive")
 
-    def test_rejects_directory_when_file_count_limit_is_exceeded_before_copy(self):
-        from scripts import acquire_material as acquisition
-        source = self.incoming / "many"
-        source.mkdir()
-        for name in ("one.txt", "two.txt", "three.txt"):
-            (source / name).write_text("x", encoding="utf-8")
-        with patch.object(acquisition, "MAX_ACQUISITION_FILES", 2):
-            with self.assertRaisesRegex(ValueError, "numero massimo di file"):
-                acquire_material(self.root, source, "acq.too-many")
-        self.assertEqual(self.materials(), [])
-        self.assertFalse((self.root / "intake/acq-too-many").exists())
-
-    def test_rejects_directory_when_total_byte_limit_is_exceeded_before_copy(self):
-        from scripts import acquire_material as acquisition
-        source = self.incoming / "large"
-        source.mkdir()
-        (source / "payload.txt").write_bytes(b"12345")
-        with patch.object(acquisition, "MAX_ACQUISITION_BYTES", 4):
-            with self.assertRaisesRegex(ValueError, "limite massimo di byte"):
-                acquire_material(self.root, source, "acq.too-large")
-        self.assertEqual(self.materials(), [])
-        self.assertFalse((self.root / "intake/acq-too-large").exists())
-
     def test_rejects_duplicate_identifier_without_overwriting_existing_material(self):
         source = self.incoming / "one.txt"
         source.write_text("uno", encoding="utf-8")
@@ -125,7 +102,7 @@ class AcquisitionComponentTests(unittest.TestCase):
         source = self.incoming / "failure.txt"
         source.write_text("contenuto", encoding="utf-8")
 
-        with patch("scripts.acquire_material.shutil.copy2", side_effect=OSError("copia interrotta")):
+        with patch("scripts.acquire_material._copy_file_bounded", side_effect=OSError("copia interrotta")):
             with self.assertRaises(OSError):
                 acquire_material(self.root, source, "acq.failure")
 
@@ -143,6 +120,38 @@ class AcquisitionComponentTests(unittest.TestCase):
             acquire_material(self.root, source, "acq.collision")
 
         self.assertEqual((destination / "keep.txt").read_text(encoding="utf-8"), "non sovrascrivere")
+
+    def test_streaming_copy_enforces_limits_if_source_grows_after_preinspection(self):
+        from scripts import acquire_material as acquisition
+        source = self.incoming / "growing"
+        source.mkdir()
+        target = source / "material.txt"
+        target.write_bytes(b"small")
+        original_inspect = acquisition._inspect_source
+
+        def inspect_then_grow(path):
+            result = original_inspect(path)
+            target.write_bytes(b"x" * 64)
+            return result
+
+        with patch.object(acquisition, "MAX_ACQUISITION_BYTES", 16), patch.object(
+            acquisition, "_inspect_source", side_effect=inspect_then_grow
+        ):
+            with self.assertRaisesRegex(ValueError, "limite massimo"):
+                acquire_material(self.root, source, "acq.growing")
+
+        self.assertEqual(self.materials(), [])
+        self.assertFalse((self.root / "intake/acq-growing").exists())
+
+    def test_directory_inventory_stops_at_configured_file_limit(self):
+        from scripts import acquire_material as acquisition
+        source = self.incoming / "many"
+        source.mkdir()
+        for name in ("a.txt", "b.txt", "c.txt"):
+            (source / name).write_text(name, encoding="utf-8")
+        with patch("scripts.acquire_material.MAX_ACQUISITION_FILES", 2):
+            with self.assertRaisesRegex(ValueError, "numero massimo"):
+                acquisition._inspect_source(source)
 
     def test_registers_remote_reference_without_claiming_local_copy(self):
         record = acquire_remote_material(

@@ -1,0 +1,5 @@
+{
+ "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://bhevivision.github.io/universal-skill-library/schemas/evidence.schema.json",
+ "title":"Prova di verifica","type":"object","additionalProperties":false,"required":["id","subject","result","tested_at","command","summary"],
+ "properties":{"id":{"type":"string","minLength":1},"subject":{"type":"string","minLength":1},"result":{"enum":["passed","failed","inconclusive"]},"tested_at":{"type":"string","format":"date-time"},"command":{"type":"string","minLength":1},"summary":{"type":"string","minLength":1}}
+}

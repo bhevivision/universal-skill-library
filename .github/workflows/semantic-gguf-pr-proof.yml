@@ -1,0 +1,111 @@
+name: Prova isolata GGUF per richiesta di integrazione
+on:
+  pull_request:
+    branches:
+      - model/structural-model-v1
+    paths:
+      - "scripts/semantic_evaluation.py"
+      - "tests/test_semantic_evaluation.py"
+      - "evaluation/**"
+      - "reports/semantic-evaluation-*.json"
+      - "docs/SEMANTIC-EVALUATION-*.md"
+      - "docs/SEMANTIC-GGUF-*.md"
+      - "docs/GGUF-EVALUATION-*.md"
+  push:
+    branches:
+      - semantic-evaluation-isolation-v1
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-gguf:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download model
+        run: |
+          set -euo pipefail
+          mkdir -p models output
+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 600 "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf" --output models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+          test "$(stat -c%s models/qwen2.5-1.5b-instruct-q4_k_m.gguf)" -gt 900000000
+          sha256sum models/qwen2.5-1.5b-instruct-q4_k_m.gguf | tee model-sha256.txt
+      - name: Build evaluation client
+        run: |
+          docker build -t semantic-evaluation-client -f- /tmp <<'EOF'
+          FROM python:3.12-slim
+          RUN python -m pip install --no-cache-dir jsonschema
+          EOF
+      - name: Pull official llama.cpp server
+        run: docker pull ghcr.io/ggml-org/llama.cpp:server
+      - name: Create isolated network
+        run: docker network create --internal semantic-model-isolated
+      - name: Start model with bounded resources
+        run: |
+          set -euo pipefail
+          docker run -d --name semantic-llama-server --network semantic-model-isolated \
+            --read-only --cap-drop ALL --security-opt no-new-privileges:true \
+            --pids-limit 128 --memory 5g --memory-swap 5g --cpus 2 \
+            --tmpfs /tmp:rw,noexec,nosuid,nodev,size=256m \
+            --mount type=bind,src="$GITHUB_WORKSPACE/models",dst=/models,readonly \
+            ghcr.io/ggml-org/llama.cpp:server \
+            -m /models/qwen2.5-1.5b-instruct-q4_k_m.gguf \
+            --host 127.0.0.1 --port 8080 --ctx-size 4096 \
+            --threads 2 --threads-batch 2 --parallel 1 --n-predict 1024
+          docker inspect semantic-llama-server --format '{{json .HostConfig}}' > docker-security-config.json
+          docker image inspect ghcr.io/ggml-org/llama.cpp:server --format '{{json .RepoDigests}}' > llama-image-digests.json
+      - name: Wait for model and evaluate in shared isolated network namespace
+        run: |
+          set -euo pipefail
+          set +e
+          docker run --name semantic-evaluator \
+            --network container:semantic-llama-server \
+            --read-only --cap-drop ALL --security-opt no-new-privileges:true \
+            --pids-limit 32 --memory 1g --memory-swap 1g --cpus 1 \
+            --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+            --mount type=bind,src="$GITHUB_WORKSPACE",dst=/workspace,readonly \
+            --workdir /workspace --env PYTHONPATH=/workspace \
+            --env SEMANTIC_EVALUATION_REPORT=/tmp/semantic-evaluation-report.json \
+            semantic-evaluation-client python -c 'import time, urllib.request, subprocess
+          ready=False
+          for attempt in range(90):
+              try:
+                  response=urllib.request.urlopen("http://127.0.0.1:8080/health", timeout=2)
+                  ready=response.status == 200
+                  if ready: break
+              except Exception:
+                  time.sleep(2)
+          if not ready: raise SystemExit("Il modello GGUF non è diventato disponibile entro 180 secondi.")
+          subprocess.run(["python", "/workspace/scripts/semantic_evaluation.py", "http://127.0.0.1:8080"], check=True, timeout=1800)' | tee evaluator-output.log
+          client_exit=${PIPESTATUS[0]}
+          set -e
+          grep '^SEMANTIC_EVALUATION_REPORT_B64=' evaluator-output.log | tail -n 1 | cut -d= -f2- | base64 --decode > "$GITHUB_WORKSPACE/output/semantic-evaluation-report.json"
+          python -m json.tool "$GITHUB_WORKSPACE/output/semantic-evaluation-report.json" >/dev/null
+          docker rm --force semantic-evaluator || true
+          exit "$client_exit"
+      - name: Collect runtime status and stop containers
+        if: always()
+        run: |
+          docker rm --force semantic-evaluator || true
+          if docker inspect semantic-llama-server >/dev/null 2>&1; then
+            docker inspect semantic-llama-server --format 'Status={{.State.Status}} OOMKilled={{.State.OOMKilled}} ExitCode={{.State.ExitCode}}'
+            docker stats --no-stream semantic-llama-server || true
+            docker logs semantic-llama-server > llama-server.log 2>&1 || true
+            docker rm --force semantic-llama-server || true
+          fi
+          docker network rm semantic-model-isolated || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semantic-gguf-evaluation-isolated
+          path: |
+            output/semantic-evaluation-report.json
+            model-sha256.txt
+            docker-security-config.json
+            llama-image-digests.json
+            llama-server.log
+          if-no-files-found: warn
+          retention-days: 30
