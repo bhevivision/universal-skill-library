@@ -102,11 +102,11 @@ class Tests(unittest.TestCase):
   self.assertTrue(errors, "La verifica not_run ha accettato prove: " + repr(errors))
 
 
- def _add_material_with_license(self, license_record, include_evidence=True):
+ def _add_material_with_license(self, license_record, include_evidence=True, evidence_result="passed"):
   evidence={
    "id":"proof.material.license.001",
    "subject":"material.source.matt.license",
-   "result":"passed",
+   "result":evidence_result,
    "tested_at":"2026-11-03T20:00:00Z",
    "command":"Inspect LICENSE at the pinned source revision",
    "summary":"The declared license text was located and its obligations recorded. This is not a legal opinion."
@@ -174,5 +174,49 @@ class Tests(unittest.TestCase):
   }
   self._add_material_with_license(license_record,include_evidence=False)
   self.assertTrue(any("identifier" in e.lower() for e in validate_repository(self.root)))
+
+ 
+ def test_accepts_not_declared_license_after_review(self):
+  license_record={
+   "status":"not_declared",
+   "source_uri":"https://github.com/example/project/tree/0123456789abcdef",
+   "source_revision":"0123456789abcdef",
+   "review_status":"reviewed",
+   "reviewed_at":"2026-11-03T20:00:00Z",
+   "evidence_refs":["tests/evidence/material-license.json"],
+   "obligations":[],
+   "notes":["La revisione della revisione esaminata non ha individuato una dichiarazione di licenza."]
+  }
+  self._add_material_with_license(license_record)
+  self.assertEqual(validate_repository(self.root),[])
+
+ def test_ambiguous_license_requires_inconclusive_evidence(self):
+  license_record={
+   "status":"ambiguous",
+   "source_uri":"https://github.com/example/project/tree/0123456789abcdef",
+   "source_revision":"0123456789abcdef",
+   "review_status":"needs_human_review",
+   "reviewed_at":"2026-11-03T20:00:00Z",
+   "evidence_refs":["tests/evidence/material-license.json"],
+   "obligations":[],
+   "notes":["Le fonti presentano dichiarazioni discordanti; serve valutazione umana."]
+  }
+  self._add_material_with_license(license_record,evidence_result="passed")
+  errors=validate_repository(self.root)
+  self.assertTrue(any("inconclusive" in e.lower() for e in errors),repr(errors))
+
+ def test_accepts_ambiguous_license_with_inconclusive_evidence(self):
+  license_record={
+   "status":"ambiguous",
+   "source_uri":"https://github.com/example/project/tree/0123456789abcdef",
+   "source_revision":"0123456789abcdef",
+   "review_status":"needs_human_review",
+   "reviewed_at":"2026-11-03T20:00:00Z",
+   "evidence_refs":["tests/evidence/material-license.json"],
+   "obligations":[],
+   "notes":["Le fonti presentano dichiarazioni discordanti; serve valutazione umana."]
+  }
+  self._add_material_with_license(license_record,evidence_result="inconclusive")
+  self.assertEqual(validate_repository(self.root),[])
 
 if __name__=="__main__":unittest.main()
