@@ -22,7 +22,7 @@ Agent Skills è un formato supportato, non un requisito per conservare un pacche
 - [Schema JSON della richiesta semantica](schemas/semantic-classification-request.schema.json)
 - [Schema JSON della proposta semantica](schemas/semantic-classification-proposal.schema.json)
 - [Inventario preliminare dei materiali esistenti](docs/EXISTING-SKILLS-INVENTORY.md)
-- [Verifica locale della libreria su Windows](docs/WINDOWS-LOCAL-VERIFICATION.md)
+- [Verifica locale della libreria su Windows](docs/WINDOWS-LOCAL-VERIFICATION.md)\n- [Gestione operativa dei cataloghi](docs/CATALOG-OPERATIONS.md)
 
 ## Componente indipendente di acquisizione
 
@@ -46,7 +46,7 @@ Esempio:
 
 Dettagli: [Componente di classificazione](docs/CLASSIFICATION-COMPONENT.md).
 
-La futura analisi semantica avrà un contratto e uno schema di proposta separati. In questa fase sono stati definiti lo schema JSON e i relativi test di contratto; il motore semantico non è ancora implementato.
+Il motore semantico sostituibile è implementato in `scripts/semantic_engine.py` e viene collegato al preparatore tramite `scripts/semantic_pipeline.py`. L'adattatore GGUF è in `scripts/llama_cpp_adapter.py`. La sua presenza non equivale a una validazione positiva: le prove di estrazione completa disponibili hanno evidenziato errori di validazione e classificazione da correggere. Vedere i rapporti di valutazione prima di usare questa funzione su materiali reali.
 
 ## Controllo dell'integrità delle prove semantiche
 

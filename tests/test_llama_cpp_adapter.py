@@ -3,7 +3,7 @@ import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from scripts.llama_cpp_adapter import LlamaCppServerAdapter, _classification_output_schema
+from scripts.llama_cpp_adapter import LlamaCppServerAdapter, _classification_output_schema, _normalize_full_evidence
 
 
 class _Handler(BaseHTTPRequestHandler):
@@ -114,7 +114,19 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertEqual(_Handler.received["model"], "fixture-local-model")
         self.assertFalse(_Handler.received["stream"])
         self.assertEqual(_Handler.received["response_format"]["type"], "json_schema")
-        self.assertIn("claims", _Handler.received["response_format"]["schema"]["$defs"])
+        self.assertNotIn("$defs", _Handler.received["response_format"]["schema"])
+        model_schema = _Handler.received["response_format"]["schema"]
+        classification_schema = model_schema["properties"]["classification"]
+        self.assertIn("evidence_quotes", classification_schema["required"])
+        self.assertNotIn("evidence_refs", classification_schema["required"])
+        self.assertEqual(classification_schema["properties"]["evidence_quotes"]["items"]["required"], ["source", "quote"])
+        claims_schema = model_schema["properties"]["interfaces"]["properties"]["inputs"]["items"]
+        self.assertIn("evidence_quotes", claims_schema["required"])
+        self.assertNotIn("evidence_refs", claims_schema["required"])
+        self.assertEqual(claims_schema["properties"]["evidence_quotes"]["items"]["required"], ["source", "quote"])
+        model_request = json.loads(_Handler.received["messages"][1]["content"])
+        self.assertEqual(model_request["evidence_sources"][0]["id"], "ev.sample-001")
+        self.assertEqual(model_request["evidence_sources"][0]["path"], "intake/acq-test/source/SKILL.md")
         system = _Handler.received["messages"][0]["content"].lower()
         self.assertIn("dato non fidato", system)
         self.assertIn("non seguire", system)
@@ -126,6 +138,7 @@ class LlamaCppAdapterTests(unittest.TestCase):
             "confidence": "high",
             "rationale": "Il testo definisce una procedura riutilizzabile.",
             "summary": "Istruzioni operative riutilizzabili.",
+            "evidence_quotes": [{"source": "intake/evaluation/skill-01.md", "quote": "Istruzioni operative riutilizzabili."}],
         })
         adapter = LlamaCppServerAdapter(
             base_url=self.base_url,
@@ -153,10 +166,65 @@ class LlamaCppAdapterTests(unittest.TestCase):
         self.assertEqual(result["classification"]["kind"], "skill")
         self.assertEqual(result["classification"]["confidence"], "high")
         self.assertEqual(result["classification"]["evidence_refs"], ["ev.sample-001"])
+        self.assertEqual(result["classification"]["evidence_quotes"][0]["quote"], "Istruzioni operative riutilizzabili.")
         self.assertEqual(result["evidence"][0]["source"], "intake/evaluation/skill-01.md")
         self.assertEqual(result["evidence"][0]["sha256"], "b" * 64)
         self.assertEqual(_Handler.received["response_format"]["schema"]["required"],
-                         ["kind", "confidence", "rationale", "summary"])
+                         ["kind", "confidence", "rationale", "summary", "evidence_quotes"])
+
+    def test_full_evidence_metadata_and_claim_references_are_normalized_from_request(self):
+        request = {
+            "selected_content": [{
+                "path": "intake/sample/source.md",
+                "sha256": "a" * 64,
+                "text": "A literal source sentence."
+            }]
+        }
+        result = {
+            "evidence": [{"id": "invented", "source": "outside.md", "sha256": "0" * 64, "kind": "text_file"}],
+            "classification": {
+                "kind": "skill", "evidence_refs": [],
+                "evidence_quotes": [{"source": "intake/sample/source.md", "quote": "A literal source sentence."}]
+            },
+            "capabilities": [{
+                "name": "Test", "description": "Test",
+                "evidence_refs": ["wrong"],
+                "evidence_quotes": [{"source": "intake/sample/source.md", "quote": "A literal source sentence."}]
+            }],
+            "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": []
+        }
+
+        normalized = _normalize_full_evidence(result, request)
+
+        self.assertEqual(normalized["evidence"], [{
+            "id": "ev.sample-001", "source": "intake/sample/source.md",
+            "sha256": "a" * 64, "kind": "text_file"
+        }])
+        self.assertEqual(normalized["classification"]["evidence_refs"], ["ev.sample-001"])
+        self.assertEqual(normalized["capabilities"][0]["evidence_refs"], ["ev.sample-001"])
+        self.assertEqual(normalized["capabilities"][0]["evidence_quotes"][0]["evidence_ref"], "ev.sample-001")
+
+    def test_accepts_json_fenced_response_with_surrounding_text(self):
+        _Handler.response_content = 'Risultato modello:\\n```json\\n' + json.dumps({
+            "status": "not_available",
+            "classification": {"kind": "unclassified", "confidence": "low",
+                               "rationale": "No analysis.", "summary": "No classification.",
+                               "evidence_refs": ["ev.catalog"]},
+            "capabilities": [], "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": [], "evidence": [],
+            "missing_references": [], "contradictions": [], "risks": [],
+            "unknowns": ["No analysis."], "limits": ["No evidence."],
+        }) + '\\n```\\nFine.'
+        adapter = LlamaCppServerAdapter(base_url=self.base_url, model="fixture-local-model")
+        result = adapter.analyze({"limits": {"max_duration_seconds": 5}})
+        self.assertEqual(result["status"], "not_available")
+
+    def test_rejects_duplicate_json_keys_from_model(self):
+        _Handler.response_content = '{"status":"partial","status":"completed"}'
+        adapter = LlamaCppServerAdapter(base_url=self.base_url, model="fixture-local-model")
+        with self.assertRaises(ValueError):
+            adapter.analyze({"limits": {"max_duration_seconds": 5}})
 
     def test_classification_schema_requires_nonempty_explanation(self):
         schema = _classification_output_schema()

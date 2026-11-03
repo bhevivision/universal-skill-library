@@ -3,8 +3,16 @@ on:
   pull_request:
     branches:
       - semantic-engine-v1
+      - semantic-evaluation-isolation-v1
     paths:
       - docs/SEMANTIC-EVALUATION-TRIGGER.md
+      - scripts/semantic_engine.py
+      - scripts/semantic_claim_evidence.py
+      - scripts/llama_cpp_adapter.py
+      - scripts/semantic_extraction_evaluation.py
+      - schemas/semantic-classification-proposal.schema.json
+      - evaluation/semantic-extraction-samples.json
+      - .github/workflows/semantic-extraction-evaluation.yml
   workflow_dispatch:
 permissions:
   contents: read
@@ -45,21 +53,25 @@ jobs:
             ghcr.io/ggml-org/llama.cpp:server \
             -m /models/qwen2.5-3b-instruct-q4_k_m.gguf \
             --host 127.0.0.1 --port 8080 --ctx-size 4096 \
-            --threads 2 --threads-batch 2 --parallel 1 --n-predict 1024
+            --threads 2 --threads-batch 2 --parallel 1 --n-predict 2048
           docker inspect semantic-llama-server --format '{{json .HostConfig}}' > docker-security-config.json
           docker image inspect ghcr.io/ggml-org/llama.cpp:server --format '{{json .RepoDigests}}' > llama-image-digests.json
       - name: Wait for model and evaluate in shared isolated network namespace
         run: |
           set -euo pipefail
+          mkdir -p output/adapter-diagnostics
           set +e
           docker run --name semantic-evaluator \
+            --user "$(id -u):$(id -g)" \
             --network container:semantic-llama-server \
             --read-only --cap-drop ALL --security-opt no-new-privileges:true \
             --pids-limit 32 --memory 1g --memory-swap 1g --cpus 1 \
             --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+            --mount type=bind,src="$GITHUB_WORKSPACE/output/adapter-diagnostics",dst=/diagnostics \
             --mount type=bind,src="$GITHUB_WORKSPACE",dst=/workspace,readonly \
             --workdir /workspace --env PYTHONPATH=/workspace \
             --env SEMANTIC_EXTRACTION_REPORT=/tmp/semantic-extraction-evaluation-report.json \
+            --env SEMANTIC_ADAPTER_DIAGNOSTICS_DIR=/diagnostics \
             semantic-evaluation-client python -c 'import time, urllib.request, subprocess
           ready=False
           for attempt in range(90):
@@ -94,6 +106,7 @@ jobs:
           name: semantic-gguf-evaluation-isolated
           path: |
             output/semantic-extraction-evaluation-report.json
+            output/adapter-diagnostics/*.json
             model-sha256.txt
             docker-security-config.json
             llama-image-digests.json

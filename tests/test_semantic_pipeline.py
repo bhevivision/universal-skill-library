@@ -84,14 +84,14 @@ class SemanticPipelineTests(unittest.TestCase):
                         "confidence": "medium",
                         "rationale": "Le istruzioni descrivono un comportamento riutilizzabile.",
                         "summary": "Istruzioni operative riutilizzabili.",
-                        "evidence_refs": ["ev.source"],
+                        "evidence_refs": ["ev.source"], "evidence_quotes": [{"evidence_ref": "ev.source", "quote": "Use the supplied documents and return a concise summary."}],
                     },
                     "capabilities": [{
                         "id": "cap.document-summary",
                         "name": "Sintesi di documenti",
                         "description": "Produce una sintesi dei documenti forniti.",
                         "certainty": "declared",
-                        "evidence_refs": ["ev.source"],
+                        "evidence_refs": ["ev.source"], "evidence_quotes": [{"evidence_ref": "ev.source", "quote": "Use the supplied documents and return a concise summary."}],
                     }],
                     "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
                     "dependencies": [],
@@ -185,7 +185,7 @@ class SemanticPipelineTests(unittest.TestCase):
                         "kind": "skill", "confidence": "high",
                         "rationale": "Claim without a valid source.",
                         "summary": "Unverified claim.",
-                        "evidence_refs": ["ev.fake"],
+                        "evidence_refs": ["ev.fake"], "evidence_quotes": [{"evidence_ref": "ev.fake", "quote": "Use the supplied documents and return a concise summary."}],
                     },
                     "capabilities": [],
                     "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
@@ -198,7 +198,7 @@ class SemanticPipelineTests(unittest.TestCase):
                     "unknowns": [], "limits": [],
                 }
 
-        with self.assertRaisesRegex(ValueError, "impronta"):
+        with self.assertRaisesRegex(ValueError, "file selezionato"):
             classify_material(self.root, "acq.example", analyzer=Adapter())
 
         self.assertFalse((self.root / "proposals").exists())

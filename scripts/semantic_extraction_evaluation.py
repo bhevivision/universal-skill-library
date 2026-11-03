@@ -84,6 +84,9 @@ def score_extraction(rows: list[dict]) -> dict:
 
 def _claim_evidence_counts(proposal: dict) -> tuple[int, int]:
     claims = []
+    classification = proposal.get("classification", {})
+    if isinstance(classification, dict) and classification.get("kind") != "unclassified":
+        claims.append(classification)
     claims.extend(proposal.get("capabilities", []))
     interfaces = proposal.get("interfaces", {})
     for field in ("inputs", "outputs", "usage_conditions"):
@@ -98,7 +101,15 @@ def _claim_evidence_counts(proposal: dict) -> tuple[int, int]:
     total = len(claims)
     with_evidence = sum(
         bool(item.get("evidence_refs"))
+        and bool(item.get("evidence_quotes"))
         and all(isinstance(ref, str) and ref for ref in item.get("evidence_refs", []))
+        and all(
+            isinstance(quote, dict)
+            and quote.get("evidence_ref") in item.get("evidence_refs", [])
+            and isinstance(quote.get("quote"), str)
+            and bool(quote["quote"].strip())
+            for quote in item.get("evidence_quotes", [])
+        )
         for item in claims
     )
     return total, with_evidence
@@ -212,7 +223,7 @@ def main() -> int:
         model="Qwen2.5-3B-Instruct-GGUF-Q4_K_M",
         timeout_seconds=120,
         max_response_bytes=2 * 1024 * 1024,
-        max_tokens=1024,
+        max_tokens=2048,
         classification_only=False,
     )
     report = run_extraction_evaluation(adapter, dataset, work_root=Path(os.environ.get("TMPDIR", "/tmp")))
@@ -226,7 +237,7 @@ def main() -> int:
         "dataset_sha256": hashlib.sha256(args.dataset.read_bytes()).hexdigest(),
         "runtime_limits": {
             "context_tokens": 4096,
-            "max_generated_tokens": 1024,
+            "max_generated_tokens": 2048,
             "request_timeout_seconds": 120,
         },
         "evaluation_note": "Valutazione esplorativa dell'estrazione semantica completa; le etichette e i fatti attesi restano nel valutatore e non vengono inviati al modello.",

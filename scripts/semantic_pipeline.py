@@ -167,6 +167,7 @@ def classify_material(root, material_id: str, analyzer=None, request_id: str | N
         request,
         analyzer=selected_analyzer,
         catalog_sha256=catalog_digest,
+        evidence_root=root,
     )
 
     if preparation_status == "partial" and proposal["status"] == "completed":

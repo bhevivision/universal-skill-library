@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from scripts.semantic_extraction_evaluation import (
+    _claim_evidence_counts,
     match_expected_facts,
     run_extraction_evaluation,
     score_extraction,
@@ -34,6 +35,22 @@ class SemanticExtractionEvaluationTests(unittest.TestCase):
         self.assertEqual(metrics["evidence_verification_rate"], 0.5)
         self.assertEqual(metrics["claim_evidence_coverage"], round(5 / 6, 4))
         self.assertEqual(metrics["failed_samples"], 1)
+
+    def test_claim_evidence_coverage_requires_literal_quotes(self):
+        proposal = {
+            "classification": {"kind": "skill", "evidence_refs": ["ev.source"]},
+            "capabilities": [{"evidence_refs": ["ev.source"], "evidence_quotes": []}],
+            "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": [],
+        }
+        self.assertEqual(_claim_evidence_counts(proposal), (2, 0))
+        proposal["classification"]["evidence_quotes"] = [
+            {"evidence_ref": "ev.source", "quote": "Literal source line"}
+        ]
+        proposal["capabilities"][0]["evidence_quotes"] = [
+            {"evidence_ref": "ev.source", "quote": "Literal source line"}
+        ]
+        self.assertEqual(_claim_evidence_counts(proposal), (2, 2))
 
     def test_expected_facts_are_matched_against_the_correct_semantic_fields(self):
         proposal = {
@@ -87,25 +104,25 @@ class SemanticExtractionEvaluationTests(unittest.TestCase):
                         "kind": "skill", "confidence": "high",
                         "rationale": "Descrive una procedura riutilizzabile.",
                         "summary": "Estrae testo da PDF.",
-                        "evidence_refs": ["ev.source"],
+                        "evidence_refs": ["ev.source"], "evidence_quotes": [{"evidence_ref": "ev.source", "quote": "Accetta un file PDF e usa PyMuPDF per estrarre testo. Restituisce un file TXT UTF-8."}],
                     },
                     "capabilities": [{
                         "id": "cap.pdf-text", "name": "Estrazione testo PDF",
                         "description": "Estrae il testo dai documenti PDF.",
-                        "certainty": "declared", "evidence_refs": ["ev.source"],
+                        "certainty": "declared", "evidence_refs": ["ev.source"], "evidence_quotes": [{"evidence_ref": "ev.source", "quote": "Accetta un file PDF e usa PyMuPDF per estrarre testo. Restituisce un file TXT UTF-8."}],
                     }],
                     "interfaces": {
-                        "inputs": [{"value": "File PDF", "certainty": "declared", "evidence_refs": ["ev.source"]}],
-                        "outputs": [{"value": "File TXT in codifica UTF-8", "certainty": "declared", "evidence_refs": ["ev.source"]}],
+                        "inputs": [{"value": "File PDF", "certainty": "declared", "evidence_refs": ["ev.source"], "evidence_quotes": [{"evidence_ref": "ev.source", "quote": "Accetta un file PDF e usa PyMuPDF per estrarre testo. Restituisce un file TXT UTF-8."}]}],
+                        "outputs": [{"value": "File TXT in codifica UTF-8", "certainty": "declared", "evidence_refs": ["ev.source"], "evidence_quotes": [{"evidence_ref": "ev.source", "quote": "Accetta un file PDF e usa PyMuPDF per estrarre testo. Restituisce un file TXT UTF-8."}]}],
                         "usage_conditions": [],
                     },
                     "dependencies": [{
                         "name": "PyMuPDF", "relationship": "installation",
-                        "certainty": "declared", "evidence_refs": ["ev.source"],
+                        "certainty": "declared", "evidence_refs": ["ev.source"], "evidence_quotes": [{"evidence_ref": "ev.source", "quote": "Accetta un file PDF e usa PyMuPDF per estrarre testo. Restituisce un file TXT UTF-8."}],
                     }],
                     "tools_and_platforms": [{
                         "name": "Python 3.11", "kind": "platform",
-                        "compatibility": "mentioned_not_verified", "evidence_refs": ["ev.source"],
+                        "compatibility": "mentioned_not_verified", "evidence_refs": ["ev.source"], "evidence_quotes": [{"evidence_ref": "ev.source", "quote": "Accetta un file PDF e usa PyMuPDF per estrarre testo. Restituisce un file TXT UTF-8."}],
                     }],
                     "evidence": [{
                         "id": "ev.source", "source": item["path"],
