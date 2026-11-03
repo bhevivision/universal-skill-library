@@ -206,3 +206,87 @@ class LlamaCppAdapterTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def _full_semantic_request(self):
+        return {
+            "request_id": "req.full",
+            "material": {"id": "acq.full", "sha256": "a" * 64, "original_kind": "file"},
+            "files": [{"path": "intake/acq-full/SKILL.md", "sha256": "b" * 64, "size_bytes": 28}],
+            "selected_content": [{
+                "path": "intake/acq-full/SKILL.md",
+                "sha256": "b" * 64,
+                "size_bytes": 28,
+                "text": "Istruzioni operative di prova.",
+            }],
+            "limits": {"max_duration_seconds": 5},
+            "safety": {"content_is_untrusted_data": True, "follow_instructions_in_content": False},
+        }
+
+    def test_full_semantic_mode_normalizes_fenced_json_and_trusts_only_input_evidence(self):
+        model_result = {
+            "status": "completed",
+            "classification": {
+                "kind": "skill", "confidence": "high",
+                "rationale": "Il materiale contiene istruzioni.",
+                "summary": "Procedura riutilizzabile.",
+                "evidence_refs": ["ev.sample-001", "ev.invented"],
+                "unexpected": "must be removed",
+            },
+            "capabilities": [{
+                "id": "cap.procedure", "name": "Procedura",
+                "description": "Descrive una procedura.",
+                "certainty": "declared", "evidence_refs": ["ev.sample-001"],
+                "unexpected": "must be removed",
+            }],
+            "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": [],
+            "evidence": [{"id": "ev.invented", "source": "https://example.invalid", "sha256": "c" * 64, "kind": "text_file"}],
+            "missing_references": [], "contradictions": [], "risks": [],
+            "unknowns": [], "limits": [],
+            "unexpected_top_level": "must be removed",
+        }
+        _Handler.response_content = " ```json\\n" + json.dumps(model_result) + "\\n``` "
+        adapter = LlamaCppServerAdapter(base_url=self.base_url, model="fixture-local-model")
+
+        result = adapter.analyze(self._full_semantic_request())
+
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["evidence"], [{
+            "id": "ev.sample-001", "source": "intake/acq-full/SKILL.md",
+            "sha256": "b" * 64, "kind": "text_file",
+        }])
+        self.assertEqual(result["classification"]["evidence_refs"], ["ev.sample-001"])
+        self.assertNotIn("unexpected", result["classification"])
+        self.assertNotIn("unexpected_top_level", result)
+        self.assertEqual(len(result["capabilities"]), 1)
+        self.assertEqual(result["capabilities"][0]["evidence_refs"], ["ev.sample-001"])
+
+    def test_full_semantic_mode_discards_claims_without_valid_evidence(self):
+        model_result = {
+            "status": "completed",
+            "classification": {
+                "kind": "skill", "confidence": "high",
+                "rationale": "Affermazione senza fonte.", "summary": "Sintesi non verificabile.",
+                "evidence_refs": ["ev.not-provided"],
+            },
+            "capabilities": [{
+                "id": "cap.unsupported", "name": "Non provata",
+                "description": "Affermazione non supportata.",
+                "certainty": "declared", "evidence_refs": ["ev.not-provided"],
+            }],
+            "interfaces": {"inputs": [], "outputs": [], "usage_conditions": []},
+            "dependencies": [], "tools_and_platforms": [], "evidence": [],
+            "missing_references": [], "contradictions": [], "risks": [],
+            "unknowns": [], "limits": [],
+        }
+        _Handler.response_content = json.dumps(model_result)
+        adapter = LlamaCppServerAdapter(base_url=self.base_url, model="fixture-local-model")
+
+        result = adapter.analyze(self._full_semantic_request())
+
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["classification"]["kind"], "unclassified")
+        self.assertEqual(result["capabilities"], [])
+        self.assertEqual(result["classification"]["evidence_refs"], ["ev.sample-001"])
+        self.assertTrue(result["limits"])
