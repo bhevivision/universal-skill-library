@@ -248,4 +248,26 @@ class Tests(unittest.TestCase):
   errors=validate_repository(self.root)
   self.assertTrue(any("materiale di origine inesistente" in e.lower() for e in errors),repr(errors))
 
+ def test_validates_skill_path_even_when_source_record_id_is_present(self):
+  material={
+   "id":"source.original-skill",
+   "acquisition":{
+    "status":"received",
+    "acquired_at":"2026-11-03T20:00:00Z",
+    "method":"remote_reference",
+    "original":{"kind":"remote_reference","uri":"https://example.org/original-skill"}
+   },
+   "classification":{"status":"classified","kind":"skill"},
+   "documentation":{"status":"partial"},
+   "verification":{"status":"not_verified"},
+   "usability":{"status":"not_assessed"}
+  }
+  self.change("catalog/materials.json",lambda d:d["materials"].append(material))
+  def edit(d):
+   d["skills"][0]["source_record_id"]="source.original-skill"
+   d["skills"][0]["path"]="skills/missing-skill/SKILL.md"
+  self.change("catalog/skills.json",edit)
+  errors=validate_repository(self.root)
+  self.assertTrue(any("SKILL.md non trovato" in e for e in errors),repr(errors))
+
 if __name__=="__main__":unittest.main()
