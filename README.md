@@ -1,3 +1,7 @@
+# Skill operative e selezione
+
+Per trovare skill da riusare in un progetto, inizia da [INDEX.md](INDEX.md). La libreria conserva anche materiali di riferimento non ancora classificati o verificati; consulta [l'architettura](ARCHITECTURE.md) per distinguere archivio, catalogo e skill pronte all'uso.
+
 # universal-skill-library
 
 Libreria universale per acquisire, conservare, analizzare, classificare, verificare e rendere utilizzabili skill e altri materiali destinati a sistemi intelligenti. La libreria accetta pacchetti di qualsiasi formato, anche quando non sono ancora riconosciuti come skill. Gli originali restano intatti; descrizioni, classificazioni, adattamenti e verifiche sono gestiti separatamente.
