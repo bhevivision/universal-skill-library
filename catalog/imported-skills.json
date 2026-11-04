@@ -1,6 +1,14 @@
 {
   "schema_version": 1,
   "updated_at": "2026-11-04",
+  "scan_scope": {
+    "account_repositories_scanned": 14,
+    "github_skill_entrypoints": 68,
+    "provided_zip_skill_entrypoints": 64,
+    "legacy_entries_copied": 3,
+    "supporting_files_copied": 659,
+    "damaged_materials": 1
+  },
   "skills": [
     {
       "id": "mattpocock/skills#git-guardrails-claude-code",
@@ -8,6 +16,7 @@
       "description": "Set up Claude Code hooks to block dangerous git commands (push, reset --hard, clean, branch -D, etc.) before they execute. Use when user wants to prevent destructive git operations, add git safety hooks, or block git push/reset in Claude Code.",
       "area": "automation",
       "path": "skills/automation/matt-pocock-skills/git-guardrails-claude-code/SKILL.md",
+      "source_notes": "skills/automation/matt-pocock-skills/git-guardrails-claude-code/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/misc/git-guardrails-claude-code/SKILL.md",
@@ -16,9 +25,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/misc/git-guardrails-claude-code",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#gstack-upgrade",
@@ -26,6 +36,7 @@
       "description": "Upgrade gstack to the latest version.",
       "area": "automation",
       "path": "skills/automation/gstack/gstack-upgrade/SKILL.md",
+      "source_notes": "skills/automation/gstack/gstack-upgrade/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "gstack-upgrade/SKILL.md",
@@ -34,9 +45,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/gstack-upgrade",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#handoff",
@@ -44,6 +56,7 @@
       "description": "Compact the current conversation into a handoff document for another agent to pick up.",
       "area": "automation",
       "path": "skills/automation/matt-pocock-skills/handoff/SKILL.md",
+      "source_notes": "skills/automation/matt-pocock-skills/handoff/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/productivity/handoff/SKILL.md",
@@ -52,9 +65,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/handoff",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/obsidian-skills#obsidian-cli",
@@ -62,6 +76,7 @@
       "description": "Interact with Obsidian vaults using the Obsidian CLI to read, create, search, and manage notes, tasks, properties, and more. Also supports plugin and theme development with commands to reload plugins, run JavaScript, capture errors, take screenshots, and inspect the DOM. Use when the user asks to interact with their Obsidian vault, manage notes, search vault content, perform vault operations from the command line, or develop and debug Obsidian plugins and themes.",
       "area": "automation",
       "path": "skills/automation/obsidian-skills/obsidian-cli/SKILL.md",
+      "source_notes": "skills/automation/obsidian-skills/obsidian-cli/SOURCE.md",
       "author": "Steph Ango (@kepano)",
       "source_repository": "bhevivision/obsidian-skills",
       "source_path": "skills/obsidian-cli/SKILL.md",
@@ -70,9 +85,10 @@
       "source_folder_url": "https://github.com/bhevivision/obsidian-skills/tree/a1dc48e68138490d522c04cbf5822214c6eb1202/skills/obsidian-cli",
       "license": "MIT",
       "license_copy": "licenses/obsidian-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#pair-agent",
@@ -80,6 +96,7 @@
       "description": "Pair a remote AI agent with your browser. (gstack)",
       "area": "automation",
       "path": "skills/automation/gstack/pair-agent/SKILL.md",
+      "source_notes": "skills/automation/gstack/pair-agent/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "pair-agent/SKILL.md",
@@ -88,9 +105,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/pair-agent",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#setup-deploy",
@@ -98,6 +116,7 @@
       "description": "Configure deployment settings for /land-and-deploy.",
       "area": "automation",
       "path": "skills/automation/gstack/setup-deploy/SKILL.md",
+      "source_notes": "skills/automation/gstack/setup-deploy/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "setup-deploy/SKILL.md",
@@ -106,9 +125,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/setup-deploy",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#setup-gbrain",
@@ -116,6 +136,7 @@
       "description": "Set up gbrain for this coding agent: install the CLI, initialize a local PGLite or Supabase brain, register MCP, capture per-remote trust policy. (gstack)",
       "area": "automation",
       "path": "skills/automation/gstack/setup-gbrain/SKILL.md",
+      "source_notes": "skills/automation/gstack/setup-gbrain/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "setup-gbrain/SKILL.md",
@@ -124,9 +145,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/setup-gbrain",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#setup-pre-commit",
@@ -134,6 +156,7 @@
       "description": "Set up Husky pre-commit hooks with lint-staged (Prettier), type checking, and tests in the current repo. Use when user wants to add pre-commit hooks, set up Husky, configure lint-staged, or add commit-time formatting/typechecking/testing.",
       "area": "automation",
       "path": "skills/automation/matt-pocock-skills/setup-pre-commit/SKILL.md",
+      "source_notes": "skills/automation/matt-pocock-skills/setup-pre-commit/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/misc/setup-pre-commit/SKILL.md",
@@ -142,9 +165,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/misc/setup-pre-commit",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#setup-ts-deep-modules",
@@ -152,6 +176,7 @@
       "description": "Wire dependency-cruiser into a TypeScript repo so each package is a deep module, with implementation hidden in subfolders and reachable only through its entry-point files. User-invoked.",
       "area": "automation",
       "path": "skills/automation/matt-pocock-skills/setup-ts-deep-modules/SKILL.md",
+      "source_notes": "skills/automation/matt-pocock-skills/setup-ts-deep-modules/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/in-progress/setup-ts-deep-modules/SKILL.md",
@@ -160,9 +185,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/setup-ts-deep-modules",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#sync-gbrain",
@@ -170,6 +196,7 @@
       "description": "Keep gbrain current with this repo's code and refresh agent search guidance in CLAUDE.md. Wraps the gstack-gbrain-sync orchestrator with state (gstack)",
       "area": "automation",
       "path": "skills/automation/gstack/sync-gbrain/SKILL.md",
+      "source_notes": "skills/automation/gstack/sync-gbrain/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "sync-gbrain/SKILL.md",
@@ -178,9 +205,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/sync-gbrain",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#api-and-interface-design",
@@ -188,6 +216,7 @@
       "description": "Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/api-and-interface-design/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/api-and-interface-design/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/api-and-interface-design/SKILL.md",
@@ -196,9 +225,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/api-and-interface-design",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#ask-matt",
@@ -206,6 +236,7 @@
       "description": "Ask which skill or flow fits your situation. A router over the skills in this repo.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/ask-matt/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/ask-matt/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/ask-matt/SKILL.md",
@@ -214,9 +245,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/ask-matt",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#autoplan",
@@ -224,6 +256,7 @@
       "description": "Auto-review pipeline — reads the full CEO, design, eng, and DX review skills from disk and runs them sequentially with auto-decisions using 6 decision principles. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/autoplan/SKILL.md",
+      "source_notes": "skills/engineering/gstack/autoplan/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "autoplan/SKILL.md",
@@ -232,9 +265,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/autoplan",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#benchmark",
@@ -242,6 +276,7 @@
       "description": "Performance regression detection using the browse daemon. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/benchmark/SKILL.md",
+      "source_notes": "skills/engineering/gstack/benchmark/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "benchmark/SKILL.md",
@@ -250,9 +285,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/benchmark",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#benchmark-models",
@@ -260,6 +296,7 @@
       "description": "Cross-model benchmark for gstack skills. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/benchmark-models/SKILL.md",
+      "source_notes": "skills/engineering/gstack/benchmark-models/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "benchmark-models/SKILL.md",
@@ -268,9 +305,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/benchmark-models",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#browser-testing-with-devtools",
@@ -278,6 +316,7 @@
       "description": "Tests in real browsers via Chrome DevTools MCP. Use when building or debugging anything that runs in a browser. Use when you need to inspect the DOM, capture console errors, analyze network requests, profile performance, or verify visual output with real runtime data. Requires the chrome-devtools MCP server to be configured.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/browser-testing-with-devtools/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/browser-testing-with-devtools/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/browser-testing-with-devtools/SKILL.md",
@@ -286,9 +325,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/browser-testing-with-devtools",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#canary",
@@ -296,6 +336,7 @@
       "description": "Post-deploy canary monitoring. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/canary/SKILL.md",
+      "source_notes": "skills/engineering/gstack/canary/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "canary/SKILL.md",
@@ -304,9 +345,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/canary",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#careful",
@@ -314,6 +356,7 @@
       "description": "Safety guardrails for destructive commands. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/careful/SKILL.md",
+      "source_notes": "skills/engineering/gstack/careful/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "careful/SKILL.md",
@@ -322,9 +365,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/careful",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#chief-of-staff",
@@ -332,6 +376,7 @@
       "description": "Pursue a long-running goal in a single session by co-ordinating subagents.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/chief-of-staff/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/chief-of-staff/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/in-progress/chief-of-staff/SKILL.md",
@@ -340,9 +385,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/chief-of-staff",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#ci-cd-and-automation",
@@ -350,6 +396,7 @@
       "description": "Automates CI/CD pipeline setup. Use when setting up or modifying build and deployment pipelines. Use when you need to automate quality gates, configure test runners in CI, or establish deployment strategies.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/ci-cd-and-automation/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/ci-cd-and-automation/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/ci-cd-and-automation/SKILL.md",
@@ -358,9 +405,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/ci-cd-and-automation",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#claude-handoff",
@@ -368,6 +416,7 @@
       "description": "Hand the current conversation off to a fresh background agent that picks up the work immediately.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/claude-handoff/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/claude-handoff/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/in-progress/claude-handoff/SKILL.md",
@@ -376,9 +425,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/claude-handoff",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#code-review",
@@ -386,6 +436,7 @@
       "description": "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \\'review since X\\'.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/code-review/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/code-review/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/code-review/SKILL.md",
@@ -394,9 +445,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#code-review-and-quality",
@@ -404,6 +456,7 @@
       "description": "Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch. Use when asked to review a diff or a pull request, even when the diff is pasted inline.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/code-review-and-quality/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/code-review-and-quality/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/code-review-and-quality/SKILL.md",
@@ -412,9 +465,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/code-review-and-quality",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#code-simplification",
@@ -422,6 +476,7 @@
       "description": "Simplifies code for clarity. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity. Use when asked to simplify, clean up, or reduce the nesting of a function or module that already works, even when the code is pasted inline and nothing else needs to change.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/code-simplification/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/code-simplification/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/code-simplification/SKILL.md",
@@ -430,9 +485,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/code-simplification",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#codebase-design",
@@ -440,6 +496,7 @@
       "description": "Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/codebase-design/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/codebase-design/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/codebase-design/SKILL.md",
@@ -448,9 +505,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/codebase-design",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#codex",
@@ -458,6 +516,7 @@
       "description": "OpenAI Codex CLI wrapper — three modes. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/codex/SKILL.md",
+      "source_notes": "skills/engineering/gstack/codex/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "codex/SKILL.md",
@@ -466,9 +525,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/codex",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#constraint-driven-development",
@@ -476,6 +536,7 @@
       "description": "Establishes a project's quality bar as a written contract and stops agents quietly lowering it. Interviews the user on which dimensions matter, supplies sane default thresholds when they have no number in mind, records everything in CONSTRAINTS.md, and watches the diff for a weakened bar — new @ts-ignore or eslint-disable suppressions, skipped or deleted tests, assertions stripped out, unimplemented stubs, thresholds edited down. Use when no quality bar is written down, when the user says 'set up constraints' or 'define our standards', when the user wants dimensions they care about — accessibility, web performance, coverage — set up as enforced constraints, when an agent keeps silencing checks or skipping tests to get to green, when you need a coverage or performance threshold and don't know what number to pick, or when an agent writes more code than anyone will read.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/constraint-driven-development/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/constraint-driven-development/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/constraint-driven-development/SKILL.md",
@@ -484,9 +545,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/constraint-driven-development",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#context-engineering",
@@ -494,6 +556,7 @@
       "description": "Optimizes agent context setup. Use when starting a new session, when agent output quality degrades, when switching between tasks, or when you need to configure rules files and context for a project.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/context-engineering/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/context-engineering/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/context-engineering/SKILL.md",
@@ -502,9 +565,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/context-engineering",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#context-restore",
@@ -512,6 +576,7 @@
       "description": "Restore working context saved earlier by /context-save. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/context-restore/SKILL.md",
+      "source_notes": "skills/engineering/gstack/context-restore/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "context-restore/SKILL.md",
@@ -520,9 +585,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/context-restore",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#context-save",
@@ -530,6 +596,7 @@
       "description": "Save working context. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/context-save/SKILL.md",
+      "source_notes": "skills/engineering/gstack/context-save/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "context-save/SKILL.md",
@@ -538,9 +605,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/context-save",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#cso",
@@ -548,6 +616,7 @@
       "description": "Chief Security Officer mode. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/cso/SKILL.md",
+      "source_notes": "skills/engineering/gstack/cso/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "cso/SKILL.md",
@@ -556,9 +625,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/cso",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#debugging-and-error-recovery",
@@ -566,6 +636,7 @@
       "description": "Guides systematic root-cause debugging. Use when tests fail, builds break, something that worked yesterday broke, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need to figure out what broke and why — a systematic approach to finding and fixing the root cause rather than guessing.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/debugging-and-error-recovery/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/debugging-and-error-recovery/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/debugging-and-error-recovery/SKILL.md",
@@ -574,9 +645,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/debugging-and-error-recovery",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#deprecation-and-migration",
@@ -584,6 +656,7 @@
       "description": "Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when migrating a database schema in production, such as renaming or dropping a column without downtime (expand/contract). Use when deciding whether to maintain or sunset existing code.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/deprecation-and-migration/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/deprecation-and-migration/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/deprecation-and-migration/SKILL.md",
@@ -592,9 +665,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/deprecation-and-migration",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#devex-review",
@@ -602,6 +676,7 @@
       "description": "Live developer experience audit. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/devex-review/SKILL.md",
+      "source_notes": "skills/engineering/gstack/devex-review/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "devex-review/SKILL.md",
@@ -610,9 +685,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/devex-review",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#diagnosing-bugs",
@@ -620,6 +696,7 @@
       "description": "Diagnosis loop for hard bugs and performance regressions. Use when the user says 'diagnose'/'debug this', or reports something broken/throwing/failing/slow.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/diagnosing-bugs/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/diagnosing-bugs/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/diagnosing-bugs/SKILL.md",
@@ -628,9 +705,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/diagnosing-bugs",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#domain-modeling",
@@ -638,6 +716,7 @@
       "description": "Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a GLOSSARY.md, or recording or editing an ADR.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/domain-modeling/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/domain-modeling/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/domain-modeling/SKILL.md",
@@ -646,9 +725,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#doubt-driven-development",
@@ -656,6 +736,7 @@
       "description": "Subjects every non-trivial decision to a fresh-context adversarial review before it stands. Use when you want every assumption cross-examined before proceeding, when stress-testing a plan for hidden failure modes, when correctness matters more than speed, when working in unfamiliar code, when stakes are high (production auth, security-sensitive logic, a high-stakes migration, irreversible operations), or any time a confident output would be cheaper to verify now than to debug later.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/doubt-driven-development/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/doubt-driven-development/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/doubt-driven-development/SKILL.md",
@@ -664,9 +745,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/doubt-driven-development",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#freeze",
@@ -674,6 +756,7 @@
       "description": "Restrict file edits to a specific directory for the session. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/freeze/SKILL.md",
+      "source_notes": "skills/engineering/gstack/freeze/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "freeze/SKILL.md",
@@ -682,9 +765,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/freeze",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#frontend-ui-engineering",
@@ -692,6 +776,7 @@
       "description": "Builds production-quality, accessible, responsive user-facing UIs. Use when building or modifying interfaces and pages, creating components, implementing layouts, meeting WCAG accessibility requirements, managing state, or when the output needs to look and feel production-quality rather than AI-generated.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/frontend-ui-engineering/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/frontend-ui-engineering/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/frontend-ui-engineering/SKILL.md",
@@ -700,9 +785,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/frontend-ui-engineering",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#git-workflow-and-versioning",
@@ -710,6 +796,7 @@
       "description": "Structures git workflow practices. Use when making any code change. Use when committing, branching, resolving conflicts, splitting uncommitted work in a messy working tree into clean atomic commits, opening or reviewing a pull request (PR), pushing to a remote, or when you need to organize work across multiple parallel streams. Use when cutting a release, choosing a semantic version bump, tagging, or writing a changelog. Use when asked to write a commit message or a changelog entry for a change, or to split a change into commits, even when the diff is pasted inline and the message seems easy to write from it.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/git-workflow-and-versioning/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/git-workflow-and-versioning/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/git-workflow-and-versioning/SKILL.md",
@@ -718,9 +805,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/git-workflow-and-versioning",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#grill-with-docs",
@@ -728,6 +816,7 @@
       "description": "A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/grill-with-docs/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/grill-with-docs/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/grill-with-docs/SKILL.md",
@@ -736,9 +825,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/grill-with-docs",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#gstack",
@@ -746,6 +836,7 @@
       "description": "Router for the gstack skill suite. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/gstack-guide/SKILL.md",
+      "source_notes": "skills/engineering/gstack/gstack-guide/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "SKILL.md",
@@ -754,9 +845,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "umbrella_entrypoint_only"
     },
     {
       "id": "bhevivision/gstack#gstack-openclaw-ceo-review",
@@ -764,6 +856,7 @@
       "description": "Use when asked to review a plan, challenge a proposal, run a CEO review, poke holes in an approach, think bigger about scope, or decide whether to expand or reduce the plan.",
       "area": "engineering",
       "path": "skills/engineering/gstack/gstack-openclaw-ceo-review/SKILL.md",
+      "source_notes": "skills/engineering/gstack/gstack-openclaw-ceo-review/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "openclaw/skills/gstack-openclaw-ceo-review/SKILL.md",
@@ -772,9 +865,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/openclaw/skills/gstack-openclaw-ceo-review",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#gstack-openclaw-investigate",
@@ -782,6 +876,7 @@
       "description": "Use when asked to debug, fix a bug, investigate an error, or do root cause analysis, and when users report errors, stack traces, unexpected behavior, or say something stopped working.",
       "area": "engineering",
       "path": "skills/engineering/gstack/gstack-openclaw-investigate/SKILL.md",
+      "source_notes": "skills/engineering/gstack/gstack-openclaw-investigate/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "openclaw/skills/gstack-openclaw-investigate/SKILL.md",
@@ -790,9 +885,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/openclaw/skills/gstack-openclaw-investigate",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#gstack-openclaw-office-hours",
@@ -800,6 +896,7 @@
       "description": "Use when asked to brainstorm, evaluate whether an idea is worth building, run office hours, or think through a new product idea or design direction before any code is written.",
       "area": "engineering",
       "path": "skills/engineering/gstack/gstack-openclaw-office-hours/SKILL.md",
+      "source_notes": "skills/engineering/gstack/gstack-openclaw-office-hours/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "openclaw/skills/gstack-openclaw-office-hours/SKILL.md",
@@ -808,9 +905,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/openclaw/skills/gstack-openclaw-office-hours",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#gstack-openclaw-retro",
@@ -818,6 +916,7 @@
       "description": "Weekly engineering retrospective. Analyzes commit history, work patterns, and code quality metrics with persistent history and trend tracking. Team-aware with per-person contributions, praise, and growth areas. Use when asked for weekly retro, what shipped this week, or engineering retrospective.",
       "area": "engineering",
       "path": "skills/engineering/gstack/gstack-openclaw-retro/SKILL.md",
+      "source_notes": "skills/engineering/gstack/gstack-openclaw-retro/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "openclaw/skills/gstack-openclaw-retro/SKILL.md",
@@ -826,9 +925,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/openclaw/skills/gstack-openclaw-retro",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#guard",
@@ -836,6 +936,7 @@
       "description": "Full safety mode: destructive command warnings + directory-scoped edits. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/guard/SKILL.md",
+      "source_notes": "skills/engineering/gstack/guard/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "guard/SKILL.md",
@@ -844,9 +945,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/guard",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#health",
@@ -854,6 +956,7 @@
       "description": "Code quality dashboard. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/health/SKILL.md",
+      "source_notes": "skills/engineering/gstack/health/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "health/SKILL.md",
@@ -862,9 +965,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/health",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#idea-refine",
@@ -872,6 +976,7 @@
       "description": "Refines raw ideas into sharp, actionable concepts through structured divergent and convergent thinking. Use when an idea is still vague, when you need to stress-test assumptions before committing to a plan, or when you want to expand options before converging on one. Triggers on 'ideate', 'refine this idea', or 'stress-test my plan'.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/idea-refine/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/idea-refine/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/idea-refine/SKILL.md",
@@ -880,9 +985,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/idea-refine",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 3,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#implement",
@@ -890,6 +996,7 @@
       "description": "Implement a piece of work based on a spec or set of tickets.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/implement/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/implement/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/implement/SKILL.md",
@@ -898,9 +1005,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/implement",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#implement-spec",
@@ -908,6 +1016,7 @@
       "description": "Implement the result of /to-spec and /to-tickets in code.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/implement-spec/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/implement-spec/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/implement-spec/SKILL.md",
@@ -916,9 +1025,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/implement-spec",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#improve-codebase-architecture",
@@ -926,6 +1036,7 @@
       "description": "Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/improve-codebase-architecture/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/improve-codebase-architecture/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/improve-codebase-architecture/SKILL.md",
@@ -934,9 +1045,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/improve-codebase-architecture",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#incremental-implementation",
@@ -944,6 +1056,7 @@
       "description": "Delivers changes incrementally in thin, verifiable slices. Use when implementing any feature or change that touches more than one file, or when picking up the next task from a plan. Use when rolling a change out behind a feature flag, when you're about to write a large amount of code at once, or when a task feels too big to land in one step.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/incremental-implementation/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/incremental-implementation/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/incremental-implementation/SKILL.md",
@@ -952,9 +1065,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/incremental-implementation",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#interview-me",
@@ -962,6 +1076,7 @@
       "description": "Extracts what the user actually wants instead of what they think they should want. Achieves this through one-question-at-a-time interview until ~95% confidence about the underlying intent. Use when an ask is underspecified ('build me X' without 'for whom' or 'why now'), when the user explicitly invokes ('interview me', 'grill me', 'are we sure?', 'stress-test my thinking'), or when you catch yourself silently filling in ambiguous requirements before any plan, spec, or code exists.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/interview-me/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/interview-me/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/interview-me/SKILL.md",
@@ -970,9 +1085,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/interview-me",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#investigate",
@@ -980,6 +1096,7 @@
       "description": "Systematic debugging with root cause investigation. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/investigate/SKILL.md",
+      "source_notes": "skills/engineering/gstack/investigate/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "investigate/SKILL.md",
@@ -988,9 +1105,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/investigate",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#ios-clean",
@@ -998,6 +1116,7 @@
       "description": "Remove the DebugBridge SPM package and all #if DEBUG wiring from an iOS app. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/ios-clean/SKILL.md",
+      "source_notes": "skills/engineering/gstack/ios-clean/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "ios-clean/SKILL.md",
@@ -1006,9 +1125,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/ios-clean",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#ios-fix",
@@ -1016,6 +1136,7 @@
       "description": "Autonomous iOS bug fixer. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/ios-fix/SKILL.md",
+      "source_notes": "skills/engineering/gstack/ios-fix/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "ios-fix/SKILL.md",
@@ -1024,9 +1145,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/ios-fix",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#ios-qa",
@@ -1034,6 +1156,7 @@
       "description": "Live-device iOS QA for SwiftUI apps. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/ios-qa/SKILL.md",
+      "source_notes": "skills/engineering/gstack/ios-qa/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "ios-qa/SKILL.md",
@@ -1042,9 +1165,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/ios-qa",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#ios-sync",
@@ -1052,6 +1176,7 @@
       "description": "Regenerate the iOS debug bridge against the latest upstream gstack templates. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/ios-sync/SKILL.md",
+      "source_notes": "skills/engineering/gstack/ios-sync/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "ios-sync/SKILL.md",
@@ -1060,9 +1185,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/ios-sync",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/obsidian-skills#json-canvas",
@@ -1070,6 +1196,7 @@
       "description": "Create and edit JSON Canvas files (.canvas) with nodes, edges, groups, and connections. Use when working with .canvas files, creating visual canvases, mind maps, flowcharts, or when the user mentions Canvas files in Obsidian.",
       "area": "engineering",
       "path": "skills/engineering/obsidian-skills/json-canvas/SKILL.md",
+      "source_notes": "skills/engineering/obsidian-skills/json-canvas/SOURCE.md",
       "author": "Steph Ango (@kepano)",
       "source_repository": "bhevivision/obsidian-skills",
       "source_path": "skills/json-canvas/SKILL.md",
@@ -1078,9 +1205,10 @@
       "source_folder_url": "https://github.com/bhevivision/obsidian-skills/tree/a1dc48e68138490d522c04cbf5822214c6eb1202/skills/json-canvas",
       "license": "MIT",
       "license_copy": "licenses/obsidian-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#land-and-deploy",
@@ -1088,6 +1216,7 @@
       "description": "Land and deploy workflow. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/land-and-deploy/SKILL.md",
+      "source_notes": "skills/engineering/gstack/land-and-deploy/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "land-and-deploy/SKILL.md",
@@ -1096,9 +1225,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/land-and-deploy",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#learn",
@@ -1106,6 +1236,7 @@
       "description": "Manage project learnings.",
       "area": "engineering",
       "path": "skills/engineering/gstack/learn/SKILL.md",
+      "source_notes": "skills/engineering/gstack/learn/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "learn/SKILL.md",
@@ -1114,9 +1245,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/learn",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#loop-me",
@@ -1124,6 +1256,7 @@
       "description": "Grill me about specs for the workflows I want to build, within this workspace.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/loop-me/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/loop-me/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/in-progress/loop-me/SKILL.md",
@@ -1132,9 +1265,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/loop-me",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#migrate-to-shoehorn",
@@ -1142,6 +1276,7 @@
       "description": "Migrate test files from `as` type assertions to @total-typescript/shoehorn. Use when user mentions shoehorn, wants to replace `as` in tests, or needs partial test data.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/migrate-to-shoehorn/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/migrate-to-shoehorn/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/misc/migrate-to-shoehorn/SKILL.md",
@@ -1150,9 +1285,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/misc/migrate-to-shoehorn",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#observability-and-instrumentation",
@@ -1160,6 +1296,7 @@
       "description": "Instruments code so production behavior is visible and diagnosable. Use when adding logging, metrics, tracing, or alerting. Use when shipping any feature that runs in production and you need evidence it works. Use when production issues are reported but you can't tell what happened from the available data.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/observability-and-instrumentation/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/observability-and-instrumentation/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/observability-and-instrumentation/SKILL.md",
@@ -1168,9 +1305,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/observability-and-instrumentation",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/obsidian-skills#obsidian-bases",
@@ -1178,6 +1316,7 @@
       "description": "Create and edit Obsidian Bases (.base files) with views, filters, formulas, and summaries. Use when working with .base files, creating database-like views of notes, or when the user mentions Bases, table views, card views, filters, or formulas in Obsidian.",
       "area": "engineering",
       "path": "skills/engineering/obsidian-skills/obsidian-bases/SKILL.md",
+      "source_notes": "skills/engineering/obsidian-skills/obsidian-bases/SOURCE.md",
       "author": "Steph Ango (@kepano)",
       "source_repository": "bhevivision/obsidian-skills",
       "source_path": "skills/obsidian-bases/SKILL.md",
@@ -1186,9 +1325,10 @@
       "source_folder_url": "https://github.com/bhevivision/obsidian-skills/tree/a1dc48e68138490d522c04cbf5822214c6eb1202/skills/obsidian-bases",
       "license": "MIT",
       "license_copy": "licenses/obsidian-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#office-hours",
@@ -1196,6 +1336,7 @@
       "description": "YC Office Hours — two modes. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/office-hours/SKILL.md",
+      "source_notes": "skills/engineering/gstack/office-hours/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "office-hours/SKILL.md",
@@ -1204,9 +1345,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/office-hours",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#performance-optimization",
@@ -1214,6 +1356,7 @@
       "description": "Optimizes application performance across frontend, backend, queries, and databases. Use when performance requirements exist, when you suspect performance regressions, when Core Web Vitals or load times need improvement, when N+1 query patterns need fixing, or when profiling reveals bottlenecks.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/performance-optimization/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/performance-optimization/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/performance-optimization/SKILL.md",
@@ -1222,9 +1365,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/performance-optimization",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#plan-ceo-review",
@@ -1232,6 +1376,7 @@
       "description": "CEO/founder-mode plan review. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/plan-ceo-review/SKILL.md",
+      "source_notes": "skills/engineering/gstack/plan-ceo-review/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "plan-ceo-review/SKILL.md",
@@ -1240,9 +1385,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/plan-ceo-review",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#plan-devex-review",
@@ -1250,6 +1396,7 @@
       "description": "Interactive developer experience plan review. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/plan-devex-review/SKILL.md",
+      "source_notes": "skills/engineering/gstack/plan-devex-review/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "plan-devex-review/SKILL.md",
@@ -1258,9 +1405,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/plan-devex-review",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#plan-eng-review",
@@ -1268,6 +1416,7 @@
       "description": "Eng manager-mode plan review. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/plan-eng-review/SKILL.md",
+      "source_notes": "skills/engineering/gstack/plan-eng-review/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "plan-eng-review/SKILL.md",
@@ -1276,9 +1425,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/plan-eng-review",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#plan-tune",
@@ -1286,6 +1436,7 @@
       "description": "Self-tuning question sensitivity + developer psychographic for gstack (v1: observational). (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/plan-tune/SKILL.md",
+      "source_notes": "skills/engineering/gstack/plan-tune/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "plan-tune/SKILL.md",
@@ -1294,9 +1445,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/plan-tune",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#planning-and-task-breakdown",
@@ -1304,6 +1456,7 @@
       "description": "Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/planning-and-task-breakdown/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/planning-and-task-breakdown/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/planning-and-task-breakdown/SKILL.md",
@@ -1312,9 +1465,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/planning-and-task-breakdown",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#pr",
@@ -1322,6 +1476,7 @@
       "description": "Use when writing a PR body.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/pr/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/pr/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/pr/SKILL.md",
@@ -1330,9 +1485,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/pr",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#prototype",
@@ -1340,6 +1496,7 @@
       "description": "Build a throwaway prototype to answer a design question. Use when the user wants to sanity-check whether a state model or logic feels right, or explore what a UI should look like.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/prototype/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/prototype/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/prototype/SKILL.md",
@@ -1348,9 +1505,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/prototype",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#qa",
@@ -1358,6 +1516,7 @@
       "description": "Systematically QA test a web application and fix bugs found. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/qa/SKILL.md",
+      "source_notes": "skills/engineering/gstack/qa/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "qa/SKILL.md",
@@ -1366,9 +1525,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/qa",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#qa-only",
@@ -1376,6 +1536,7 @@
       "description": "Report-only QA testing. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/qa-only/SKILL.md",
+      "source_notes": "skills/engineering/gstack/qa-only/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "qa-only/SKILL.md",
@@ -1384,9 +1545,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/qa-only",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#retro",
@@ -1394,6 +1556,7 @@
       "description": "Weekly engineering retrospective. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/retro/SKILL.md",
+      "source_notes": "skills/engineering/gstack/retro/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "retro/SKILL.md",
@@ -1402,9 +1565,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/retro",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#retro",
@@ -1412,6 +1576,7 @@
       "description": "Conduct a retrospective on a coding session.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/retro/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/retro/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/retro/SKILL.md",
@@ -1420,9 +1585,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/retro",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#review",
@@ -1430,6 +1596,7 @@
       "description": "Pre-landing PR review. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/review/SKILL.md",
+      "source_notes": "skills/engineering/gstack/review/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "review/SKILL.md",
@@ -1438,9 +1605,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/review",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 5,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#scaffold-exercises",
@@ -1448,6 +1616,7 @@
       "description": "Create exercise directory structures with sections, problems, solutions, and explainers that pass linting. Use when user wants to scaffold exercises, create exercise stubs, or set up a new course section.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/scaffold-exercises/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/scaffold-exercises/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/misc/scaffold-exercises/SKILL.md",
@@ -1456,9 +1625,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/misc/scaffold-exercises",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#security-and-hardening",
@@ -1466,6 +1636,7 @@
       "description": "Hardens code against vulnerabilities. Use when auditing an input handler for vulnerabilities, when handling user input, authentication, data storage, or external integrations, or when checking a login flow is safe against the OWASP Top Ten. Use when building any feature that accepts untrusted data, manages user sessions or session cookies, or interacts with third-party services. Use when auditing dependencies for known vulnerabilities, triaging package-manager audit findings, or assessing supply-chain risk in a new package. Use when personal data or privacy compliance (GDPR, CCPA) is involved.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/security-and-hardening/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/security-and-hardening/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/security-and-hardening/SKILL.md",
@@ -1474,9 +1645,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/security-and-hardening",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#setup-matt-pocock-skills",
@@ -1484,6 +1656,7 @@
       "description": "Configure this repo for the engineering skills: set up its issue tracker, triage label vocabulary, and domain doc layout. Run once before first use of the other engineering skills.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/setup-matt-pocock-skills/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/setup-matt-pocock-skills/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
@@ -1492,9 +1665,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/setup-matt-pocock-skills",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 5,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#ship",
@@ -1502,6 +1676,7 @@
       "description": "Ship workflow: detect + merge base branch, run tests, review diff, bump VERSION, update CHANGELOG, commit, push, create PR. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/ship/SKILL.md",
+      "source_notes": "skills/engineering/gstack/ship/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "ship/SKILL.md",
@@ -1510,9 +1685,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/ship",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#shipping-and-launch",
@@ -1520,6 +1696,7 @@
       "description": "Prepares production launches. Use when preparing to deploy to production, or when asking what needs to be in place before shipping. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/shipping-and-launch/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/shipping-and-launch/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/shipping-and-launch/SKILL.md",
@@ -1528,9 +1705,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/shipping-and-launch",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#skillify",
@@ -1538,6 +1716,7 @@
       "description": "Codify the most recent successful /scrape flow into a permanent browser-skill on disk. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/skillify/SKILL.md",
+      "source_notes": "skills/engineering/gstack/skillify/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "skillify/SKILL.md",
@@ -1546,9 +1725,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/skillify",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#software-factory",
@@ -1556,6 +1736,7 @@
       "description": "Shared language for designing a software factory: the tasks it runs and the services it plugs into.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/software-factory/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/software-factory/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/in-progress/software-factory/SKILL.md",
@@ -1564,9 +1745,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/software-factory",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 5,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#source-driven-development",
@@ -1574,6 +1756,7 @@
       "description": "Grounds every implementation decision in official documentation. Use when you want to verify an approach against the official docs before implementing it, or when you want authoritative, source-cited code free from outdated patterns. Use when building with any framework or library where correctness matters.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/source-driven-development/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/source-driven-development/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/source-driven-development/SKILL.md",
@@ -1582,9 +1765,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/source-driven-development",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#spec",
@@ -1592,6 +1776,7 @@
       "description": "Turn vague intent into a precise, executable spec in five phases. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/spec/SKILL.md",
+      "source_notes": "skills/engineering/gstack/spec/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "spec/SKILL.md",
@@ -1600,9 +1785,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/spec",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#spec-driven-development",
@@ -1610,6 +1796,7 @@
       "description": "Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when drafting a PRD or requirements document with objectives and scope, or when requirements are unclear, ambiguous, or only exist as a vague idea. Use when a single requirement spans several independently testable capabilities and needs decomposing into a capability map of modules before specifying.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/spec-driven-development/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/spec-driven-development/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/spec-driven-development/SKILL.md",
@@ -1618,9 +1805,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/spec-driven-development",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#tdd",
@@ -1628,6 +1816,7 @@
       "description": "Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions 'red-green-refactor', or wants integration tests.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/tdd/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/tdd/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/tdd/SKILL.md",
@@ -1636,9 +1825,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/tdd",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#test-driven-development",
@@ -1646,6 +1836,7 @@
       "description": "Drives development with tests using the red-green-refactor loop. Use when implementing any logic, fixing any bug, or changing any behavior. Use when you need to prove that code works, when a bug report arrives, or when you're about to modify existing functionality. Use when asked to add tests to a function, fix a bug in it or change its behavior, even when the code is pasted inline and the request does not mention tests.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/test-driven-development/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/test-driven-development/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/test-driven-development/SKILL.md",
@@ -1654,9 +1845,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/test-driven-development",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#to-questionnaire",
@@ -1664,6 +1856,7 @@
       "description": "Turn a decision you can't fully answer into a questionnaire for someone else to fill in.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/to-questionnaire/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/to-questionnaire/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/productivity/to-questionnaire/SKILL.md",
@@ -1672,9 +1865,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/to-questionnaire",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#to-spec",
@@ -1682,6 +1876,7 @@
       "description": "Turn the current conversation into a spec and publish it to the project issue tracker: no interview, just synthesis of what you've already discussed.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/to-spec/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/to-spec/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/to-spec/SKILL.md",
@@ -1690,9 +1885,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/to-spec",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#to-tickets",
@@ -1700,6 +1896,7 @@
       "description": "Break a plan, spec, or the current conversation into a set of tracer-bullet tickets, each declaring its blocking edges, published to the configured tracker (edges as text in one file per ticket locally, or native blocking links on a real tracker).",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/to-tickets/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/to-tickets/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/to-tickets/SKILL.md",
@@ -1708,9 +1905,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/to-tickets",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#triage",
@@ -1718,6 +1916,7 @@
       "description": "Move issues and external PRs through a state machine of triage roles, categorise, verify, grill if needed, and write agent-ready briefs.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/triage/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/triage/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/triage/SKILL.md",
@@ -1726,9 +1925,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/triage",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#unfreeze",
@@ -1736,6 +1936,7 @@
       "description": "Clear the freeze boundary set by /freeze, allowing edits to all directories again. (gstack)",
       "area": "engineering",
       "path": "skills/engineering/gstack/unfreeze/SKILL.md",
+      "source_notes": "skills/engineering/gstack/unfreeze/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "unfreeze/SKILL.md",
@@ -1744,9 +1945,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/unfreeze",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/universal-skill-library#unlazy",
@@ -1754,6 +1956,7 @@
       "description": "Require verifiable evidence before reporting work complete.",
       "area": "engineering",
       "path": "skills/engineering/universal-skill-library/unlazy/SKILL.md",
+      "source_notes": "skills/engineering/universal-skill-library/unlazy/SOURCE.md",
       "author": "bhevivision (author not stated in file)",
       "source_repository": "bhevivision/universal-skill-library",
       "source_path": "personalizzazione/UNLAZY-skill.md",
@@ -1762,9 +1965,10 @@
       "source_folder_url": "https://github.com/bhevivision/universal-skill-library/tree/main/personalizzazione",
       "license": "unspecified",
       "license_copy": null,
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "Copied from the source text; dependency review required."
+      "import_status": "legacy_copy"
     },
     {
       "id": "addyosmani/agent-skills#using-agent-skills",
@@ -1772,6 +1976,7 @@
       "description": "Discovers and invokes agent skills. Use when starting a session, or when you need to decide which skill or workflow applies to the piece of work at hand. This is the meta-skill that governs how all other skills are discovered and invoked.",
       "area": "engineering",
       "path": "skills/engineering/addy-agent-skills/using-agent-skills/SKILL.md",
+      "source_notes": "skills/engineering/addy-agent-skills/using-agent-skills/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/using-agent-skills/SKILL.md",
@@ -1780,9 +1985,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/using-agent-skills",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#wait-what",
@@ -1790,6 +1996,7 @@
       "description": "Stop. That last message did not land: re-pitch it.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/wait-what/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/wait-what/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/productivity/wait-what/SKILL.md",
@@ -1798,9 +2005,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/wait-what",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#wayfinder",
@@ -1808,6 +2016,7 @@
       "description": "Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way to the destination is clear.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/wayfinder/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/wayfinder/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/wayfinder/SKILL.md",
@@ -1816,9 +2025,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/wayfinder",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#wizard",
@@ -1826,6 +2036,7 @@
       "description": "Generate an interactive bash wizard that walks a human through steps only they can perform. Use when provisioning infrastructure, setting up credentials or CI secrets, walking an unfamiliar third-party dashboard, or running a one-off migration or cutover. Don't invoke this for steps the agent can perform itself.",
       "area": "engineering",
       "path": "skills/engineering/matt-pocock-skills/wizard/SKILL.md",
+      "source_notes": "skills/engineering/matt-pocock-skills/wizard/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/wizard/SKILL.md",
@@ -1834,9 +2045,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/wizard",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/book-to-skill#book-to-skill",
@@ -1844,6 +2056,7 @@
       "description": "Converts books and documents (PDF, EPUB, DOCX, HTML, Markdown, plain text, RTF, MOBI/AZW with Calibre) into structured agent skills, extracting frameworks, mental models, principles, techniques, and anti-patterns. Use when the user wants to study a document through GitHub Copilot CLI, Amp, or Claude Code, apply an author's frameworks while working, or build a reusable knowledge base from a file.",
       "area": "research",
       "path": "skills/research/book-to-skill/book-to-skill/SKILL.md",
+      "source_notes": "skills/research/book-to-skill/book-to-skill/SOURCE.md",
       "author": "virgiliojr94",
       "source_repository": "bhevivision/book-to-skill",
       "source_path": "SKILL.md",
@@ -1852,9 +2065,10 @@
       "source_folder_url": "https://github.com/bhevivision/book-to-skill/tree/8c3eb1e2d527ea287b64d6a1a8520e6ba2f82534",
       "license": "MIT",
       "license_copy": "licenses/book-to-skill-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 8,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#browse",
@@ -1862,6 +2076,7 @@
       "description": "Fast headless browser for QA testing and site dogfooding. (gstack)",
       "area": "research",
       "path": "skills/research/gstack/browse/SKILL.md",
+      "source_notes": "skills/research/gstack/browse/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "browse/SKILL.md",
@@ -1870,9 +2085,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/browse",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/obsidian-skills#defuddle",
@@ -1880,6 +2096,7 @@
       "description": "Extract clean markdown content from web pages using Defuddle CLI, removing clutter and navigation to save tokens. Use instead of WebFetch when the user provides a URL to read or analyze, for online documentation, articles, blog posts, or any standard web page. Do NOT use for URLs ending in .md — those are already markdown, use WebFetch directly.",
       "area": "research",
       "path": "skills/research/obsidian-skills/defuddle/SKILL.md",
+      "source_notes": "skills/research/obsidian-skills/defuddle/SOURCE.md",
       "author": "Steph Ango (@kepano)",
       "source_repository": "bhevivision/obsidian-skills",
       "source_path": "skills/defuddle/SKILL.md",
@@ -1888,9 +2105,10 @@
       "source_folder_url": "https://github.com/bhevivision/obsidian-skills/tree/a1dc48e68138490d522c04cbf5822214c6eb1202/skills/defuddle",
       "license": "MIT",
       "license_copy": "licenses/obsidian-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/universal-skill-library#find-skills",
@@ -1898,6 +2116,7 @@
       "description": "Help identify existing reusable agent skills and their original sources.",
       "area": "research",
       "path": "skills/research/universal-skill-library/find-skills/SKILL.md",
+      "source_notes": "skills/research/universal-skill-library/find-skills/SOURCE.md",
       "author": "bhevivision (author not stated in file)",
       "source_repository": "bhevivision/universal-skill-library",
       "source_path": "personalizzazione/find-skill.md",
@@ -1906,9 +2125,10 @@
       "source_folder_url": "https://github.com/bhevivision/universal-skill-library/tree/main/personalizzazione",
       "license": "unspecified",
       "license_copy": null,
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "Copied from the source text; dependency review required."
+      "import_status": "legacy_copy"
     },
     {
       "id": "mattpocock/skills#grill-me",
@@ -1916,6 +2136,7 @@
       "description": "A relentless interview to sharpen a plan or design.",
       "area": "research",
       "path": "skills/research/matt-pocock-skills/grill-me/SKILL.md",
+      "source_notes": "skills/research/matt-pocock-skills/grill-me/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/productivity/grill-me/SKILL.md",
@@ -1924,9 +2145,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/grill-me",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#grilling",
@@ -1934,6 +2156,7 @@
       "description": "Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.",
       "area": "research",
       "path": "skills/research/matt-pocock-skills/grilling/SKILL.md",
+      "source_notes": "skills/research/matt-pocock-skills/grilling/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/productivity/grilling/SKILL.md",
@@ -1942,9 +2165,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/grilling",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#hackernews-frontpage",
@@ -1952,6 +2176,7 @@
       "description": "Scrape the Hacker News front page (titles, points, comment counts).",
       "area": "research",
       "path": "skills/research/gstack/hackernews-frontpage/SKILL.md",
+      "source_notes": "skills/research/gstack/hackernews-frontpage/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "browser-skills/hackernews-frontpage/SKILL.md",
@@ -1960,9 +2185,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/browser-skills/hackernews-frontpage",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#landing-report",
@@ -1970,6 +2196,7 @@
       "description": "Read-only queue dashboard for workspace-aware ship. (gstack)",
       "area": "research",
       "path": "skills/research/gstack/landing-report/SKILL.md",
+      "source_notes": "skills/research/gstack/landing-report/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "landing-report/SKILL.md",
@@ -1978,9 +2205,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/landing-report",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/last30days-skill#last30days",
@@ -1988,6 +2216,7 @@
       "description": "Research what people actually say about any topic in the last 30 days. Pulls posts and engagement from Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub, and the web.",
       "area": "research",
       "path": "skills/research/last30days-skill/last30days/SKILL.md",
+      "source_notes": "skills/research/last30days-skill/last30days/SOURCE.md",
       "author": "Matt Van Horn",
       "source_repository": "bhevivision/last30days-skill",
       "source_path": "skills/last30days/SKILL.md",
@@ -1996,9 +2225,10 @@
       "source_folder_url": "https://github.com/bhevivision/last30days-skill/tree/a9d2674147b8e6d4eba45f71bf9e05af6262fa21/skills/last30days",
       "license": "MIT",
       "license_copy": "licenses/last30days-skill-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#open-gstack-browser",
@@ -2006,6 +2236,7 @@
       "description": "Launch GStack Browser — AI-controlled Chromium with the sidebar extension baked in.",
       "area": "research",
       "path": "skills/research/gstack/open-gstack-browser/SKILL.md",
+      "source_notes": "skills/research/gstack/open-gstack-browser/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "open-gstack-browser/SKILL.md",
@@ -2014,9 +2245,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/open-gstack-browser",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#research",
@@ -2024,6 +2256,7 @@
       "description": "Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.",
       "area": "research",
       "path": "skills/research/matt-pocock-skills/research/SKILL.md",
+      "source_notes": "skills/research/matt-pocock-skills/research/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/engineering/research/SKILL.md",
@@ -2032,9 +2265,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/research",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#scrape",
@@ -2042,6 +2276,7 @@
       "description": "Pull data from a web page. (gstack)",
       "area": "research",
       "path": "skills/research/gstack/scrape/SKILL.md",
+      "source_notes": "skills/research/gstack/scrape/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "scrape/SKILL.md",
@@ -2050,9 +2285,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/scrape",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#setup-browser-cookies",
@@ -2060,6 +2296,7 @@
       "description": "Import cookies from your real Chromium browser into the headless browse session. (gstack)",
       "area": "research",
       "path": "skills/research/gstack/setup-browser-cookies/SKILL.md",
+      "source_notes": "skills/research/gstack/setup-browser-cookies/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "setup-browser-cookies/SKILL.md",
@@ -2068,9 +2305,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/setup-browser-cookies",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/claude-video#watch",
@@ -2078,6 +2316,7 @@
       "description": "Watch a video (URL or local path). Downloads with yt-dlp, extracts auto-scaled frames with ffmpeg, pulls the transcript from captions (or Whisper API fallback), and hands the result to Claude so it can answer questions about what's in the video.",
       "area": "research",
       "path": "skills/research/claude-video/watch/SKILL.md",
+      "source_notes": "skills/research/claude-video/watch/SOURCE.md",
       "author": "Bradley Bonanno",
       "source_repository": "bhevivision/claude-video",
       "source_path": "skills/watch/SKILL.md",
@@ -2086,9 +2325,10 @@
       "source_folder_url": "https://github.com/bhevivision/claude-video/tree/83da59fa78c3eee9e20f515fe75c438bb5166efd/skills/watch",
       "license": "MIT",
       "license_copy": "licenses/claude-video-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/universal-skill-library#archivista",
@@ -2096,6 +2336,7 @@
       "description": "Review book-project materials against their supplied rules; reference rules are currently missing.",
       "area": "writing",
       "path": "skills/writing/universal-skill-library/archivista/SKILL.md",
+      "source_notes": "skills/writing/universal-skill-library/archivista/SOURCE.md",
       "author": "bhevivision (author not stated in file)",
       "source_repository": "bhevivision/universal-skill-library",
       "source_path": "personalizzazione/archivista-skill.md",
@@ -2104,9 +2345,10 @@
       "source_folder_url": "https://github.com/bhevivision/universal-skill-library/tree/main/personalizzazione",
       "license": "unspecified",
       "license_copy": null,
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "Copied from the source text; dependency review required."
+      "import_status": "incomplete_missing_reference"
     },
     {
       "id": "bhevivision/gstack#design-consultation",
@@ -2114,6 +2356,7 @@
       "description": "Design consultation: understands your product, researches the landscape, proposes a complete design system (aesthetic, typography, color, layout, spacing, motion), and generates font+color preview... (gstack)",
       "area": "writing",
       "path": "skills/writing/gstack/design-consultation/SKILL.md",
+      "source_notes": "skills/writing/gstack/design-consultation/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "design-consultation/SKILL.md",
@@ -2122,9 +2365,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/design-consultation",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#design-html",
@@ -2132,6 +2376,7 @@
       "description": "Design finalization: generates production-quality Pretext-native HTML/CSS. (gstack)",
       "area": "writing",
       "path": "skills/writing/gstack/design-html/SKILL.md",
+      "source_notes": "skills/writing/gstack/design-html/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "design-html/SKILL.md",
@@ -2140,9 +2385,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/design-html",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#design-review",
@@ -2150,6 +2396,7 @@
       "description": "Designer's eye QA: finds visual inconsistency, spacing issues, hierarchy problems, AI slop patterns, and slow interactions — then fixes them. (gstack)",
       "area": "writing",
       "path": "skills/writing/gstack/design-review/SKILL.md",
+      "source_notes": "skills/writing/gstack/design-review/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "design-review/SKILL.md",
@@ -2158,9 +2405,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/design-review",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#design-shotgun",
@@ -2168,6 +2416,7 @@
       "description": "Design shotgun: generate multiple AI design variants, open a comparison board, collect structured feedback, and iterate. (gstack)",
       "area": "writing",
       "path": "skills/writing/gstack/design-shotgun/SKILL.md",
+      "source_notes": "skills/writing/gstack/design-shotgun/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "design-shotgun/SKILL.md",
@@ -2176,9 +2425,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/design-shotgun",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#diagram",
@@ -2186,6 +2436,7 @@
       "description": "Turn an English description (or mermaid source) into a diagram triplet: the source, an editable .excalidraw file you can open (gstack)",
       "area": "writing",
       "path": "skills/writing/gstack/diagram/SKILL.md",
+      "source_notes": "skills/writing/gstack/diagram/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "diagram/SKILL.md",
@@ -2194,9 +2445,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/diagram",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#document-generate",
@@ -2204,6 +2456,7 @@
       "description": "Generate missing documentation from scratch for a feature, module, or entire project. (gstack)",
       "area": "writing",
       "path": "skills/writing/gstack/document-generate/SKILL.md",
+      "source_notes": "skills/writing/gstack/document-generate/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "document-generate/SKILL.md",
@@ -2212,9 +2465,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/document-generate",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#document-release",
@@ -2222,6 +2476,7 @@
       "description": "Post-ship documentation update. (gstack)",
       "area": "writing",
       "path": "skills/writing/gstack/document-release/SKILL.md",
+      "source_notes": "skills/writing/gstack/document-release/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "document-release/SKILL.md",
@@ -2230,9 +2485,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/document-release",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "addyosmani/agent-skills#documentation-and-adrs",
@@ -2240,6 +2496,7 @@
       "description": "Records decisions and documentation. Use when you need to document an architecture decision (ADR) or the reasoning behind a design choice, when changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase.",
       "area": "writing",
       "path": "skills/writing/addy-agent-skills/documentation-and-adrs/SKILL.md",
+      "source_notes": "skills/writing/addy-agent-skills/documentation-and-adrs/SOURCE.md",
       "author": "Addy Osmani",
       "source_repository": "addyosmani/agent-skills",
       "source_path": "skills/documentation-and-adrs/SKILL.md",
@@ -2248,9 +2505,10 @@
       "source_folder_url": "https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/documentation-and-adrs",
       "license": "MIT",
       "license_copy": "licenses/addy-agent-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#ios-design-review",
@@ -2258,6 +2516,7 @@
       "description": "Visual design audit for iOS apps on real hardware. (gstack)",
       "area": "writing",
       "path": "skills/writing/gstack/ios-design-review/SKILL.md",
+      "source_notes": "skills/writing/gstack/ios-design-review/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "ios-design-review/SKILL.md",
@@ -2266,9 +2525,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/ios-design-review",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#make-pdf",
@@ -2276,6 +2536,7 @@
       "description": "Turn any markdown file into a publication-quality PDF. (gstack)",
       "area": "writing",
       "path": "skills/writing/gstack/make-pdf/SKILL.md",
+      "source_notes": "skills/writing/gstack/make-pdf/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "make-pdf/SKILL.md",
@@ -2284,9 +2545,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/make-pdf",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/obsidian-skills#obsidian-markdown",
@@ -2294,6 +2556,7 @@
       "description": "Create and edit Obsidian Flavored Markdown with wikilinks, embeds, callouts, properties, and other Obsidian-specific syntax. Use when working with .md files in Obsidian, or when the user mentions wikilinks, callouts, frontmatter, tags, embeds, or Obsidian notes.",
       "area": "writing",
       "path": "skills/writing/obsidian-skills/obsidian-markdown/SKILL.md",
+      "source_notes": "skills/writing/obsidian-skills/obsidian-markdown/SOURCE.md",
       "author": "Steph Ango (@kepano)",
       "source_repository": "bhevivision/obsidian-skills",
       "source_path": "skills/obsidian-markdown/SKILL.md",
@@ -2302,9 +2565,10 @@
       "source_folder_url": "https://github.com/bhevivision/obsidian-skills/tree/a1dc48e68138490d522c04cbf5822214c6eb1202/skills/obsidian-markdown",
       "license": "MIT",
       "license_copy": "licenses/obsidian-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/gstack#plan-design-review",
@@ -2312,6 +2576,7 @@
       "description": "Designer's eye plan review — interactive, like CEO and Eng review. (gstack)",
       "area": "writing",
       "path": "skills/writing/gstack/plan-design-review/SKILL.md",
+      "source_notes": "skills/writing/gstack/plan-design-review/SOURCE.md",
       "author": "Garry Tan",
       "source_repository": "bhevivision/gstack",
       "source_path": "plan-design-review/SKILL.md",
@@ -2320,9 +2585,10 @@
       "source_folder_url": "https://github.com/bhevivision/gstack/tree/11de390be1be6849eb9a15f91ff4922dd16c589a/plan-design-review",
       "license": "MIT",
       "license_copy": "licenses/gstack-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "bhevivision/stop-slop#stop-slop",
@@ -2330,6 +2596,7 @@
       "description": "Remove AI writing patterns from prose. Use when drafting, editing, or reviewing text to eliminate predictable AI tells.",
       "area": "writing",
       "path": "skills/writing/stop-slop/stop-slop/SKILL.md",
+      "source_notes": "skills/writing/stop-slop/stop-slop/SOURCE.md",
       "author": "Hardik Pandya",
       "source_repository": "bhevivision/stop-slop",
       "source_path": "SKILL.md",
@@ -2338,9 +2605,10 @@
       "source_folder_url": "https://github.com/bhevivision/stop-slop/tree/8da1f030185bdfe8471220585162991eaeb970e9",
       "license": "MIT",
       "license_copy": "licenses/stop-slop-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 2,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#teach",
@@ -2348,6 +2616,7 @@
       "description": "Teach the user a new skill or concept, within this workspace.",
       "area": "writing",
       "path": "skills/writing/matt-pocock-skills/teach/SKILL.md",
+      "source_notes": "skills/writing/matt-pocock-skills/teach/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/productivity/teach/SKILL.md",
@@ -2356,9 +2625,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/teach",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 4,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#writing-beats",
@@ -2366,6 +2636,7 @@
       "description": "Writing, exploit; assemble raw material into a journey of beats, grounding each term before a beat leans on it.",
       "area": "writing",
       "path": "skills/writing/matt-pocock-skills/writing-beats/SKILL.md",
+      "source_notes": "skills/writing/matt-pocock-skills/writing-beats/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/in-progress/writing-beats/SKILL.md",
@@ -2374,9 +2645,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/writing-beats",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#writing-for-agents",
@@ -2384,6 +2656,7 @@
       "description": "Writing documents for agents. Use when creating or editing skills, or modifying AGENTS.md or CLAUDE.md.",
       "area": "writing",
       "path": "skills/writing/matt-pocock-skills/writing-for-agents/SKILL.md",
+      "source_notes": "skills/writing/matt-pocock-skills/writing-for-agents/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/productivity/writing-for-agents/SKILL.md",
@@ -2392,9 +2665,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/writing-for-agents",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 1,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#writing-fragments",
@@ -2402,6 +2676,7 @@
       "description": "Writing, explore: mine raw fragments, no structure yet.",
       "area": "writing",
       "path": "skills/writing/matt-pocock-skills/writing-fragments/SKILL.md",
+      "source_notes": "skills/writing/matt-pocock-skills/writing-fragments/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/in-progress/writing-fragments/SKILL.md",
@@ -2410,9 +2685,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/writing-fragments",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     },
     {
       "id": "mattpocock/skills#writing-shape",
@@ -2420,6 +2696,7 @@
       "description": "Writing, exploit: shape raw material into an article, paragraph by paragraph.",
       "area": "writing",
       "path": "skills/writing/matt-pocock-skills/writing-shape/SKILL.md",
+      "source_notes": "skills/writing/matt-pocock-skills/writing-shape/SOURCE.md",
       "author": "Matt Pocock",
       "source_repository": "mattpocock/skills",
       "source_path": "skills/in-progress/writing-shape/SKILL.md",
@@ -2428,9 +2705,10 @@
       "source_folder_url": "https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/writing-shape",
       "license": "MIT",
       "license_copy": "licenses/matt-pocock-skills-LICENSE.txt",
-      "prerequisites": "Review SKILL.md; requirements and supporting files have not been independently inventoried.",
+      "supporting_files_copied": 0,
+      "requirements": "See SKILL.md and SOURCE.md; dependencies were not independently assessed.",
       "verification": "Not independently tested.",
-      "package_status": "SKILL.md copied; linked upstream supporting files are not mirrored yet."
+      "import_status": "skill_folder_copied"
     }
   ],
   "materials_needing_recovery": [

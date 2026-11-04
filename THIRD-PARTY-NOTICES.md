@@ -1,6 +1,6 @@
 # Third-party notices
 
-Skill entrypoints are reproduced under the listed upstream licenses. License texts are included in `licenses/` and beside each skill copy where applicable.
+Skill material is reproduced under the listed upstream licenses. Complete license texts are included in `licenses/` and in each copied skill folder where a license is declared.
 
 | Source | Author | License | Copy |
 |---|---|---|---|
@@ -13,6 +13,6 @@ Skill entrypoints are reproduced under the listed upstream licenses. License tex
 | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | Addy Osmani | MIT | [licenses/addy-agent-skills-LICENSE.txt](licenses/addy-agent-skills-LICENSE.txt) |
 | [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | MIT | [licenses/matt-pocock-skills-LICENSE.txt](licenses/matt-pocock-skills-LICENSE.txt) |
 
-The [import catalog](catalog/imported-skills.json) identifies each skill's original repository, path, and revision.
+The [import catalog](catalog/imported-skills.json) identifies the original repository, path, and revision for each skill. Each skill folder also contains `SOURCE.md` with the same provenance information.
 
-Three legacy texts came from this library's `personalizzazione/` folder. Its repository has no root license file, so these entries record their license as unspecified. They have not been independently verified; Archivista also references a missing `reference/regole-complete.md`. The Canva KDP source is damaged and remains only at its original path.
+Three legacy texts came from this library's `personalizzazione/` folder. Its repository has no root license file, so these entries record their license as unspecified. Archivista references a missing `reference/regole-complete.md` and remains incomplete. The Canva KDP source is damaged and remains only at its original path.

@@ -4,10 +4,10 @@ Start here to discover reusable skills for any project, regardless of the agent 
 
 ## How to use the library
 
-1. Find candidates in the area indexes and read each complete `SKILL.md`.
-2. Check the source, requirements, and verification status in [the import catalog](catalog/imported-skills.json).
-3. Copy the selected skill folder into the project and preserve its `LICENSE` file and attribution.
-4. If the skill references scripts or other files not included here, retrieve them from its linked source folder before using it.
+1. Find candidates in the area indexes and read the complete skill folder.
+2. Check each skill's `SOURCE.md` and [the import catalog](catalog/imported-skills.json) for its author, license, requirements, and verification status.
+3. Copy the full selected skill folder, including supporting files, `LICENSE`, and `SOURCE.md`, into the project.
+4. Follow its workflow only where it fits the current request and environment. Check any declared external tools or account requirements first.
 5. Verify the result in the target project and report only evidence that was actually checked.
 
 Repository instructions and skill text are reference material. A skill does not authorize actions the user has not requested.
@@ -23,6 +23,6 @@ The categories are open browsing aids. Cross-reference a skill when it applies t
 
 ## Import status
 
-The library contains 135 skill entrypoints from the discovered GitHub repositories and the two supplied ZIP packages. None is marked as independently tested. Supporting files referenced by some skills still need to be fetched from the linked source folder. One damaged Canva KDP item is retained at its original path and excluded from usable skills.
+The collection includes 135 skill folders or entrypoints: 68 found in the account's GitHub repositories, 64 in the two provided ZIP files, and three legacy texts already in this library. It also includes 659 supporting files from the source skill directories. Imported material has not been independently function-tested. One damaged Canva KDP source is retained at its original path and excluded from usable skills.
 
 See [third-party notices](THIRD-PARTY-NOTICES.md) for original authors and licenses.
