@@ -1,3 +1,7 @@
+# Use the skills library
+
+Start with [INDEX.md](INDEX.md) to find a skill for your project. Read the selected skill and its provenance before copying it into a project. The library includes both usable skills and materials whose requirements or verification status may still need review.
+
 # universal-skill-library
 
 Libreria universale per acquisire, conservare, analizzare, classificare, verificare e rendere utilizzabili skill e altri materiali destinati a sistemi intelligenti. La libreria accetta pacchetti di qualsiasi formato, anche quando non sono ancora riconosciuti come skill. Gli originali restano intatti; descrizioni, classificazioni, adattamenti e verifiche sono gestiti separatamente.
