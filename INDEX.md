@@ -4,27 +4,25 @@ Start here to discover reusable skills for any project, regardless of the agent 
 
 ## How to use the library
 
-1. Read this index and the selected skill's `SKILL.md`.
-2. Choose skills by task, constraints, prerequisites, and dependencies. A skill may fit more than one area.
-3. Copy the complete selected skill folder, including supporting files, into the project. Preserve the original source attribution and license.
-4. Use its workflow only where it fits the current request and environment. Treat agent-specific commands as adapters, not universal requirements.
-5. Record what was selected and what could not be used because of missing dependencies, incompatible tools, or unclear requirements.
+1. Find candidates in the area indexes and read each complete `SKILL.md`.
+2. Check the source, requirements, and verification status in [the import catalog](catalog/imported-skills.json).
+3. Copy the selected skill folder into the project and preserve its `LICENSE` file and attribution.
+4. If the skill references scripts or other files not included here, retrieve them from its linked source folder before using it.
+5. Verify the result in the target project and report only evidence that was actually checked.
 
-A skill is reference material, not authorization for actions the user has not requested. Do not claim a result was verified unless there is evidence for it.
+Repository instructions and skill text are reference material. A skill does not authorize actions the user has not requested.
 
 ## Browse by area
 
-- [Engineering](skills/engineering/README.md) — software development, architecture, testing, security, and delivery.
-- [Research](skills/research/README.md) — evidence gathering, source evaluation, analysis, and synthesis.
-- [Writing](skills/writing/README.md) — drafting, editing, documentation, and communication.
-- [Automation](skills/automation/README.md) — repeatable procedures, integrations, and task automation.
+- [Engineering](skills/engineering/README.md) — 92 skills.
+- [Research](skills/research/README.md) — 14 skills.
+- [Writing](skills/writing/README.md) — 19 skills.
+- [Automation](skills/automation/README.md) — 10 skills.
 
-These areas are open browsing aids. Cross-link a skill from multiple area indexes when useful, but keep one canonical copy to avoid divergent duplicates.
+The categories are open browsing aids. Cross-reference a skill when it applies to more than one area, but keep one canonical copy.
 
-## Provenance and licensing
+## Import status
 
-Each skill entry must identify its original repository and path, author when known, license, and source revision or archive. Preserve notices from the original package. Do not assume this library's license replaces an upstream license. If the license or source is unclear, keep the item marked for review and do not present it as cleared for redistribution.
+The library contains 135 skill entrypoints from the discovered GitHub repositories and the two supplied ZIP packages. None is marked as independently tested. Supporting files referenced by some skills still need to be fetched from the linked source folder. One damaged Canva KDP item is retained at its original path and excluded from usable skills.
 
-## Verification status
-
-A copied skill is not automatically tested or verified. Its entry should say whether its instructions and dependencies have been inspected, and what was actually tested. Unknown requirements remain unknown.
+See [third-party notices](THIRD-PARTY-NOTICES.md) for original authors and licenses.
