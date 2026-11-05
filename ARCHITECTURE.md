@@ -17,6 +17,7 @@ Trasformare un obiettivo espresso in linguaggio naturale in attività eseguibili
 9. Adattamenti e istruzioni specifiche di piattaforma restano separati dall'originale.
 10. Composizione dinamica, verifica basata su prove, minimo privilegio e approvazione umana per operazioni rischiose.
 11. Dichiarare limiti e impossibilità; mai simulare un successo.
+12. Applicare UNLAZY come regola trasversale obbligatoria: nessuna attività è COMPLETATA senza verifica e prova coerenti. Il contratto canonico è `docs/UNLAZY-GOVERNANCE-CONTRACT.md`.
 
 ## Responsabilità logiche
 - Interprete dell'obiettivo: formalizza risultato, vincoli e criteri di accettazione.
@@ -29,6 +30,7 @@ Trasformare un obiettivo espresso in linguaggio naturale in attività eseguibili
 - Verificatore: confronta risultati e criteri, registra esito e prove; quando serve è indipendente dall'esecutore.
 - Gestione di stato, prove e decisioni: conserva cronologia, errori, autorizzazioni, versioni e prove.
 - Politiche e autorizzazioni: controllano permessi, rischio, reversibilità e necessità di approvazione. Una skill non concede autorizzazioni.
+- Governance UNLAZY: applica il contratto centrale a pianificazione, esecuzione, verifica e accettazione di ogni attività e ruolo; registra prove, stati, blocchi e autorizzazioni.
 
 Queste responsabilità non richiedono necessariamente agenti o servizi separati.
 
@@ -71,3 +73,7 @@ Un elemento può essere conservato ma non classificato; classificato ma document
 Il pacchetto originale è la fonte conservata. La scheda esterna descrive ciò che è noto senza modificare la fonte. Il catalogo consente ricerca e selezione. Un adattatore rende un contenuto utilizzabile in uno specifico ambiente senza trasformare l'originale. Un'implementazione è una realizzazione eseguibile; uno strumento è una risorsa concreta.
 
 I controlli generali di acquisizione e integrità sono separati dai controlli specifici dei profili di formato. Il validatore applica il controllo Agent Skills soltanto ai pacchetti registrati tramite SKILL.md. La conservazione di materiali eterogenei è implementata per i tipi documentati; l'interpretazione e la verifica funzionale di ogni formato non lo sono. Non si deve confondere la capacità di conservare un formato con la capacità di comprenderlo o renderlo utilizzabile.
+
+## Governance obbligatoria UNLAZY
+
+UNLAZY è un requisito architetturale trasversale e non una skill facoltativa. Il contratto canonico è `docs/UNLAZY-GOVERNANCE-CONTRACT.md`. Ogni skill e ogni ruolo operativo devono essere soggetti allo stesso componente centrale. Il richiamo automatico a livello di runtime è un obiettivo tecnico ancora da implementare e verificare: la sola presenza di questo documento non dimostra che il controllo sia già attivo.
