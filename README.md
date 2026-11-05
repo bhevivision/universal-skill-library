@@ -15,6 +15,7 @@ Agent Skills è un formato supportato, non un requisito per conservare un pacche
 
 ## Documentazione
 - [Architettura](ARCHITECTURE.md)
+- [Contratto centrale obbligatorio UNLAZY](docs/UNLAZY-GOVERNANCE-CONTRACT.md)
 - [Modello strutturale](STRUCTURAL-MODEL.md)
 - [Glossario](GLOSSARY.md)
 - [Decisioni e questioni aperte](DECISIONS.md)

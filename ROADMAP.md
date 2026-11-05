@@ -82,6 +82,24 @@ Solo dopo che la procedura di acquisizione e conservazione è verificata sul com
 
 Regola: preservare esattamente i materiali originali. Non riscrivere, correggere o adattare preventivamente. Acquisizione, documentazione, verifica e approvazione all'uso sono passaggi distinti.
 
+## Fase 5 — Governance centrale UNLAZY
+
+Contratto normativo registrato in `docs/UNLAZY-GOVERNANCE-CONTRACT.md` e decisione D-018 confermata. Questa fase riguarda la realizzazione tecnica: il documento non equivale a un richiamo automatico già funzionante.
+
+- [x] Registrare UNLAZY come requisito obbligatorio e trasversale per tutte le skill e tutti i ruoli.
+- [x] Definire il contratto normativo centrale con regole, prove, gradi di evidenza, stati, arresti, autorizzazioni e criteri di completamento.
+- [ ] Progettare l'interfaccia tecnica del componente centrale e il protocollo di richiamo.
+- [ ] Individuare e coprire tutti i punti d'ingresso e i percorsi di esecuzione delle skill.
+- [ ] Implementare il richiamo automatico prima, durante e dopo ogni attività.
+- [ ] Impedire che una skill o un ruolo disattivi o indebolisca il controllo centrale.
+- [ ] Implementare registrazione persistente di righe, verifiche, prove, FAIL, autorizzazioni e invalidazioni.
+- [ ] Definire e verificare il comportamento in caso di errore, interruzione, verifica impossibile e indisponibilità del componente.
+- [ ] Aggiungere test per FAIL, NON VERIFICABILE, DA RIVERIFICARE, FUORI SCOPE, prove A/B/C e arresto in attesa di autorizzazione.
+- [ ] Eseguire prove operative su skill differenti e su più ambienti, con revisione indipendente.
+- [ ] Verificare il risultato complessivo e presentare il rapporto con prove consultabili.
+
+Criterio di uscita: nessuna skill o ruolo può completare un'attività senza passare dal componente centrale; ogni passaggio è dimostrabile con prove; un errore o un controllo non disponibile impedisce la dichiarazione di completamento.
+
 ## Fase 5 — Interoperabilità
 Provare skill non sensibili su Claude Code e Codex e, se accessibile, su un'altra piattaforma. Separare contenuto canonico e adattamenti. Registrare prove, differenze e limiti.
 
