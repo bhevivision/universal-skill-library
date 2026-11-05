@@ -22,6 +22,7 @@ Questo documento distingue decisioni confermate, proposte e questioni aperte. Le
 | D-015 | Acquisizione, classificazione, documentazione, verifica e utilizzabilità sono dimensioni indipendenti. | Un elemento conservato non è automaticamente skill, verificato o utilizzabile. |
 | D-016 | Anche il materiale non interpretabile può essere conservato e registrato come non classificato. | L'incertezza viene dichiarata; non si inventano struttura, funzione o dipendenze. |
 | D-017 | Ogni verifica si riferisce alla precisa versione/contenuto, ambiente e procedura controllati. | Una verifica non si trasferisce automaticamente a versioni o piattaforme differenti. |
+| D-018 | UNLAZY — nessun «fatto» senza verifica — è una regola normativa trasversale e obbligatoria per ogni skill e ruolo della Libreria. Deve essere applicata tramite un unico componente centrale richiamato automaticamente, non tramite copie facoltative nelle singole skill. | Il contratto canonico è `docs/UNLAZY-GOVERNANCE-CONTRACT.md`. L'obbligo è approvato; il richiamo automatico e l'applicazione runtime restano da implementare e verificare. |
 
 ## Proposte architetturali e tecniche
 | ID | Proposta | Stato |
@@ -67,6 +68,7 @@ Questo documento distingue decisioni confermate, proposte e questioni aperte. Le
 | O-006 | Separazione tra controlli generali di acquisizione/integrità e controllo specifico del profilo Agent Skills. | `scripts/validate_library.py`, `tests/test_validate_library.py`; suite Linux/Windows nel run `41545326945`. |
 | O-017 | Impronte SHA-256, algoritmi versionati e rilevamento dei duplicati per i tipi di materiale supportati. | `scripts/acquire_material.py`, `scripts/material_integrity.py` e test dedicati; suite Linux/Windows nel run `41545326945`. |
 | O-018 | Schemi v1 dei cataloghi e dei record per materiali, capacità, skill e implementazioni. | `schemas/*-catalog.schema.json`, schemi dei record e `scripts/validate_library.py`; validatore superato nel run `41545326945`. |
+| O-019 | Progettazione e implementazione del componente centrale UNLAZY e del suo richiamo automatico non aggirabile da ogni skill e ruolo. | Definire interfaccia, punti di aggancio, stati, persistenza, autorizzazioni, gestione errori e prove; poi implementare test automatici e prove operative multi-skill e multi-ambiente. |
 
 ## Specifica Agent Skills consultata
 Fonte ufficiale: https://agentskills.io/specification
